@@ -625,12 +625,17 @@ input:checked + .slider:before {
   display: none;
 }
 
+.sidebar-toggle-btn {
+  display: none;
+}
+
 /* ==========================================================================
    Mobile Responsive Media Queries (Tablets and Phones <= 768px)
    ========================================================================== */
 @media (max-width: 768px) {
   .dashboard-container {
     display: block;
+    grid-template-columns: 1fr;
     width: 100vw;
     height: 100vh;
     position: relative;
@@ -758,7 +763,6 @@ input:checked + .slider:before {
     pointer-events: auto;
   }
 
-  /* Mobile Sidebar Drawer */
   .sidebar {
     position: fixed;
     top: 0;
@@ -892,4 +896,3 @@ input:checked + .slider:before {
     gap: 8px;
   }
 }
-
