@@ -40,7 +40,8 @@ export default function SafetyMap({
   selectedRouteMode,
   onMapClick,
   onSelectItem,
-  filters
+  filters,
+  theme = 'dark'
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -48,7 +49,7 @@ export default function SafetyMap({
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return <div style={{ height: '100%', background: '#0b0f19' }} />;
+  if (!isMounted) return <div style={{ height: '100%', background: 'var(--bg-primary)' }} />;
 
   // Initial center: Jakjeon Station [37.5346, 126.7225]
   const center = [37.5360, 126.7230]; 
@@ -69,7 +70,7 @@ export default function SafetyMap({
   const currentRoute = mockRoutes[selectedRouteMode];
 
   return (
-    <div className="map-container dark-theme-map">
+    <div className={`map-container ${theme === 'dark' ? 'dark-theme-map' : 'light-theme-map'}`}>
       <MapContainer 
         center={center} 
         zoom={16} 
@@ -98,13 +99,13 @@ export default function SafetyMap({
                    hazard.type === 'damage' ? '노면 파손' :
                    hazard.type === 'obstacle' ? '적치물 장애물' : '급경사'} ({hazard.severity === 'high' ? '상' : hazard.severity === 'medium' ? '중' : '하'})
                 </span>
-                <h4 style={{ margin: '4px 0', fontSize: '13px', fontWeight: '600' }}>
+                <h4 style={{ margin: '4px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
                   {hazard.step_height_cm ? `${hazard.step_height_cm}cm 단차 위험` : '노면 안전 위험'}
                 </h4>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>
                   {hazard.description}
                 </p>
-                <div style={{ fontSize: '9px', color: '#64748b', marginTop: '6px' }}>
+                <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '6px' }}>
                   제보: {new Date(hazard.reported_at).toLocaleString('ko-KR')}
                 </div>
               </div>
@@ -124,19 +125,19 @@ export default function SafetyMap({
           >
             <Popup>
               <div style={{ minWidth: '160px' }}>
-                <span className="detail-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', marginBottom: '4px' }}>
+                <span className="detail-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-safe)', marginBottom: '4px' }}>
                   건물 접근성 정보
                 </span>
-                <h4 style={{ margin: '4px 0', fontSize: '13px', fontWeight: '700' }}>
+                <h4 style={{ margin: '4px 0', fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>
                   {bldg.name}
                 </h4>
-                <p style={{ margin: '2px 0', fontSize: '11px', color: '#e2e8f0' }}>
+                <p style={{ margin: '2px 0', fontSize: '11px', color: 'var(--text-primary)' }}>
                   - 경사로: {bldg.has_ramp ? `설치 완료 (${bldg.ramp_slope_degree || '?'}°)` : '미설치 (계단만 있음)'}
                 </p>
-                <p style={{ margin: '2px 0', fontSize: '11px', color: '#e2e8f0' }}>
+                <p style={{ margin: '2px 0', fontSize: '11px', color: 'var(--text-primary)' }}>
                   - 엘리베이터: {bldg.has_elevator ? '있음' : '없음'}
                 </p>
-                <p style={{ margin: '2px 0', fontSize: '11px', color: '#e2e8f0' }}>
+                <p style={{ margin: '2px 0', fontSize: '11px', color: 'var(--text-primary)' }}>
                   - 주출입구: {bldg.main_entrance_type === 'automatic' ? '자동문' : bldg.main_entrance_type === 'revolving' ? '회전문' : '여닫이문'}
                 </p>
               </div>
@@ -158,10 +159,10 @@ export default function SafetyMap({
                 <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: currentRoute.color, fontWeight: '700' }}>
                   {currentRoute.name}
                 </h4>
-                <p style={{ margin: '2px 0', fontSize: '12px', fontWeight: '600' }}>
+                <p style={{ margin: '2px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>
                   거리: {currentRoute.distance} | 소요시간: {currentRoute.time}
                 </p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', borderTop: '1px solid #1e293b', paddingTop: '4px', marginTop: '4px' }}>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', borderTop: '1px solid var(--glass-border)', paddingTop: '4px', marginTop: '4px' }}>
                   {currentRoute.notes}
                 </p>
               </div>

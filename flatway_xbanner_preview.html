@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>플랫웨이(FlatWay) MongoDB 스타일 엑스배너 미리보기</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background-color: #001E2B; /* MongoDB brand-teal-deep */
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #FFFFFF;
+    }
+    .header-info {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: #00ED64;
+      color: #001E2B;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 16px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+    .header-info h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      color: #FFFFFF;
+    }
+    .header-info p {
+      margin: 0;
+      color: #C3F0D2;
+      font-size: 15px;
+    }
+    .download-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 9999px; /* MongoDB signature pill button */
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #00ED64; /* MongoDB brand-green */
+      color: #001E2B;
+    }
+    .btn-primary:hover {
+      background: #00b545;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: #FFFFFF;
+      border: 1px solid #1C2D38;
+    }
+    .btn-secondary:hover {
+      background: #003D4F;
+      border-color: #00ED64;
+    }
+    .banner-container {
+      width: 100%;
+      max-width: 600px;
+      background: #FFFFFF;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 237, 100, 0.2);
+      overflow: hidden;
+    }
+    .banner-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-info">
+    <div class="badge">MongoDB Design System v2.0</div>
+    <h1>플랫웨이 (FlatWay) 성과발표회 엑스배너</h1>
+    <p>작전여자고등학교 '사대천왕' 팀 | 부스 전시용 (600mm × 1,800mm)</p>
+  </div>
+
+  <div class="download-bar">
+    <a href="flatway_xbanner_600x1800.pptx" class="btn btn-primary" download>📥 PPTX 원본 다운로드</a>
+    <a href="flatway_xbanner_600x1800.pdf" class="btn btn-secondary" target="_blank">📄 PDF 인쇄 파일 열기</a>
+    <a href="flatway_xbanner_preview.png" class="btn btn-secondary" target="_blank">🖼️ 초고해상도 이미지</a>
+  </div>
+
+  <div class="banner-container">
+    <img src="flatway_xbanner_preview.png" alt="FlatWay MongoDB Styled X-Banner" class="banner-img">
+  </div>
+</body>
+</html>
