@@ -11,7 +11,9 @@ import {
   HelpCircle,
   Database,
   Menu,
-  X
+  X,
+  Sun,
+  Moon
 } from 'lucide-react';
 import DynamicMap from '../components/DynamicMap';
 import ReportModal from '../components/ReportModal';
@@ -22,6 +24,9 @@ export default function Home() {
   const [hazards, setHazards] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [usingSupabase, setUsingSupabase] = useState(false);
+
+  // Theme state ('dark' | 'light')
+  const [theme, setTheme] = useState('dark');
 
   // Mobile drawer & detail card state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -43,7 +48,28 @@ export default function Home() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [clickCoords, setClickCoords] = useState({ lat: 0, lng: 0 });
 
-  // 1. Initial Data Fetching (Supabase with Local Storage fallback)
+  // 1. Theme Initialization & Sync
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('flatway_theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initialTheme = prefersDark ? 'dark' : 'light';
+      setTheme(initialTheme);
+      document.documentElement.setAttribute('data-theme', initialTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('flatway_theme', nextTheme);
+  };
+
+  // 2. Initial Data Fetching (Supabase with Local Storage fallback)
   useEffect(() => {
     async function loadData() {
       let supabaseHazards = null;
@@ -88,13 +114,13 @@ export default function Home() {
     loadData();
   }, []);
 
-  // 2. Handle Map click (Trigger report modal)
+  // 3. Handle Map click (Trigger report modal)
   const handleMapClick = (lat, lng) => {
     setClickCoords({ lat, lng });
     setIsReportModalOpen(true);
   };
 
-  // 3. Handle new report submission
+  // 4. Handle new report submission
   const handleReportSubmit = async (newReport) => {
     if (usingSupabase && supabase) {
       try {
@@ -127,14 +153,14 @@ export default function Home() {
     alert('제보가 브라우저 로컬 저장소(localStorage)에 등록되었습니다!');
   };
 
-  // 4. Handle item selection (Marker click)
+  // 5. Handle item selection (Marker click)
   const handleSelectItem = (item, type) => {
     setSelectedItem(item);
     setSelectedItemType(type);
     setShowMobileDetail(true);
   };
 
-  // 5. Toggle filters
+  // 6. Toggle filters
   const toggleFilter = (key) => {
     setFilters(prev => ({
       ...prev,
@@ -177,23 +203,35 @@ export default function Home() {
 
       {/* Sidebar (Desktop left panel & Mobile slide drawer) */}
       <aside className={`sidebar glass-panel ${isMobileSidebarOpen ? 'open' : ''}`}>
-        {/* Header/Logo */}
+        {/* Header/Logo with Theme Toggle */}
         <div className="logo-section">
-          <div className="logo-icon">
-            <Navigation size={20} color="white" />
+          <div className="logo-brand-group">
+            <div className="logo-icon">
+              <Navigation size={20} color="white" />
+            </div>
+            <div className="logo-text">
+              <h1>FlatWay</h1>
+              <p>휠체어·보행 약자 맞춤 경로 대시보드</p>
+            </div>
           </div>
-          <div className="logo-text">
-            <h1>FlatWay</h1>
-            <p>휠체어·보행 약자 맞춤 경로 대시보드</p>
+          <div className="logo-actions">
+            <button 
+              className="theme-toggle-btn" 
+              onClick={toggleTheme}
+              title={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
+              aria-label={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
+            >
+              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            {/* Mobile close button */}
+            <button 
+              className="mobile-sidebar-close" 
+              onClick={() => setIsMobileSidebarOpen(false)}
+              aria-label="메뉴 닫기"
+            >
+              <X size={20} />
+            </button>
           </div>
-          {/* Mobile close button */}
-          <button 
-            className="mobile-sidebar-close" 
-            onClick={() => setIsMobileSidebarOpen(false)}
-            aria-label="메뉴 닫기"
-          >
-            <X size={20} />
-          </button>
         </div>
 
         {/* Supabase Status Indicator */}
@@ -203,10 +241,10 @@ export default function Home() {
           gap: '8px',
           fontSize: '11px',
           color: usingSupabase ? 'var(--color-safe)' : 'var(--text-muted)',
-          background: 'rgba(255, 255, 255, 0.01)',
+          background: 'var(--info-badge-bg)',
           padding: '6px 10px',
           borderRadius: '6px',
-          border: '1px solid rgba(255, 255, 255, 0.03)'
+          border: '1px solid var(--info-badge-border)'
         }}>
           <Database size={12} />
           <span>DB 연결 상태: {usingSupabase ? 'Supabase 연동 완료' : '로컬 모크 데이터 모드'}</span>
@@ -285,7 +323,7 @@ export default function Home() {
             <div style={{
               fontSize: '11px',
               color: 'var(--text-secondary)',
-              background: 'rgba(255, 255, 255, 0.02)',
+              background: 'var(--info-badge-bg)',
               padding: '8px 10px',
               borderRadius: '6px',
               marginTop: '4px',
@@ -426,30 +464,40 @@ export default function Home() {
               <span className="mobile-score-badge">안전 {safetyScore}%</span>
             </div>
           </div>
-          <div className="mobile-route-pills">
+          <div className="mobile-top-right">
+            <div className="mobile-route-pills">
+              <button 
+                className={`mobile-route-pill ${selectedRouteMode === 'pedestrian' ? 'active' : ''}`}
+                onClick={() => setSelectedRouteMode('pedestrian')}
+                title="보행자 모드"
+              >
+                <span>🚶</span>
+                <span>보행자</span>
+              </button>
+              <button 
+                className={`mobile-route-pill ${selectedRouteMode === 'electric' ? 'active' : ''}`}
+                onClick={() => setSelectedRouteMode('electric')}
+                title="전동휠체어 모드"
+              >
+                <span>⚡</span>
+                <span>전동</span>
+              </button>
+              <button 
+                className={`mobile-route-pill ${selectedRouteMode === 'manual' ? 'active' : ''}`}
+                onClick={() => setSelectedRouteMode('manual')}
+                title="수동휠체어 모드"
+              >
+                <span>♿</span>
+                <span>수동</span>
+              </button>
+            </div>
             <button 
-              className={`mobile-route-pill ${selectedRouteMode === 'pedestrian' ? 'active' : ''}`}
-              onClick={() => setSelectedRouteMode('pedestrian')}
-              title="보행자 모드"
+              className="theme-toggle-btn" 
+              onClick={toggleTheme}
+              title={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
+              aria-label={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
             >
-              <span>🚶</span>
-              <span>보행자</span>
-            </button>
-            <button 
-              className={`mobile-route-pill ${selectedRouteMode === 'electric' ? 'active' : ''}`}
-              onClick={() => setSelectedRouteMode('electric')}
-              title="전동휠체어 모드"
-            >
-              <span>⚡</span>
-              <span>전동</span>
-            </button>
-            <button 
-              className={`mobile-route-pill ${selectedRouteMode === 'manual' ? 'active' : ''}`}
-              onClick={() => setSelectedRouteMode('manual')}
-              title="수동휠체어 모드"
-            >
-              <span>♿</span>
-              <span>수동</span>
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
           </div>
         </div>
@@ -461,6 +509,7 @@ export default function Home() {
           onMapClick={handleMapClick}
           onSelectItem={handleSelectItem}
           filters={filters}
+          theme={theme}
         />
 
         {/* Mobile Floating Bottom Detail Card */}

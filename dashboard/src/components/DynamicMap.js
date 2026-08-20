@@ -9,21 +9,21 @@ const DynamicMap = dynamic(
         style={{ 
           height: '100%', 
           width: '100%',
-          background: '#0b0f19', 
+          background: 'var(--bg-primary)', 
           display: 'flex', 
           flexDirection: 'column',
           alignItems: 'center', 
           justifyContent: 'center', 
-          color: '#94a3b8',
-          fontFamily: 'sans-serif',
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-sans)',
           gap: '12px'
         }}
       >
         <div style={{
           width: '40px',
           height: '40px',
-          border: '3px solid #1e294b',
-          borderTop: '3px solid #3b82f6',
+          border: '3px solid var(--bg-tertiary)',
+          borderTop: '3px solid var(--color-accent)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }}></div>
