@@ -17,13 +17,13 @@ class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
   
   LatLng _currentLocation = LocationService.defaultLocation;
-  bool _isLocating = true;
-  String _locationStatus = '현재 위치 찾는 중...';
+  bool _isLocating = false;
+  String _locationStatus = '현재 위치 안내 중';
   double? _accuracy;
 
   List<Map<String, dynamic>> _hazards = [];
   List<Map<String, dynamic>> _buildings = [];
-  bool _isLoadingData = true;
+  bool _isLoadingData = false;
 
   // Selected route mode: 'pedestrian' | 'electric' | 'manual'
   String _selectedRouteMode = 'pedestrian';
@@ -34,57 +34,77 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    _initDataAndLocation();
-  }
-
-  Future<void> _initDataAndLocation() async {
-    await Future.wait([
-      _fetchCurrentLocation(),
-      _loadSupabaseData(),
-    ]);
+    // Non-blocking initialization
+    _loadSupabaseData();
+    _fetchCurrentLocation();
   }
 
   Future<void> _fetchCurrentLocation() async {
+    if (!mounted) return;
     setState(() {
       _isLocating = true;
-      _locationStatus = 'GPS 위치 정보 요청 중...';
+      _locationStatus = 'GPS 위치 수집 중...';
     });
 
-    final Position? position = await LocationService.getCurrentPosition();
+    try {
+      final Position? position = await LocationService.getCurrentPosition();
 
-    if (mounted) {
-      if (position != null) {
-        final newLoc = LatLng(position.latitude, position.longitude);
+      if (mounted) {
+        if (position != null) {
+          final newLoc = LatLng(position.latitude, position.longitude);
+          setState(() {
+            _currentLocation = newLoc;
+            _accuracy = position.accuracy;
+            _isLocating = false;
+            _locationStatus = '현재 위치 수집 완료';
+          });
+          
+          // Safely move map if controller is attached
+          try {
+            _mapController.move(newLoc, 16.5);
+          } catch (e) {
+            debugPrint('MapController move deferred: $e');
+          }
+        } else {
+          setState(() {
+            _isLocating = false;
+            _locationStatus = 'GPS 미연동 (기본 작전역 위치 표시)';
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
-          _currentLocation = newLoc;
-          _accuracy = position.accuracy;
           _isLocating = false;
-          _locationStatus = '현재 위치 수집 완료 (${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)})';
-        });
-        _mapController.move(newLoc, 17.0);
-      } else {
-        setState(() {
-          _isLocating = false;
-          _locationStatus = '위치 권한 미승인 또는 GPS 비활성화 (기본 위치 표시)';
+          _locationStatus = '위치 수집 오프라인 모드';
         });
       }
     }
   }
 
   Future<void> _loadSupabaseData() async {
+    if (!mounted) return;
     setState(() {
       _isLoadingData = true;
     });
 
-    final hazards = await SupabaseService.fetchHazards();
-    final buildings = await SupabaseService.fetchBuildings();
+    try {
+      final hazards = await SupabaseService.fetchHazards();
+      final buildings = await SupabaseService.fetchBuildings();
 
-    if (mounted) {
-      setState(() {
-        _hazards = hazards;
-        _buildings = buildings;
-        _isLoadingData = false;
-      });
+      if (mounted) {
+        setState(() {
+          _hazards = hazards;
+          _buildings = buildings;
+          _isLoadingData = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingData = false;
+        });
+      }
     }
   }
 
@@ -256,14 +276,14 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: Stack(
         children: [
-          // FlutterMap Tile, Polyline & Marker Layers (Wrapped in Positioned.fill so map occupies full screen)
+          // FlutterMap Tile, Polyline & Marker Layers
           Positioned.fill(
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 initialCenter: _currentLocation,
                 initialZoom: 16.5,
-                minZoom: 10.0,
+                minZoom: 5.0,
                 maxZoom: 19.0,
                 onTap: (tapPosition, point) {
                   setState(() {
@@ -284,107 +304,107 @@ class _MapScreenState extends State<MapScreen> {
 
                 MarkerLayer(
                   markers: [
-                  // 1. Hazards markers (Orange/Red icons)
-                  ..._hazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
-                    final lat = (h['latitude'] as num).toDouble();
-                    final lng = (h['longitude'] as num).toDouble();
-                    return Marker(
-                      point: LatLng(lat, lng),
-                      width: 40,
-                      height: 40,
-                      child: GestureDetector(
-                        onTap: () => _showHazardDetail(h),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.9),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black26, blurRadius: 4),
-                            ],
-                          ),
-                          child: const Icon(Icons.warning, color: Colors.white, size: 22),
-                        ),
-                      ),
-                    );
-                  }),
-
-                  // 2. Buildings markers (Blue icons)
-                  ..._buildings.where((b) => b['latitude'] != null && b['longitude'] != null).map((b) {
-                    final lat = (b['latitude'] as num).toDouble();
-                    final lng = (b['longitude'] as num).toDouble();
-                    return Marker(
-                      point: LatLng(lat, lng),
-                      width: 40,
-                      height: 40,
-                      child: GestureDetector(
-                        onTap: () => _showBuildingDetail(b),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withValues(alpha: 0.9),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black26, blurRadius: 4),
-                            ],
-                          ),
-                          child: const Icon(Icons.business, color: Colors.white, size: 22),
-                        ),
-                      ),
-                    );
-                  }),
-
-                  // 3. User Current Location marker (Blue pulse icon)
-                  Marker(
-                    point: _currentLocation,
-                    width: 54,
-                    height: 54,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.25),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.blue, width: 2),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade700,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black38, blurRadius: 6),
-                            ],
+                    // 1. Hazards markers (Orange/Red icons)
+                    ..._hazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
+                      final lat = (h['latitude'] as num).toDouble();
+                      final lng = (h['longitude'] as num).toDouble();
+                      return Marker(
+                        point: LatLng(lat, lng),
+                        width: 40,
+                        height: 40,
+                        child: GestureDetector(
+                          onTap: () => _showHazardDetail(h),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withValues(alpha: 0.9),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black26, blurRadius: 4),
+                              ],
+                            ),
+                            child: const Icon(Icons.warning, color: Colors.white, size: 22),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
+                      );
+                    }),
 
-                  // 4. Map Tapped Location Marker (Pin for report)
-                  if (_selectedTappedLocation != null)
+                    // 2. Buildings markers (Blue icons)
+                    ..._buildings.where((b) => b['latitude'] != null && b['longitude'] != null).map((b) {
+                      final lat = (b['latitude'] as num).toDouble();
+                      final lng = (b['longitude'] as num).toDouble();
+                      return Marker(
+                        point: LatLng(lat, lng),
+                        width: 40,
+                        height: 40,
+                        child: GestureDetector(
+                          onTap: () => _showBuildingDetail(b),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.9),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black26, blurRadius: 4),
+                              ],
+                            ),
+                            child: const Icon(Icons.business, color: Colors.white, size: 22),
+                          ),
+                        ),
+                      );
+                    }),
+
+                    // 3. User Current Location marker (Blue pulse icon)
                     Marker(
-                      point: _selectedTappedLocation!,
-                      width: 44,
-                      height: 44,
-                      child: GestureDetector(
-                        onTap: () => _openReportModal(_selectedTappedLocation!),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.purple,
-                            shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 6)],
+                      point: _currentLocation,
+                      width: 54,
+                      height: 54,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.25),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.blue, width: 2),
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade700,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black38, blurRadius: 6),
+                              ],
+                            ),
                           ),
-                          child: const Icon(Icons.add_location_alt, color: Colors.white, size: 26),
                         ),
                       ),
                     ),
-                ],
-              ),
-            ],
+
+                    // 4. Map Tapped Location Marker (Pin for report)
+                    if (_selectedTappedLocation != null)
+                      Marker(
+                        point: _selectedTappedLocation!,
+                        width: 44,
+                        height: 44,
+                        child: GestureDetector(
+                          onTap: () => _openReportModal(_selectedTappedLocation!),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.purple,
+                              shape: BoxShape.circle,
+                              boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 6)],
+                            ),
+                            child: const Icon(Icons.add_location_alt, color: Colors.white, size: 26),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
 
           // Top Control Panel: Route Mode Selector & GPS status
           Positioned(
