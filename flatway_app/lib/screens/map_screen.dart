@@ -256,33 +256,34 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: Stack(
         children: [
-          // FlutterMap Tile, Polyline & Marker Layers
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentLocation,
-              initialZoom: 16.5,
-              minZoom: 10.0,
-              maxZoom: 19.0,
-              onTap: (tapPosition, point) {
-                setState(() {
-                  _selectedTappedLocation = point;
-                });
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.flatway.app',
+          // FlutterMap Tile, Polyline & Marker Layers (Wrapped in Positioned.fill so map occupies full screen)
+          Positioned.fill(
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: _currentLocation,
+                initialZoom: 16.5,
+                minZoom: 10.0,
+                maxZoom: 19.0,
+                onTap: (tapPosition, point) {
+                  setState(() {
+                    _selectedTappedLocation = point;
+                  });
+                },
               ),
-              
-              // Safe Route Polyline Layer
-              PolylineLayer(
-                polylines: _getRoutePolylines(),
-              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.flatway_app',
+                ),
+                
+                // Safe Route Polyline Layer
+                PolylineLayer(
+                  polylines: _getRoutePolylines(),
+                ),
 
-              MarkerLayer(
-                markers: [
+                MarkerLayer(
+                  markers: [
                   // 1. Hazards markers (Orange/Red icons)
                   ..._hazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
                     final lat = (h['latitude'] as num).toDouble();
@@ -383,6 +384,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ],
           ),
+        ),
 
           // Top Control Panel: Route Mode Selector & GPS status
           Positioned(
