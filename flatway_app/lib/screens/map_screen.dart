@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/location_service.dart';
 import '../services/supabase_service.dart';
+import '../widgets/report_modal.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -23,6 +24,12 @@ class _MapScreenState extends State<MapScreen> {
   List<Map<String, dynamic>> _hazards = [];
   List<Map<String, dynamic>> _buildings = [];
   bool _isLoadingData = true;
+
+  // Selected route mode: 'pedestrian' | 'electric' | 'manual'
+  String _selectedRouteMode = 'pedestrian';
+
+  // Selected map tapped location for reporting
+  LatLng? _selectedTappedLocation;
 
   @override
   void initState() {
@@ -79,6 +86,22 @@ class _MapScreenState extends State<MapScreen> {
         _isLoadingData = false;
       });
     }
+  }
+
+  void _openReportModal(LatLng loc) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => ReportModal(
+        initialLocation: loc,
+        onReportSubmitted: () {
+          _loadSupabaseData();
+        },
+      ),
+    );
   }
 
   void _showHazardDetail(Map<String, dynamic> hazard) {
@@ -166,11 +189,58 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // Generate safe polyline routes based on mode
+  List<Polyline> _getRoutePolylines() {
+    // Jakjeon station -> Jakjeon Girls High School route points
+    if (_selectedRouteMode == 'electric') {
+      return [
+        Polyline(
+          points: const [
+            LatLng(37.5346, 126.7225), // Jakjeon station
+            LatLng(37.5350, 126.7230),
+            LatLng(37.5360, 126.7240),
+            LatLng(37.5375, 126.7248),
+            LatLng(37.5385, 126.7240), // Jakjeon Girls HS
+          ],
+          strokeWidth: 5.0,
+          color: Colors.blue.shade600,
+        ),
+      ];
+    } else if (_selectedRouteMode == 'manual') {
+      return [
+        Polyline(
+          points: const [
+            LatLng(37.5346, 126.7225),
+            LatLng(37.5349, 126.7215),
+            LatLng(37.5360, 126.7218),
+            LatLng(37.5372, 126.7230),
+            LatLng(37.5385, 126.7240),
+          ],
+          strokeWidth: 5.0,
+          color: Colors.green.shade600,
+        ),
+      ];
+    } else {
+      // Pedestrian default
+      return [
+        Polyline(
+          points: const [
+            LatLng(37.5346, 126.7225),
+            LatLng(37.5360, 126.7235),
+            LatLng(37.5385, 126.7240),
+          ],
+          strokeWidth: 4.0,
+          color: Colors.orange.shade600,
+        ),
+      ];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FlatWay - 실시간 현재 위치 지도'),
+        title: const Text('FlatWay - 보행 안전 안내 지도'),
         backgroundColor: Colors.white,
         elevation: 1,
         actions: [
@@ -186,7 +256,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: Stack(
         children: [
-          // FlutterMap Tile & Marker Layers
+          // FlutterMap Tile, Polyline & Marker Layers
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -194,12 +264,23 @@ class _MapScreenState extends State<MapScreen> {
               initialZoom: 16.5,
               minZoom: 10.0,
               maxZoom: 19.0,
+              onTap: (tapPosition, point) {
+                setState(() {
+                  _selectedTappedLocation = point;
+                });
+              },
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.flatway.app',
               ),
+              
+              // Safe Route Polyline Layer
+              PolylineLayer(
+                polylines: _getRoutePolylines(),
+              ),
+
               MarkerLayer(
                 markers: [
                   // 1. Hazards markers (Orange/Red icons)
@@ -279,89 +360,175 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
                   ),
+
+                  // 4. Map Tapped Location Marker (Pin for report)
+                  if (_selectedTappedLocation != null)
+                    Marker(
+                      point: _selectedTappedLocation!,
+                      width: 44,
+                      height: 44,
+                      child: GestureDetector(
+                        onTap: () => _openReportModal(_selectedTappedLocation!),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.purple,
+                            shape: BoxShape.circle,
+                            boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 6)],
+                          ),
+                          child: const Icon(Icons.add_location_alt, color: Colors.white, size: 26),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ],
           ),
 
-          // Top Status Bar (GPS status & accuracy)
+          // Top Control Panel: Route Mode Selector & GPS status
           Positioned(
             top: 12,
             left: 12,
             right: 12,
-            child: Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: (_isLocating || _isLoadingData)
-                          ? const CircularProgressIndicator(strokeWidth: 2.5)
-                          : const Icon(Icons.my_location, color: Colors.blue, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
+            child: Column(
+              children: [
+                // GPS Status Card
+                Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: (_isLocating || _isLoadingData)
+                              ? const CircularProgressIndicator(strokeWidth: 2.5)
+                              : const Icon(Icons.my_location, color: Colors.blue, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
                             _locationStatus,
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (_accuracy != null)
-                            Text(
-                              'GPS 오차 범위: ±${_accuracy!.toStringAsFixed(1)}m',
-                              style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-                            ),
-                        ],
-                      ),
+                        ),
+                        if (_accuracy != null)
+                          Text(
+                            '오차 ±${_accuracy!.toStringAsFixed(0)}m',
+                            style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                          ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+
+                const SizedBox(height: 6),
+
+                // Movement Mode Selector (보행자 / 전동휠체어 / 수동휠체어)
+                Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildRouteModeButton('pedestrian', '🚶 보행자', Colors.orange),
+                        _buildRouteModeButton('electric', '⚡ 전동휠체어', Colors.blue),
+                        _buildRouteModeButton('manual', '♿ 수동휠체어', Colors.green),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // Bottom Info Summary Chip (Hazards & Buildings count)
+          // Bottom Info Summary & Tapped Location Action Chip
           Positioned(
             bottom: 24,
             left: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6)],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.warning, color: Colors.orange, size: 16),
-                  const SizedBox(width: 4),
-                  Text('위험 ${_hazards.length}건', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.business, color: Colors.lightBlueAccent, size: 16),
-                  const SizedBox(width: 4),
-                  Text('건물 ${_buildings.length}개', style: const TextStyle(color: Colors.white, fontSize: 12)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_selectedTappedLocation != null) ...[
+                  ElevatedButton.icon(
+                    onPressed: () => _openReportModal(_selectedTappedLocation!),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple.shade700,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                    ),
+                    icon: const Icon(Icons.add_location),
+                    label: const Text('선택한 위치 단차/파손 제보'),
+                  ),
+                  const SizedBox(height: 8),
                 ],
-              ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black87,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6)],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.warning, color: Colors.orange, size: 16),
+                      const SizedBox(width: 4),
+                      Text('위험 ${_hazards.length}건', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.business, color: Colors.lightBlueAccent, size: 16),
+                      const SizedBox(width: 4),
+                      Text('건물 ${_buildings.length}개', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _fetchCurrentLocation,
-        backgroundColor: Colors.blue.shade700,
+        onPressed: () => _openReportModal(_currentLocation),
+        backgroundColor: Colors.orange.shade800,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.my_location),
-        label: const Text('현재 위치'),
+        icon: const Icon(Icons.report_problem),
+        label: const Text('현재 위치 제보'),
+      ),
+    );
+  }
+
+  Widget _buildRouteModeButton(String modeKey, String label, Color color) {
+    final isSelected = _selectedRouteMode == modeKey;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedRouteMode = modeKey;
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? color : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? color : Colors.black87,
+          ),
+        ),
       ),
     );
   }
