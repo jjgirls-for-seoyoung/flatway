@@ -9,7 +9,9 @@ import {
   Navigation,
   Plus,
   HelpCircle,
-  Database
+  Database,
+  Menu,
+  X
 } from 'lucide-react';
 import DynamicMap from '../components/DynamicMap';
 import ReportModal from '../components/ReportModal';
@@ -20,6 +22,10 @@ export default function Home() {
   const [hazards, setHazards] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [usingSupabase, setUsingSupabase] = useState(false);
+
+  // Mobile drawer & detail card state
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   // Selector and filter states
   const [selectedRouteMode, setSelectedRouteMode] = useState('pedestrian');
@@ -98,6 +104,7 @@ export default function Home() {
           setHazards(prev => [savedReport, ...prev]);
           setSelectedItem(savedReport);
           setSelectedItemType('hazard');
+          setShowMobileDetail(true);
           alert('제보가 성공적으로 Supabase 서버에 반영되었습니다!');
           return;
         }
@@ -116,6 +123,7 @@ export default function Home() {
     localStorage.setItem('flatway_hazards', JSON.stringify(updatedHazards));
     setSelectedItem(reportWithId);
     setSelectedItemType('hazard');
+    setShowMobileDetail(true);
     alert('제보가 브라우저 로컬 저장소(localStorage)에 등록되었습니다!');
   };
 
@@ -123,6 +131,7 @@ export default function Home() {
   const handleSelectItem = (item, type) => {
     setSelectedItem(item);
     setSelectedItemType(type);
+    setShowMobileDetail(true);
   };
 
   // 5. Toggle filters
@@ -160,8 +169,14 @@ export default function Home() {
 
   return (
     <main className="dashboard-container">
-      {/* Left Sidebar */}
-      <aside className="sidebar glass-panel">
+      {/* Mobile Backdrop Overlay */}
+      <div 
+        className={`sidebar-backdrop ${isMobileSidebarOpen ? 'open' : ''}`}
+        onClick={() => setIsMobileSidebarOpen(false)}
+      />
+
+      {/* Sidebar (Desktop left panel & Mobile slide drawer) */}
+      <aside className={`sidebar glass-panel ${isMobileSidebarOpen ? 'open' : ''}`}>
         {/* Header/Logo */}
         <div className="logo-section">
           <div className="logo-icon">
@@ -171,6 +186,14 @@ export default function Home() {
             <h1>FlatWay</h1>
             <p>휠체어·보행 약자 맞춤 경로 대시보드</p>
           </div>
+          {/* Mobile close button */}
+          <button 
+            className="mobile-sidebar-close" 
+            onClick={() => setIsMobileSidebarOpen(false)}
+            aria-label="메뉴 닫기"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Supabase Status Indicator */}
@@ -386,8 +409,51 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* Right Map Section */}
+      {/* Right / Main Map Section */}
       <section className="map-container" style={{ position: 'relative' }}>
+        {/* Mobile Top Navigation & Route Quick Selector */}
+        <div className="mobile-top-bar glass-panel">
+          <div className="mobile-top-left">
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setIsMobileSidebarOpen(true)}
+              aria-label="메뉴 열기"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="mobile-brand">
+              <span className="mobile-title">FlatWay</span>
+              <span className="mobile-score-badge">안전 {safetyScore}%</span>
+            </div>
+          </div>
+          <div className="mobile-route-pills">
+            <button 
+              className={`mobile-route-pill ${selectedRouteMode === 'pedestrian' ? 'active' : ''}`}
+              onClick={() => setSelectedRouteMode('pedestrian')}
+              title="보행자 모드"
+            >
+              <span>🚶</span>
+              <span>보행자</span>
+            </button>
+            <button 
+              className={`mobile-route-pill ${selectedRouteMode === 'electric' ? 'active' : ''}`}
+              onClick={() => setSelectedRouteMode('electric')}
+              title="전동휠체어 모드"
+            >
+              <span>⚡</span>
+              <span>전동</span>
+            </button>
+            <button 
+              className={`mobile-route-pill ${selectedRouteMode === 'manual' ? 'active' : ''}`}
+              onClick={() => setSelectedRouteMode('manual')}
+              title="수동휠체어 모드"
+            >
+              <span>♿</span>
+              <span>수동</span>
+            </button>
+          </div>
+        </div>
+
         <DynamicMap 
           hazards={hazards}
           buildings={buildings}
@@ -396,6 +462,61 @@ export default function Home() {
           onSelectItem={handleSelectItem}
           filters={filters}
         />
+
+        {/* Mobile Floating Bottom Detail Card */}
+        {selectedItem && showMobileDetail && (
+          <div className="mobile-detail-card glass-panel">
+            <div className="mobile-detail-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {selectedItemType === 'hazard' ? (
+                  <>
+                    <span className="detail-header" style={{ color: 'var(--color-warn)', fontSize: '13px' }}>
+                      ⚠️ {selectedItem.type === 'step' ? '보행 단차' : 
+                          selectedItem.type === 'damage' ? '노면 파손' :
+                          selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
+                    </span>
+                    <span className={`detail-badge ${selectedItem.severity}`}>
+                      위험도 {selectedItem.severity === 'high' ? '상' : selectedItem.severity === 'medium' ? '중' : '하'}
+                    </span>
+                  </>
+                ) : (
+                  <span className="detail-header" style={{ color: 'var(--color-safe)', fontSize: '13px' }}>
+                    🏢 {selectedItem.name}
+                  </span>
+                )}
+              </div>
+              <button 
+                className="mobile-card-close-btn"
+                onClick={() => setShowMobileDetail(false)}
+                aria-label="닫기"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="mobile-detail-content">
+              {selectedItemType === 'hazard' ? (
+                <>
+                  <p style={{ fontSize: '12px', color: 'var(--text-primary)', marginTop: '2px' }}>{selectedItem.description}</p>
+                  {selectedItem.step_height_cm && (
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                      <strong>단차 높이:</strong> {selectedItem.step_height_cm} cm
+                    </p>
+                  )}
+                  <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    제보: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
+                  </p>
+                </>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', fontSize: '11px', marginTop: '2px' }}>
+                  <div><strong>경사로:</strong> {selectedItem.has_ramp ? `설치 (${selectedItem.ramp_slope_degree || '?'}°)` : '미설치'}</div>
+                  <div><strong>승강기:</strong> {selectedItem.has_elevator ? '있음' : '없음'}</div>
+                  <div><strong>출입문:</strong> {selectedItem.main_entrance_type === 'automatic' ? '자동문' : selectedItem.main_entrance_type === 'revolving' ? '회전문' : '여닫이문'}</div>
+                  <div><strong>화장실:</strong> {selectedItem.disabled_toilet ? '장애인용' : '일반'}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Interactive instructions overlay */}
         <div className="map-overlay-instructions">
