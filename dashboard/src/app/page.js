@@ -48,6 +48,18 @@ export default function Home() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [clickCoords, setClickCoords] = useState({ lat: 0, lng: 0 });
 
+  // Map & Home Reset state
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleResetHome = () => {
+    setResetKey(prev => prev + 1);
+    setSelectedItem(null);
+    setSelectedItemType(null);
+    setShowMobileDetail(false);
+    setIsMobileSidebarOpen(false);
+    setIsReportModalOpen(false);
+  };
+
   // 1. Theme Initialization & Sync
   useEffect(() => {
     const savedTheme = localStorage.getItem('flatway_theme');
@@ -205,9 +217,24 @@ export default function Home() {
       <aside className={`sidebar glass-panel ${isMobileSidebarOpen ? 'open' : ''}`}>
         {/* Header/Logo with Theme Toggle */}
         <div className="logo-section">
-          <div className="logo-brand-group">
+          <div 
+            className="logo-brand-group" 
+            onClick={handleResetHome}
+            role="button"
+            tabIndex={0}
+            title="클릭 시 지도 위치 및 선택 상태 초기화 (홈 뷰)"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleResetHome();
+              }
+            }}
+          >
             <div className="logo-icon">
-              <Navigation size={20} color="white" />
+              <img 
+                src="/logo.png" 
+                alt="FlatWay Logo" 
+                className="brand-logo-img" 
+              />
             </div>
             <div className="logo-text">
               <h1>FlatWay</h1>
@@ -459,7 +486,19 @@ export default function Home() {
             >
               <Menu size={20} />
             </button>
-            <div className="mobile-brand">
+            <div 
+              className="mobile-brand"
+              onClick={handleResetHome}
+              role="button"
+              tabIndex={0}
+              title="클릭 시 지도 위치 및 선택 상태 초기화"
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <img 
+                src="/logo.png" 
+                alt="FlatWay Logo" 
+                style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'contain' }} 
+              />
               <span className="mobile-title">FlatWay</span>
               <span className="mobile-score-badge">안전 {safetyScore}%</span>
             </div>
@@ -510,6 +549,7 @@ export default function Home() {
           onSelectItem={handleSelectItem}
           filters={filters}
           theme={theme}
+          resetKey={resetKey}
         />
 
         {/* Mobile Floating Bottom Detail Card */}

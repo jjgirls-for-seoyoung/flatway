@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { mockRoutes } from '../data/mockData';
 
@@ -34,6 +34,21 @@ function MapClickHandler({ onMapClick }) {
   return null;
 }
 
+// Controller to smoothly reset map view to initial center on logo click
+function MapResetController({ resetKey, center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (resetKey > 0) {
+      map.flyTo(center, 16, {
+        duration: 0.8,
+        easeLinearity: 0.25
+      });
+      map.closePopup();
+    }
+  }, [resetKey, map, center]);
+  return null;
+}
+
 export default function SafetyMap({
   hazards,
   buildings,
@@ -41,7 +56,8 @@ export default function SafetyMap({
   onMapClick,
   onSelectItem,
   filters,
-  theme = 'dark'
+  theme = 'dark',
+  resetKey = 0
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -172,6 +188,9 @@ export default function SafetyMap({
 
         {/* Capture click on map for simulator */}
         <MapClickHandler onMapClick={onMapClick} />
+
+        {/* Map Reset Controller */}
+        <MapResetController resetKey={resetKey} center={center} />
       </MapContainer>
     </div>
   );
