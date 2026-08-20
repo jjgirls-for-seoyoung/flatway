@@ -132,8 +132,8 @@ export default function Home() {
 
     // Supabase Realtime Listener for Mobile App Live Reports and Buildings Updates
     if (supabase) {
-      const hazardsChannel = supabase
-        .channel('realtime_hazards_channel')
+      const channel = supabase
+        .channel('realtime_flatway_channel')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'hazards' },
@@ -151,10 +151,6 @@ export default function Home() {
             }
           }
         )
-        .subscribe();
-
-      const buildingsChannel = supabase
-        .channel('realtime_buildings_channel')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'buildings' },
@@ -175,8 +171,7 @@ export default function Home() {
         .subscribe();
 
       return () => {
-        supabase.removeChannel(hazardsChannel);
-        supabase.removeChannel(buildingsChannel);
+        supabase.removeChannel(channel);
       };
     }
   }, []);
@@ -273,8 +268,12 @@ export default function Home() {
         {/* Header/Logo with Theme Toggle */}
         <div className="logo-section">
           <div className="logo-brand-group">
-            <div className="logo-icon">
-              <Navigation size={20} color="white" />
+            <div className="logo-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img 
+                src="/logo.png" 
+                alt="FlatWay Logo" 
+                style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }}
+              />
             </div>
             <div className="logo-text">
               <h1>FlatWay</h1>
@@ -526,9 +525,16 @@ export default function Home() {
             >
               <Menu size={20} />
             </button>
-            <div className="mobile-brand">
-              <span className="mobile-title">FlatWay</span>
-              <span className="mobile-score-badge">안전 {safetyScore}%</span>
+            <div className="mobile-brand" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+              <img 
+                src="/logo.png" 
+                alt="FlatWay Logo" 
+                style={{ width: '22px', height: '22px', borderRadius: '5px', objectFit: 'cover' }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span className="mobile-title">FlatWay</span>
+                <span className="mobile-score-badge">안전 {safetyScore}%</span>
+              </div>
             </div>
           </div>
           <div className="mobile-top-right">

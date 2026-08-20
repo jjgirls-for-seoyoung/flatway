@@ -49,3 +49,10 @@ VALUES
   ('작전여자고등학교', 37.5385, 126.7240, true, 8.0, true, 'automatic', true),
   ('작전1동 행정복지센터', 37.5360, 126.7250, true, 6.5, true, 'automatic', true),
   ('근처 빌딩 (상가건물)', 37.5352, 126.7215, false, NULL, false, 'manual', false);
+
+-- 4. Enable Realtime for tables (실시간 변경 사항 브로드캐스트 활성화)
+-- 이 명령을 Supabase SQL Editor에서 실행해야 클라이언트로 실시간 변경 데이터가 수신됩니다.
+begin;
+  drop publication if exists supabase_realtime;
+  create publication supabase_realtime for table hazards, buildings;
+commit;
