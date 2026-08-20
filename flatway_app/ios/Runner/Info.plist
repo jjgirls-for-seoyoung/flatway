@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>보행 장애물 제보 및 우회 경로 안내를 위해 현재 위치 권한이 필요합니다.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>보행 장애물 제보 및 우회 경로 안내를 위해 현재 위치 권한이 필요합니다.</string>
 </dict>
 </plist>
