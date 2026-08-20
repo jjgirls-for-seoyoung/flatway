@@ -9,7 +9,9 @@ import {
   Navigation,
   Plus,
   HelpCircle,
-  Database
+  Database,
+  Menu,
+  X
 } from 'lucide-react';
 import DynamicMap from '../components/DynamicMap';
 import ReportModal from '../components/ReportModal';
@@ -20,6 +22,7 @@ export default function Home() {
   const [hazards, setHazards] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [usingSupabase, setUsingSupabase] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Selector and filter states
   const [selectedRouteMode, setSelectedRouteMode] = useState('pedestrian');
@@ -159,9 +162,23 @@ export default function Home() {
   const strokeDashoffset = circumference - (circumference * safetyScore) / 100;
 
   return (
-    <main className="dashboard-container">
+    <main className={`dashboard-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+      {/* Mobile Toggle Button */}
+      <button 
+        className="sidebar-toggle-btn glass-panel" 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        aria-label="Toggle Sidebar"
+      >
+        {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Sidebar Backdrop for Mobile */}
+      {isSidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+      )}
+
       {/* Left Sidebar */}
-      <aside className="sidebar glass-panel">
+      <aside className={`sidebar glass-panel ${isSidebarOpen ? 'open' : ''}`}>
         {/* Header/Logo */}
         <div className="logo-section">
           <div className="logo-icon">

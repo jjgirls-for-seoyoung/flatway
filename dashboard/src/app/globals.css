@@ -607,3 +607,91 @@ input:checked + .slider:before {
 .custom-marker.obstacle { background-color: var(--color-warn); }
 .custom-marker.slope { background-color: var(--color-accent); }
 .custom-marker.building { background-color: var(--color-safe); }
+
+/* Hide toggle button on desktop */
+.sidebar-toggle-btn {
+  display: none;
+}
+
+/* Responsive Design for Mobile Devices */
+@media (max-width: 768px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 320px;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0 16px 16px 0;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+  }
+
+  .sidebar-toggle-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    z-index: 1001;
+    cursor: pointer;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-toggle-btn:hover {
+    background: var(--bg-tertiary);
+  }
+
+  /* Adjust map container to take full viewport */
+  .map-container {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* Reposition Leaflet elements to not overlap with menu button */
+  .leaflet-top.leaflet-left {
+    top: 70px !important;
+  }
+
+  /* Adjust instruction overlay position and size on mobile */
+  .map-overlay-instructions {
+    top: auto;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    font-size: 11px;
+    padding: 8px 12px;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
