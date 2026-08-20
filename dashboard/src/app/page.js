@@ -112,6 +112,26 @@ export default function Home() {
     }
 
     loadData();
+
+    // Supabase Realtime Listener for Mobile App Live Reports
+    if (supabase) {
+      const channel = supabase
+        .channel('realtime_hazards_channel')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'hazards' },
+          (payload) => {
+            if (payload.new) {
+              setHazards(prev => [payload.new, ...prev]);
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, []);
 
   // 3. Handle Map click (Trigger report modal)
