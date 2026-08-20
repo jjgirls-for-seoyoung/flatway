@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import '../services/location_service.dart';
 import '../services/supabase_service.dart';
 import '../widgets/report_modal.dart';
@@ -25,18 +28,152 @@ class _MapScreenState extends State<MapScreen> {
   List<Map<String, dynamic>> _buildings = [];
   bool _isLoadingData = false;
 
-  // Selected route mode: 'pedestrian' | 'electric' | 'manual'
+  // Route Mode: 'pedestrian' | 'electric' | 'manual'
   String _selectedRouteMode = 'pedestrian';
 
-  // Selected map tapped location for reporting
+  // Map Tapped Location for reporting
   LatLng? _selectedTappedLocation;
+
+  // ==========================================
+  // Real-time Movement Tracking & Sensor State
+  // ==========================================
+  bool _isTrackingRoute = false;
+  final List<LatLng> _trackedPoints = [];
+  double _totalDistanceMeters = 0.0;
+  int _autoDetectedBumpsCount = 0;
+  
+  StreamSubscription<Position>? _positionStreamSub;
+  StreamSubscription<UserAccelerometerEvent>? _accelStreamSub;
+  DateTime _lastBumpTime = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    // Non-blocking initialization
     _loadSupabaseData();
     _fetchCurrentLocation();
+  }
+
+  @override
+  void dispose() {
+    _positionStreamSub?.cancel();
+    _accelStreamSub?.cancel();
+    super.dispose();
+  }
+
+  // Toggle live movement & bump collection
+  void _toggleRouteTracking() {
+    if (_isTrackingRoute) {
+      _stopRouteTracking();
+    } else {
+      _startRouteTracking();
+    }
+  }
+
+  void _startRouteTracking() {
+    setState(() {
+      _isTrackingRoute = true;
+      _trackedPoints.clear();
+      _totalDistanceMeters = 0.0;
+      _autoDetectedBumpsCount = 0;
+      _trackedPoints.add(_currentLocation);
+    });
+
+    // 1. Listen to continuous GPS stream
+    _positionStreamSub = LocationService.getPositionStream().listen((position) {
+      if (!mounted) return;
+      final newPoint = LatLng(position.latitude, position.longitude);
+      
+      setState(() {
+        if (_trackedPoints.isNotEmpty) {
+          final lastPoint = _trackedPoints.last;
+          final dist = const Distance().as(LengthUnit.Meter, lastPoint, newPoint);
+          _totalDistanceMeters += dist;
+        }
+        _trackedPoints.add(newPoint);
+        _currentLocation = newPoint;
+        _accuracy = position.accuracy;
+      });
+
+      try {
+        _mapController.move(newPoint, 17.0);
+      } catch (_) {}
+    });
+
+    // 2. Listen to accelerometer for bump/vibration detection
+    _accelStreamSub = userAccelerometerEventStream().listen((UserAccelerometerEvent event) {
+      if (!_isTrackingRoute) return;
+
+      // Calculate acceleration magnitude (m/s^2)
+      final magnitude = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+      
+      // Bump threshold: > 14.0 m/s^2 (vibration spike while moving)
+      final now = DateTime.now();
+      if (magnitude > 14.0 && now.difference(_lastBumpTime).inSeconds >= 4) {
+        _lastBumpTime = now;
+        _handleAutoDetectedBump(magnitude);
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('🟢 이동 경로 및 노면 단차 자동 수집이 시작되었습니다.'),
+        backgroundColor: Colors.purple,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _stopRouteTracking() {
+    _positionStreamSub?.cancel();
+    _accelStreamSub?.cancel();
+
+    setState(() {
+      _isTrackingRoute = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '🔴 수집 종료! 이동거리: ${(_totalDistanceMeters / 1000).toStringAsFixed(2)}km, 자동 감지: $_autoDetectedBumpsCount건',
+        ),
+        backgroundColor: Colors.black87,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  // Handle auto-detected bump from accelerometer
+  Future<void> _handleAutoDetectedBump(double magnitude) async {
+    if (!mounted) return;
+
+    setState(() {
+      _autoDetectedBumpsCount++;
+    });
+
+    final autoHazard = {
+      'type': 'damage',
+      'latitude': _currentLocation.latitude,
+      'longitude': _currentLocation.longitude,
+      'step_height_cm': (magnitude * 0.4).roundToDouble(),
+      'severity': magnitude > 20.0 ? 'high' : 'medium',
+      'description': '이동 중 가속도 센서로 자동 감지된 노면 충격/단차 (충격도: ${magnitude.toStringAsFixed(1)})',
+      'is_verified': false,
+      'reported_at': DateTime.now().toUtc().toIso8601String(),
+    };
+
+    final success = await SupabaseService.insertHazard(autoHazard);
+    if (success) {
+      _loadSupabaseData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚡ 노면 단차 충격 감지! Supabase에 자동 제보되었습니다. (충격: ${magnitude.toStringAsFixed(1)})'),
+            backgroundColor: Colors.orange.shade900,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _fetchCurrentLocation() async {
@@ -59,7 +196,6 @@ class _MapScreenState extends State<MapScreen> {
             _locationStatus = '현재 위치 수집 완료';
           });
           
-          // Safely move map if controller is attached
           try {
             _mapController.move(newLoc, 16.5);
           } catch (e) {
@@ -211,23 +347,36 @@ class _MapScreenState extends State<MapScreen> {
 
   // Generate safe polyline routes based on mode
   List<Polyline> _getRoutePolylines() {
-    // Jakjeon station -> Jakjeon Girls High School route points
+    final List<Polyline> list = [];
+
+    // Live Recorded Trajectory Polyline (Purple line)
+    if (_trackedPoints.length > 1) {
+      list.add(
+        Polyline(
+          points: List.from(_trackedPoints),
+          strokeWidth: 6.0,
+          color: Colors.purple.shade600,
+        ),
+      );
+    }
+
+    // Jakjeon station -> Jakjeon Girls High School mock route points
     if (_selectedRouteMode == 'electric') {
-      return [
+      list.add(
         Polyline(
           points: const [
-            LatLng(37.5346, 126.7225), // Jakjeon station
+            LatLng(37.5346, 126.7225),
             LatLng(37.5350, 126.7230),
             LatLng(37.5360, 126.7240),
             LatLng(37.5375, 126.7248),
-            LatLng(37.5385, 126.7240), // Jakjeon Girls HS
+            LatLng(37.5385, 126.7240),
           ],
           strokeWidth: 5.0,
           color: Colors.blue.shade600,
         ),
-      ];
+      );
     } else if (_selectedRouteMode == 'manual') {
-      return [
+      list.add(
         Polyline(
           points: const [
             LatLng(37.5346, 126.7225),
@@ -239,10 +388,9 @@ class _MapScreenState extends State<MapScreen> {
           strokeWidth: 5.0,
           color: Colors.green.shade600,
         ),
-      ];
+      );
     } else {
-      // Pedestrian default
-      return [
+      list.add(
         Polyline(
           points: const [
             LatLng(37.5346, 126.7225),
@@ -252,15 +400,17 @@ class _MapScreenState extends State<MapScreen> {
           strokeWidth: 4.0,
           color: Colors.orange.shade600,
         ),
-      ];
+      );
     }
+
+    return list;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FlatWay - 보행 안전 안내 지도'),
+        title: const Text('FlatWay - 보행 및 이동 수집 지도'),
         backgroundColor: Colors.white,
         elevation: 1,
         actions: [
@@ -297,7 +447,7 @@ class _MapScreenState extends State<MapScreen> {
                   userAgentPackageName: 'com.example.flatway_app',
                 ),
                 
-                // Safe Route Polyline Layer
+                // Safe Route & Live Trajectory Polyline Layer
                 PolylineLayer(
                   polylines: _getRoutePolylines(),
                 ),
@@ -361,16 +511,21 @@ class _MapScreenState extends State<MapScreen> {
                       height: 54,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.25),
+                          color: _isTrackingRoute
+                              ? Colors.purple.withValues(alpha: 0.3)
+                              : Colors.blue.withValues(alpha: 0.25),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.blue, width: 2),
+                          border: Border.all(
+                            color: _isTrackingRoute ? Colors.purple : Colors.blue,
+                            width: 2,
+                          ),
                         ),
                         child: Center(
                           child: Container(
                             width: 22,
                             height: 22,
                             decoration: BoxDecoration(
-                              color: Colors.blue.shade700,
+                              color: _isTrackingRoute ? Colors.purple.shade700 : Colors.blue.shade700,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white, width: 3),
                               boxShadow: const [
@@ -406,42 +561,70 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Top Control Panel: Route Mode Selector & GPS status
+          // Top Control Panel: Tracking Status & Mode Selector
           Positioned(
             top: 12,
             left: 12,
             right: 12,
             child: Column(
               children: [
-                // GPS Status Card
+                // Live Route Tracking Control Bar
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 3,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 4,
+                  color: _isTrackingRoute ? Colors.purple.shade900 : Colors.white,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 18,
-                          height: 18,
+                          width: 22,
+                          height: 22,
                           child: (_isLocating || _isLoadingData)
                               ? const CircularProgressIndicator(strokeWidth: 2.5)
-                              : const Icon(Icons.my_location, color: Colors.blue, size: 18),
+                              : Icon(
+                                  _isTrackingRoute ? Icons.route : Icons.gps_fixed,
+                                  color: _isTrackingRoute ? Colors.amberAccent : Colors.blue,
+                                  size: 22,
+                                ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            _locationStatus,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isTrackingRoute
+                                    ? '실시간 이동 경로 수집 중 (${(_totalDistanceMeters / 1000).toStringAsFixed(2)} km)'
+                                    : _locationStatus,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: _isTrackingRoute ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                              if (_isTrackingRoute)
+                                Text(
+                                  '포인트: ${_trackedPoints.length}개 | 충격 자동감지: $_autoDetectedBumpsCount건',
+                                  style: const TextStyle(fontSize: 11, color: Colors.white70),
+                                )
+                              else if (_accuracy != null)
+                                Text(
+                                  'GPS 오차 범위: ±${_accuracy!.toStringAsFixed(0)}m',
+                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                ),
+                            ],
                           ),
                         ),
-                        if (_accuracy != null)
-                          Text(
-                            '오차 ±${_accuracy!.toStringAsFixed(0)}m',
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                        ElevatedButton(
+                          onPressed: _toggleRouteTracking,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isTrackingRoute ? Colors.red : Colors.purple.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           ),
+                          child: Text(_isTrackingRoute ? '수집 중단' : '경로 수집'),
+                        ),
                       ],
                     ),
                   ),
