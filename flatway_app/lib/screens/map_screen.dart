@@ -410,7 +410,24 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FlatWay - 보행 및 이동 수집 지도'),
+        title: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.asset(
+                'assets/images/logo.png',
+                height: 28,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.navigation, color: Colors.blue),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'FlatWay - 보행 수집 지도',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+          ],
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         actions: [
