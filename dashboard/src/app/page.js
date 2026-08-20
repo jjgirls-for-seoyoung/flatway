@@ -113,23 +113,53 @@ export default function Home() {
 
     loadData();
 
-    // Supabase Realtime Listener for Mobile App Live Reports
+    // Supabase Realtime Listener for Mobile App Live Reports and Buildings Updates
     if (supabase) {
-      const channel = supabase
+      const hazardsChannel = supabase
         .channel('realtime_hazards_channel')
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'hazards' },
+          { event: '*', schema: 'public', table: 'hazards' },
           (payload) => {
-            if (payload.new) {
-              setHazards(prev => [payload.new, ...prev]);
+            if (payload.eventType === 'INSERT') {
+              setHazards(prev => {
+                // Prevent duplicates if already added locally
+                if (prev.some(h => h.id === payload.new.id)) return prev;
+                return [payload.new, ...prev];
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              setHazards(prev => prev.map(h => h.id === payload.new.id ? payload.new : h));
+            } else if (payload.eventType === 'DELETE') {
+              setHazards(prev => prev.filter(h => h.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      const buildingsChannel = supabase
+        .channel('realtime_buildings_channel')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'buildings' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              setBuildings(prev => {
+                // Prevent duplicates if already added locally
+                if (prev.some(b => b.id === payload.new.id)) return prev;
+                return [payload.new, ...prev];
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              setBuildings(prev => prev.map(b => b.id === payload.new.id ? payload.new : b));
+            } else if (payload.eventType === 'DELETE') {
+              setBuildings(prev => prev.filter(b => b.id !== payload.old.id));
             }
           }
         )
         .subscribe();
 
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(hazardsChannel);
+        supabase.removeChannel(buildingsChannel);
       };
     }
   }, []);
