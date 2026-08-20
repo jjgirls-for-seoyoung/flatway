@@ -24,6 +24,7 @@ export default function Home() {
   const [hazards, setHazards] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [usingSupabase, setUsingSupabase] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
 
   // Theme state ('dark' | 'light')
   const [theme, setTheme] = useState('dark');
@@ -68,6 +69,22 @@ export default function Home() {
     document.documentElement.setAttribute('data-theme', nextTheme);
     localStorage.setItem('flatway_theme', nextTheme);
   };
+
+  // 1-1. Browser Geolocation Request
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+        },
+        (error) => {
+          console.warn("Browser geolocation denied or unavailable:", error);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, []);
 
   // 2. Initial Data Fetching (Supabase with Local Storage fallback)
   useEffect(() => {
@@ -560,6 +577,7 @@ export default function Home() {
           onSelectItem={handleSelectItem}
           filters={filters}
           theme={theme}
+          userLocation={userLocation}
         />
 
         {/* Mobile Floating Bottom Detail Card */}

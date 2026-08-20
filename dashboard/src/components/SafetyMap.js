@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { mockRoutes } from '../data/mockData';
 
@@ -23,6 +23,25 @@ const createCustomIcon = (type) => {
   });
 };
 
+const createUserLocationIcon = () => {
+  return L.divIcon({
+    className: 'user-location-marker',
+    html: '<div class="pulse-ring"></div><div class="pulse-dot"></div>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+};
+
+function MapViewCenter({ userLocation }) {
+  const map = useMap();
+  useEffect(() => {
+    if (userLocation) {
+      map.flyTo(userLocation, 17, { animate: true, duration: 1.5 });
+    }
+  }, [userLocation]);
+  return null;
+}
+
 // Map event handler to capture click coordinates for report simulator
 function MapClickHandler({ onMapClick }) {
   useMapEvents({
@@ -41,7 +60,8 @@ export default function SafetyMap({
   onMapClick,
   onSelectItem,
   filters,
-  theme = 'dark'
+  theme = 'dark',
+  userLocation
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -169,6 +189,20 @@ export default function SafetyMap({
             </Popup>
           </Polyline>
         )}
+
+        {/* Render User Current Location if available */}
+        {userLocation && (
+          <Marker position={userLocation} icon={createUserLocationIcon()}>
+            <Popup>
+              <div style={{ fontSize: '11px', fontWeight: 'bold', textAlign: 'center', color: 'var(--text-primary)' }}>
+                현재 내 위치 (GPS)
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {/* Center map view to User Location when updated */}
+        <MapViewCenter userLocation={userLocation} />
 
         {/* Capture click on map for simulator */}
         <MapClickHandler onMapClick={onMapClick} />

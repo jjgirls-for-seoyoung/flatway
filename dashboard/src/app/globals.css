@@ -988,3 +988,42 @@ input:checked + .slider:before {
     gap: 8px;
   }
 }
+
+/* User Location Marker & Pulse Animation */
+.user-location-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.pulse-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #3b82f6;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+  z-index: 2;
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(59, 130, 246, 0.4);
+  border-radius: 50%;
+  animation: pulse-animation 2s infinite ease-out;
+  z-index: 1;
+}
+
+@keyframes pulse-animation {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
