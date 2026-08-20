@@ -18,6 +18,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
+  final TextEditingController _searchController = TextEditingController();
   
   LatLng _currentLocation = LocationService.defaultLocation;
   bool _isLocating = false;
@@ -27,6 +28,9 @@ class _MapScreenState extends State<MapScreen> {
   List<Map<String, dynamic>> _hazards = [];
   List<Map<String, dynamic>> _buildings = [];
   bool _isLoadingData = false;
+
+  // Selected Category Filter: 'all' | 'step' | 'damage' | 'obstacle' | 'building'
+  String _selectedCategoryFilter = 'all';
 
   // Route Mode: 'pedestrian' | 'electric' | 'manual'
   String _selectedRouteMode = 'pedestrian';
@@ -46,6 +50,15 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription<UserAccelerometerEvent>? _accelStreamSub;
   DateTime _lastBumpTime = DateTime.now();
 
+  // Known landmark coordinates for search
+  final Map<String, LatLng> _knownLandmarks = {
+    '작전역': const LatLng(37.5346, 126.7225),
+    '작전여고': const LatLng(37.5385, 126.7240),
+    '부평역': const LatLng(37.4895, 126.7248),
+    '인천시청': const LatLng(37.4560, 126.7052),
+    '계양구청': const LatLng(37.5375, 126.7378),
+  };
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +70,57 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _positionStreamSub?.cancel();
     _accelStreamSub?.cancel();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  // Handle Location & Building Search
+  void _performSearch(String query) {
+    final cleanQuery = query.trim().toLowerCase();
+    if (cleanQuery.isEmpty) return;
+
+    // 1. Search known landmarks
+    for (final entry in _knownLandmarks.entries) {
+      if (entry.key.toLowerCase().contains(cleanQuery)) {
+        _mapController.move(entry.value, 17.5);
+        _showSearchSnackBar('${entry.key} (으)로 지도가 이동되었습니다.');
+        return;
+      }
+    }
+
+    // 2. Search buildings
+    for (final b in _buildings) {
+      final name = (b['name'] ?? '').toString().toLowerCase();
+      if (name.contains(cleanQuery) && b['latitude'] != null && b['longitude'] != null) {
+        final loc = LatLng((b['latitude'] as num).toDouble(), (b['longitude'] as num).toDouble());
+        _mapController.move(loc, 17.5);
+        _showSearchSnackBar('건물 "${b['name']}" 위치로 이동했습니다.');
+        return;
+      }
+    }
+
+    // 3. Search hazard description
+    for (final h in _hazards) {
+      final desc = (h['description'] ?? '').toString().toLowerCase();
+      if (desc.contains(cleanQuery) && h['latitude'] != null && h['longitude'] != null) {
+        final loc = LatLng((h['latitude'] as num).toDouble(), (h['longitude'] as num).toDouble());
+        _mapController.move(loc, 17.5);
+        _showSearchSnackBar('제보 검색 위치로 이동했습니다.');
+        return;
+      }
+    }
+
+    _showSearchSnackBar('검색 결과가 없습니다. (예: 작전역, 작전여고)');
+  }
+
+  void _showSearchSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue.shade800,
+      ),
+    );
   }
 
   // Toggle live movement & bump collection
@@ -78,7 +141,6 @@ class _MapScreenState extends State<MapScreen> {
       _trackedPoints.add(_currentLocation);
     });
 
-    // 1. Listen to continuous GPS stream
     _positionStreamSub = LocationService.getPositionStream().listen((position) {
       if (!mounted) return;
       final newPoint = LatLng(position.latitude, position.longitude);
@@ -99,14 +161,9 @@ class _MapScreenState extends State<MapScreen> {
       } catch (_) {}
     });
 
-    // 2. Listen to accelerometer for bump/vibration detection
     _accelStreamSub = userAccelerometerEventStream().listen((UserAccelerometerEvent event) {
       if (!_isTrackingRoute) return;
-
-      // Calculate acceleration magnitude (m/s^2)
       final magnitude = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
-      
-      // Bump threshold: > 14.0 m/s^2 (vibration spike while moving)
       final now = DateTime.now();
       if (magnitude > 14.0 && now.difference(_lastBumpTime).inSeconds >= 4) {
         _lastBumpTime = now;
@@ -142,7 +199,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // Handle auto-detected bump from accelerometer
   Future<void> _handleAutoDetectedBump(double magnitude) async {
     if (!mounted) return;
 
@@ -345,11 +401,9 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // Generate safe polyline routes based on mode
   List<Polyline> _getRoutePolylines() {
     final List<Polyline> list = [];
 
-    // Live Recorded Trajectory Polyline (Purple line)
     if (_trackedPoints.length > 1) {
       list.add(
         Polyline(
@@ -360,7 +414,6 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    // Jakjeon station -> Jakjeon Girls High School mock route points
     if (_selectedRouteMode == 'electric') {
       list.add(
         Polyline(
@@ -404,6 +457,25 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     return list;
+  }
+
+  // Filter hazards by selected category
+  List<Map<String, dynamic>> get _filteredHazards {
+    if (_selectedCategoryFilter == 'all') {
+      return _hazards;
+    } else if (_selectedCategoryFilter == 'building') {
+      return [];
+    } else {
+      return _hazards.where((h) => h['type'] == _selectedCategoryFilter).toList();
+    }
+  }
+
+  // Filter buildings by selected category
+  List<Map<String, dynamic>> get _filteredBuildings {
+    if (_selectedCategoryFilter == 'all' || _selectedCategoryFilter == 'building') {
+      return _buildings;
+    }
+    return [];
   }
 
   @override
@@ -471,8 +543,8 @@ class _MapScreenState extends State<MapScreen> {
 
                 MarkerLayer(
                   markers: [
-                    // 1. Hazards markers (Orange/Red icons)
-                    ..._hazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
+                    // 1. Hazards markers (Filtered)
+                    ..._filteredHazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
                       final lat = (h['latitude'] as num).toDouble();
                       final lng = (h['longitude'] as num).toDouble();
                       return Marker(
@@ -496,8 +568,8 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     }),
 
-                    // 2. Buildings markers (Blue icons)
-                    ..._buildings.where((b) => b['latitude'] != null && b['longitude'] != null).map((b) {
+                    // 2. Buildings markers (Filtered)
+                    ..._filteredBuildings.where((b) => b['latitude'] != null && b['longitude'] != null).map((b) {
                       final lat = (b['latitude'] as num).toDouble();
                       final lng = (b['longitude'] as num).toDouble();
                       return Marker(
@@ -521,7 +593,7 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     }),
 
-                    // 3. User Current Location marker (Blue pulse icon)
+                    // 3. User Current Location marker
                     Marker(
                       point: _currentLocation,
                       width: 54,
@@ -554,7 +626,7 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
 
-                    // 4. Map Tapped Location Marker (Pin for report)
+                    // 4. Map Tapped Location Marker
                     if (_selectedTappedLocation != null)
                       Marker(
                         point: _selectedTappedLocation!,
@@ -578,20 +650,82 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Top Control Panel: Tracking Status & Mode Selector
+          // Top Control Panel: Search Bar, Category Chips & Live Route Control
           Positioned(
-            top: 12,
+            top: 10,
             left: 12,
             right: 12,
             child: Column(
               children: [
-                // Live Route Tracking Control Bar
+                // 1. Search Bar Card
+                Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.search, color: Colors.blue),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onSubmitted: _performSearch,
+                            textInputAction: TextInputAction.search,
+                            decoration: const InputDecoration(
+                              hintText: '장소, 건물 또는 위험 요소 검색 (예: 작전역)',
+                              border: InputBorder.none,
+                              hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                            ),
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {});
+                            },
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward, color: Colors.blue),
+                          onPressed: () => _performSearch(_searchController.text),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                // 2. Category Filter Chips Row
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildCategoryChip('all', '🌐 전체 (${_hazards.length + _buildings.length})'),
+                      const SizedBox(width: 6),
+                      _buildCategoryChip('step', '⚠️ 단차 (${_hazards.where((h) => h['type'] == 'step').length})'),
+                      const SizedBox(width: 6),
+                      _buildCategoryChip('damage', '🔨 파손 (${_hazards.where((h) => h['type'] == 'damage').length})'),
+                      const SizedBox(width: 6),
+                      _buildCategoryChip('obstacle', '🚫 적치물 (${_hazards.where((h) => h['type'] == 'obstacle').length})'),
+                      const SizedBox(width: 6),
+                      _buildCategoryChip('building', '🏢 건물 (${_buildings.length})'),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                // 3. Live Route Tracking Control Bar
                 Card(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 4,
                   color: _isTrackingRoute ? Colors.purple.shade900 : Colors.white,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
                     child: Row(
                       children: [
                         SizedBox(
@@ -638,7 +772,7 @@ class _MapScreenState extends State<MapScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _isTrackingRoute ? Colors.red : Colors.purple.shade700,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           ),
                           child: Text(_isTrackingRoute ? '수집 중단' : '경로 수집'),
                         ),
@@ -649,12 +783,12 @@ class _MapScreenState extends State<MapScreen> {
 
                 const SizedBox(height: 6),
 
-                // Movement Mode Selector (보행자 / 전동휠체어 / 수동휠체어)
+                // 4. Movement Mode Selector (보행자 / 전동휠체어 / 수동휠체어)
                 Card(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 3,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -701,11 +835,11 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       const Icon(Icons.warning, color: Colors.orange, size: 16),
                       const SizedBox(width: 4),
-                      Text('위험 ${_hazards.length}건', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      Text('위험 ${_filteredHazards.length}건', style: const TextStyle(color: Colors.white, fontSize: 12)),
                       const SizedBox(width: 12),
                       const Icon(Icons.business, color: Colors.lightBlueAccent, size: 16),
                       const SizedBox(width: 4),
-                      Text('건물 ${_buildings.length}개', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      Text('건물 ${_filteredBuildings.length}개', style: const TextStyle(color: Colors.white, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -721,6 +855,31 @@ class _MapScreenState extends State<MapScreen> {
         icon: const Icon(Icons.report_problem),
         label: const Text('현재 위치 제보'),
       ),
+    );
+  }
+
+  Widget _buildCategoryChip(String categoryKey, String label) {
+    final isSelected = _selectedCategoryFilter == categoryKey;
+    return ChoiceChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? Colors.white : Colors.black87,
+        ),
+      ),
+      selected: isSelected,
+      selectedColor: Colors.blue.shade700,
+      backgroundColor: Colors.white.withValues(alpha: 0.95),
+      elevation: 2,
+      onSelected: (selected) {
+        if (selected) {
+          setState(() {
+            _selectedCategoryFilter = categoryKey;
+          });
+        }
+      },
     );
   }
 
