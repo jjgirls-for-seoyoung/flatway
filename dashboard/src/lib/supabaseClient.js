@@ -1,15 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = 
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wevesokdfrrtfmjbcprq.supabase.co';
+const supabaseAnonKey = 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_LEd-uwmLGwAGRbNA9tu4OA_0xshEJU1';
 
-// Check if credentials are placeholders or empty
-export const isSupabaseConfigured = 
-  supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl !== 'https://pnkfjbtvevydicosotgj.supabase.co' && // Avoid placeholder URL if it's inactive
-  supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY_HERE' &&
-  !supabaseAnonKey.startsWith('YOUR_');
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 let supabaseInstance = null;
 
@@ -19,10 +15,6 @@ if (isSupabaseConfigured) {
   } catch (error) {
     console.error('Failed to initialize Supabase client:', error);
   }
-} else {
-  console.warn(
-    'Supabase is not configured or is using placeholder credentials. Falling back to Local Storage database mode.'
-  );
 }
 
 export const supabase = supabaseInstance;
