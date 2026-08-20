@@ -607,3 +607,289 @@ input:checked + .slider:before {
 .custom-marker.obstacle { background-color: var(--color-warn); }
 .custom-marker.slope { background-color: var(--color-accent); }
 .custom-marker.building { background-color: var(--color-safe); }
+
+/* Desktop-only defaults for mobile elements */
+.mobile-top-bar {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.mobile-sidebar-close {
+  display: none;
+}
+
+.mobile-detail-card {
+  display: none;
+}
+
+/* ==========================================================================
+   Mobile Responsive Media Queries (Tablets and Phones <= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .dashboard-container {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Fullscreen Map */
+  .map-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Mobile Top Navigation & Route Quick Selector */
+  .mobile-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 1000;
+    padding: 8px 12px;
+    gap: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .mobile-top-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-menu-btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .mobile-menu-btn:active {
+    background: var(--bg-tertiary);
+  }
+
+  .mobile-brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+  }
+
+  .mobile-score-badge {
+    font-size: 10px;
+    color: var(--color-safe);
+    font-weight: 600;
+  }
+
+  .mobile-route-pills {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .mobile-route-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .mobile-route-pill:active {
+    background: var(--bg-tertiary);
+  }
+
+  .mobile-route-pill.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  }
+
+  /* Mobile Drawer Backdrop */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Mobile Sidebar Drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 320px;
+    max-width: 85vw;
+    height: 100vh;
+    z-index: 1200;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0 16px 16px 0;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .logo-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .mobile-sidebar-close:active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+
+  /* Mobile Floating Detail Card */
+  .mobile-detail-card {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 24px;
+    left: 12px;
+    right: 12px;
+    z-index: 1000;
+    padding: 14px 16px;
+    gap: 8px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 6px;
+  }
+
+  .mobile-card-close-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: var(--text-secondary);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .mobile-card-close-btn:active {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Reposition Leaflet Controls on Mobile to avoid top bar collision */
+  .leaflet-top {
+    top: 68px !important;
+  }
+
+  /* Overlay instructions for mobile */
+  .map-overlay-instructions {
+    top: auto;
+    bottom: 10px;
+    left: 12px;
+    right: 12px;
+    justify-content: center;
+    font-size: 10px;
+    padding: 6px 12px;
+    background: rgba(19, 26, 46, 0.85);
+  }
+
+  /* Modal Responsive Polish */
+  .modal-content {
+    width: min(92vw, 440px);
+    padding: 18px 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
