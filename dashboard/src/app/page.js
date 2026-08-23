@@ -268,11 +268,27 @@ export default function Home() {
         {/* Header/Logo with Theme Toggle */}
         <div className="logo-section">
           <div className="logo-brand-group">
-            <div className="logo-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="logo-icon" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img 
                 src="/logo.png" 
                 alt="FlatWay Logo" 
                 style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }}
+              />
+              <span 
+                className={`db-status-dot ${usingSupabase ? 'online' : 'offline'}`} 
+                title={usingSupabase ? 'Supabase 연동 완료' : '로컬 모크 데이터 모드'}
+                style={{
+                  position: 'absolute',
+                  bottom: '-2px',
+                  right: '-2px',
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  backgroundColor: usingSupabase ? '#10b981' : '#ef4444',
+                  border: '2px solid var(--bg-secondary)',
+                  boxShadow: usingSupabase ? '0 0 6px #10b981' : '0 0 6px #ef4444',
+                  zIndex: 10
+                }}
               />
             </div>
             <div className="logo-text">
@@ -300,21 +316,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Supabase Status Indicator */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '11px',
-          color: usingSupabase ? 'var(--color-safe)' : 'var(--text-muted)',
-          background: 'var(--info-badge-bg)',
-          padding: '6px 10px',
-          borderRadius: '6px',
-          border: '1px solid var(--info-badge-border)'
-        }}>
-          <Database size={12} />
-          <span>DB 연결 상태: {usingSupabase ? 'Supabase 연동 완료' : '로컬 모크 데이터 모드'}</span>
-        </div>
+
 
         {/* Safety Score Ring */}
         <div className="safety-score-container">
@@ -526,11 +528,29 @@ export default function Home() {
               <Menu size={20} />
             </button>
             <div className="mobile-brand" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-              <img 
-                src="/logo.png" 
-                alt="FlatWay Logo" 
-                style={{ width: '22px', height: '22px', borderRadius: '5px', objectFit: 'cover' }}
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img 
+                  src="/logo.png" 
+                  alt="FlatWay Logo" 
+                  style={{ width: '22px', height: '22px', borderRadius: '5px', objectFit: 'cover' }}
+                />
+                <span 
+                  className={`db-status-dot ${usingSupabase ? 'online' : 'offline'}`} 
+                  title={usingSupabase ? 'Supabase 연동 완료' : '로컬 모크 데이터 모드'}
+                  style={{
+                    position: 'absolute',
+                    bottom: '-1px',
+                    right: '-1px',
+                    width: '7px',
+                    height: '7px',
+                    borderRadius: '50%',
+                    backgroundColor: usingSupabase ? '#10b981' : '#ef4444',
+                    border: '1.5px solid var(--bg-secondary)',
+                    boxShadow: usingSupabase ? '0 0 4px #10b981' : '0 0 4px #ef4444',
+                    zIndex: 10
+                  }}
+                />
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span className="mobile-title">FlatWay</span>
                 <span className="mobile-score-badge">안전 {safetyScore}%</span>
