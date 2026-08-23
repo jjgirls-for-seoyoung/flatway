@@ -32,10 +32,16 @@ const createUserLocationIcon = () => {
   });
 };
 
-function MapViewCenter({ userLocation }) {
+function MapViewCenter({ userLocation, searchLocation }) {
   const map = useMap();
   useEffect(() => {
-    if (userLocation) {
+    if (searchLocation) {
+      map.flyTo(searchLocation, 16, { animate: true, duration: 1.5 });
+    }
+  }, [searchLocation]);
+
+  useEffect(() => {
+    if (userLocation && !searchLocation) {
       map.flyTo(userLocation, 17, { animate: true, duration: 1.5 });
     }
   }, [userLocation]);
@@ -61,7 +67,8 @@ export default function SafetyMap({
   onSelectItem,
   filters,
   theme = 'dark',
-  userLocation
+  userLocation,
+  searchLocation
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -202,7 +209,7 @@ export default function SafetyMap({
         )}
 
         {/* Center map view to User Location when updated */}
-        <MapViewCenter userLocation={userLocation} />
+        <MapViewCenter userLocation={userLocation} searchLocation={searchLocation} />
 
         {/* Capture click on map for simulator */}
         <MapClickHandler onMapClick={onMapClick} />

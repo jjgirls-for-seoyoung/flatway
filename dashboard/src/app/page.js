@@ -26,6 +26,12 @@ export default function Home() {
   const [usingSupabase, setUsingSupabase] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
 
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
+
   // Theme state ('dark' | 'light')
   const [theme, setTheme] = useState('dark');
 
@@ -222,6 +228,36 @@ export default function Home() {
     setShowMobileDetail(true);
   };
 
+  // 5-1. Handle Location Search (Nominatim Geocoding API)
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    setSearchError('');
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`
+      );
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        const firstResult = data[0];
+        const lat = parseFloat(firstResult.lat);
+        const lon = parseFloat(firstResult.lon);
+        setSearchLocation([lat, lon]);
+      } else {
+        setSearchError('검색 결과를 찾을 수 없습니다.');
+      }
+    } catch (err) {
+      console.error("Geocoding failed:", err);
+      setSearchError('검색 중 오류가 발생했습니다.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   // 6. Toggle filters
   const toggleFilter = (key) => {
     setFilters(prev => ({
@@ -318,25 +354,65 @@ export default function Home() {
 
 
 
-        {/* Safety Score Ring */}
-        <div className="safety-score-container">
-          <div className="score-circle">
-            <svg>
-              <circle className="bg-circle" cx="35" cy="35" r="32" />
-              <circle 
-                className="val-circle" 
-                cx="35" 
-                cy="35" 
-                r="32" 
-                style={{ strokeDashoffset }}
-              />
-            </svg>
-            <div className="score-text-inner">{safetyScore}%</div>
-          </div>
-          <div className="score-info">
-            <h3>보행 안전 종합 점수</h3>
-            <p>현재 구역 내 위험 요인을 고려한 수치</p>
-          </div>
+        {/* Location Search Container */}
+        <div className="search-container glass-panel" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          padding: '14px 16px',
+          borderRadius: '12px',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--glass-border)',
+          marginBottom: '8px'
+        }}>
+          <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            🔍 위치 및 목적지 검색
+          </h3>
+          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '6px', width: '100%' }}>
+            <input
+              type="text"
+              placeholder="예: 서울시청, 작전역"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--glass-border)',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                fontSize: '12px',
+                outline: 'none',
+                width: '60%'
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isSearching}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: 'none',
+                background: 'var(--color-accent)',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}
+            >
+              {isSearching ? '검색중' : '검색'}
+            </button>
+          </form>
+          {searchError && (
+            <p style={{ margin: 0, fontSize: '11px', color: '#ef4444' }}>
+              ⚠️ {searchError}
+            </p>
+          )}
         </div>
 
         {/* Stats Grid */}
@@ -604,6 +680,7 @@ export default function Home() {
           filters={filters}
           theme={theme}
           userLocation={userLocation}
+          searchLocation={searchLocation}
         />
 
         {/* Mobile Floating Bottom Detail Card */}
