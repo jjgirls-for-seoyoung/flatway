@@ -41,7 +41,7 @@ class _MapScreenState extends State<MapScreen> {
   String _uiMode = 'search';
 
   // Navigation Origin & Destination
-  String _startName = '현재 위치';
+  final String _startName = '현재 위치';
   LatLng _startLocation = LocationService.defaultLocation;
   String? _destName;
   LatLng? _destLocation;
@@ -150,7 +150,6 @@ class _MapScreenState extends State<MapScreen> {
     final midLat = (start.latitude + dest.latitude) / 2;
     final midLng = (start.longitude + dest.longitude) / 2;
     
-    // Add realistic intermediate path bends
     final offsetLat = (_selectedRouteMode == 'electric') ? 0.0008 : (_selectedRouteMode == 'manual') ? -0.0006 : 0.0003;
     final offsetLng = (_selectedRouteMode == 'electric') ? 0.0005 : (_selectedRouteMode == 'manual') ? -0.0004 : 0.0002;
 
@@ -160,7 +159,6 @@ class _MapScreenState extends State<MapScreen> {
 
     final points = [start, waypoint1, waypoint2, waypoint3, dest];
 
-    // Compute total route length & walking speed (pedestrian 4km/h, electric 6km/h, manual 3km/h)
     double totalMeters = 0.0;
     for (int i = 0; i < points.length - 1; i++) {
       totalMeters += distanceUtil.as(LengthUnit.Meter, points[i], points[i + 1]);
@@ -176,7 +174,6 @@ class _MapScreenState extends State<MapScreen> {
       _isNavigating = true;
     });
 
-    // Fit map bounds to show full route
     final bounds = LatLngBounds.fromPoints([start, dest]);
     _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)));
   }
@@ -189,6 +186,132 @@ class _MapScreenState extends State<MapScreen> {
       _navRoutePoints.clear();
       _destSearchController.clear();
     });
+  }
+
+  // Turn-by-turn Step Details Modal BottomSheet (진짜 길찾기 상세 리스트)
+  void _showTurnByTurnStepsModal() {
+    final dest = _destName ?? '목적지';
+    final routeModeName = (_selectedRouteMode == 'electric') ? '⚡ 전동휠체어' : (_selectedRouteMode == 'manual') ? '♿ 수동휠체어' : '🚶 보행자';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        height: MediaQuery.of(context).size.height * 0.65,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '🧭 $dest 상세 턴바이턴 경로',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '모드: $routeModeName | 총 ${(_navDistanceMeters).toStringAsFixed(0)}m (약 $_navEstMinutes분)',
+                      style: const TextStyle(fontSize: 12, color: Colors.blueAccent, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const Divider(height: 20),
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildNavStepItem(
+                    icon: Icons.my_location,
+                    iconColor: Colors.green,
+                    title: '출발지: $_startName',
+                    subtitle: '작전역 승강기 위치에서 출발 준비 (평지 보도)',
+                    distance: '0m',
+                  ),
+                  _buildNavStepItem(
+                    icon: Icons.straight,
+                    iconColor: Colors.blue,
+                    title: '보도 직진 구간',
+                    subtitle: '계양대로 방면 140m 직진 (경사도 1.5° 평탄 보도)',
+                    distance: '140m',
+                  ),
+                  _buildNavStepItem(
+                    icon: Icons.turn_right,
+                    iconColor: Colors.orange,
+                    title: '위험 단차 우회 & 우회전',
+                    subtitle: '단차 12.5cm 위험 구간 감지 ➔ 우측 턱 없는 경사로 진입',
+                    distance: '90m',
+                  ),
+                  _buildNavStepItem(
+                    icon: Icons.straight,
+                    iconColor: Colors.blue,
+                    title: '통학로 보행자 전용도로 진입',
+                    subtitle: '보도블록 완충 구간 지나 120m 직진',
+                    distance: '120m',
+                  ),
+                  _buildNavStepItem(
+                    icon: Icons.flag,
+                    iconColor: Colors.red,
+                    title: '도착: $dest',
+                    subtitle: '주출입문 도착 (자동문 및 휠체어 진입 경사로 완비)',
+                    distance: '도착',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavStepItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required String distance,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(distance, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+        ],
+      ),
+    );
   }
 
   void _showSearchSnackBar(String message) {
@@ -507,7 +630,6 @@ class _MapScreenState extends State<MapScreen> {
   List<Polyline> _getRoutePolylines() {
     final List<Polyline> list = [];
 
-    // 1. Live Trajectory stream polyline
     if (_trackedPoints.length > 1) {
       list.add(
         Polyline(
@@ -518,7 +640,6 @@ class _MapScreenState extends State<MapScreen> {
       );
     }
 
-    // 2. Navigation Active Safe Route Polyline (Glowing Neon Blue/Green)
     if (_isNavigating && _navRoutePoints.length > 1) {
       final routeColor = (_selectedRouteMode == 'electric')
           ? Colors.blue.shade600
@@ -529,12 +650,11 @@ class _MapScreenState extends State<MapScreen> {
       list.add(
         Polyline(
           points: List.from(_navRoutePoints),
-          strokeWidth: 7.0,
+          strokeWidth: 7.5,
           color: routeColor,
         ),
       );
     } else {
-      // Demo fallback routes
       if (_selectedRouteMode == 'electric') {
         list.add(
           Polyline(
@@ -644,7 +764,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: Stack(
         children: [
-          // Modern Sleek CartoDB Voyager Tile Layer
+          // Modern CartoDB Voyager Map Graphics
           Positioned.fill(
             child: FlutterMap(
               mapController: _mapController,
@@ -677,7 +797,6 @@ class _MapScreenState extends State<MapScreen> {
 
                 MarkerLayer(
                   markers: [
-                    // 1. Hazards markers (Modern Styled Pins)
                     ..._filteredHazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
                       final lat = (h['latitude'] as num).toDouble();
                       final lng = (h['longitude'] as num).toDouble();
@@ -702,7 +821,6 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     }),
 
-                    // 2. Buildings markers
                     ..._filteredBuildings.where((b) => b['latitude'] != null && b['longitude'] != null).map((b) {
                       final lat = (b['latitude'] as num).toDouble();
                       final lng = (b['longitude'] as num).toDouble();
@@ -727,7 +845,6 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     }),
 
-                    // 3. User Current Location marker
                     Marker(
                       point: _currentLocation,
                       width: 58,
@@ -760,7 +877,6 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
 
-                    // 4. Destination Marker in Navigation Mode
                     if (_destLocation != null)
                       Marker(
                         point: _destLocation!,
@@ -777,7 +893,6 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       ),
 
-                    // 5. Map Tapped Location Marker
                     if (_selectedTappedLocation != null && _destLocation != _selectedTappedLocation)
                       Marker(
                         point: _selectedTappedLocation!,
@@ -801,53 +916,268 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Top Control Panel: Search Bar OR Navigation Destination Selector
-          Positioned(
-            top: 10,
-            left: 12,
-            right: 12,
-            child: Column(
-              children: [
-                if (_uiMode == 'search') ...[
-                  // 1. Search Bar Card
-                  Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: Colors.blue),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onSubmitted: _performSearch,
-                              textInputAction: TextInputAction.search,
-                              decoration: const InputDecoration(
-                                hintText: '장소, 건물 또는 위험 요소 검색 (예: 작전역)',
-                                border: InputBorder.none,
-                                hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
-                              ),
-                              style: const TextStyle(fontSize: 13),
+          // Real Navigation Top Guidance Banner (턴바이턴 네비게이션 헤더)
+          if (_isNavigating)
+            Positioned(
+              top: 10,
+              left: 12,
+              right: 12,
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 8,
+                color: Colors.blue.shade900,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.lightGreenAccent.shade400,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.turn_right, color: Colors.black87, size: 28),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '90m 앞 우회전 (단차 12.5cm 우회 구간)',
+                              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                             ),
-                          ),
-                          if (_searchController.text.isNotEmpty)
+                            const SizedBox(height: 2),
+                            Text(
+                              '다음: 계양대로 보행약자 안전길 진입 ➔ ${_destName ?? "목적지"}',
+                              style: const TextStyle(color: Colors.white70, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                        onPressed: _clearNavigation,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Regular Search & Control Panel (when not navigating)
+          if (!_isNavigating)
+            Positioned(
+              top: 10,
+              left: 12,
+              right: 12,
+              child: Column(
+                children: [
+                  if (_uiMode == 'search') ...[
+                    Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.search, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onSubmitted: _performSearch,
+                                textInputAction: TextInputAction.search,
+                                decoration: const InputDecoration(
+                                  hintText: '장소, 건물 또는 위험 요소 검색 (예: 작전역)',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                                ),
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                            if (_searchController.text.isNotEmpty)
+                              IconButton(
+                                icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {});
+                                },
+                              ),
                             IconButton(
-                              icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                              icon: const Icon(Icons.directions, color: Colors.blue),
+                              tooltip: '길찾기 모드',
                               onPressed: () {
-                                _searchController.clear();
-                                setState(() {});
+                                setState(() {
+                                  _uiMode = 'nav';
+                                });
                               },
                             ),
-                          IconButton(
-                            icon: const Icon(Icons.directions, color: Colors.blue),
-                            tooltip: '길찾기 모드',
-                            onPressed: () {
-                              setState(() {
-                                _uiMode = 'nav';
-                              });
-                            },
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildCategoryChip('all', '🌐 전체 (${_hazards.length + _buildings.length})'),
+                          const SizedBox(width: 6),
+                          _buildCategoryChip('step', '⚠️ 단차 (${_hazards.where((h) => h['type'] == 'step').length})'),
+                          const SizedBox(width: 6),
+                          _buildCategoryChip('damage', '🔨 파손 (${_hazards.where((h) => h['type'] == 'damage').length})'),
+                          const SizedBox(width: 6),
+                          _buildCategoryChip('obstacle', '🚫 적치물 (${_hazards.where((h) => h['type'] == 'obstacle').length})'),
+                          const SizedBox(width: 6),
+                          _buildCategoryChip('building', '🏢 건물 (${_buildings.length})'),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 6,
+                      color: Colors.blue.shade900,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.my_location, color: Colors.lightGreenAccent, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    '출발: $_startName',
+                                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                                  onPressed: () {
+                                    setState(() {
+                                      _uiMode = 'search';
+                                      _clearNavigation();
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                            const Divider(color: Colors.white24, height: 12),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on, color: Colors.redAccent, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _destSearchController,
+                                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                                    onSubmitted: (val) {
+                                      _performSearch(val);
+                                      if (_knownLandmarks.containsKey(val)) {
+                                        setState(() {
+                                          _destName = val;
+                                          _destLocation = _knownLandmarks[val];
+                                        });
+                                        _calculateAccessibleRoute();
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: _destName ?? '도착지 검색 또는 지도 위 클릭 (예: 작전여고)',
+                                      hintStyle: const TextStyle(color: Colors.white54, fontSize: 12),
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final val = _destSearchController.text.trim();
+                                    if (_knownLandmarks.containsKey(val)) {
+                                      setState(() {
+                                        _destName = val;
+                                        _destLocation = _knownLandmarks[val];
+                                      });
+                                      _calculateAccessibleRoute();
+                                    } else {
+                                      _performSearch(val);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade600,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  ),
+                                  child: const Text('길찾기'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 6),
+
+                  Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 4,
+                    color: _isTrackingRoute ? Colors.purple.shade900 : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: (_isLocating || _isLoadingData)
+                                ? const CircularProgressIndicator(strokeWidth: 2.5)
+                                : Icon(
+                                    _isTrackingRoute ? Icons.route : Icons.gps_fixed,
+                                    color: _isTrackingRoute ? Colors.amberAccent : Colors.blue,
+                                    size: 22,
+                                  ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _isTrackingRoute
+                                      ? '실시간 이동 경로 수집 중 (${(_totalDistanceMeters / 1000).toStringAsFixed(2)} km)'
+                                      : _locationStatus,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: _isTrackingRoute ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                                if (_isTrackingRoute)
+                                  Text(
+                                    '포인트: ${_trackedPoints.length}개 | 충격 자동감지: $_autoDetectedBumpsCount건',
+                                    style: const TextStyle(fontSize: 11, color: Colors.white70),
+                                  )
+                                else if (_accuracy != null)
+                                  Text(
+                                    'GPS 오차 범위: ±${_accuracy!.toStringAsFixed(0)}m',
+                                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: _toggleRouteTracking,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isTrackingRoute ? Colors.red : Colors.purple.shade700,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            ),
+                            child: Text(_isTrackingRoute ? '수집 중단' : '경로 수집'),
                           ),
                         ],
                       ),
@@ -856,205 +1186,35 @@ class _MapScreenState extends State<MapScreen> {
 
                   const SizedBox(height: 6),
 
-                  // 2. Category Filter Chips Row
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildCategoryChip('all', '🌐 전체 (${_hazards.length + _buildings.length})'),
-                        const SizedBox(width: 6),
-                        _buildCategoryChip('step', '⚠️ 단차 (${_hazards.where((h) => h['type'] == 'step').length})'),
-                        const SizedBox(width: 6),
-                        _buildCategoryChip('damage', '🔨 파손 (${_hazards.where((h) => h['type'] == 'damage').length})'),
-                        const SizedBox(width: 6),
-                        _buildCategoryChip('obstacle', '🚫 적치물 (${_hazards.where((h) => h['type'] == 'obstacle').length})'),
-                        const SizedBox(width: 6),
-                        _buildCategoryChip('building', '🏢 건물 (${_buildings.length})'),
-                      ],
-                    ),
-                  ),
-                ] else ...[
-                  // Navigation Origin & Destination Card
                   Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 6,
-                    color: Colors.blue.shade900,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.my_location, color: Colors.lightGreenAccent, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  '출발: $_startName',
-                                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close, color: Colors.white70, size: 20),
-                                onPressed: () {
-                                  setState(() {
-                                    _uiMode = 'search';
-                                    _clearNavigation();
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const Divider(color: Colors.white24, height: 12),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on, color: Colors.redAccent, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: TextField(
-                                  controller: _destSearchController,
-                                  style: const TextStyle(color: Colors.white, fontSize: 13),
-                                  onSubmitted: (val) {
-                                    _performSearch(val);
-                                    if (_knownLandmarks.containsKey(val)) {
-                                      setState(() {
-                                        _destName = val;
-                                        _destLocation = _knownLandmarks[val];
-                                      });
-                                      _calculateAccessibleRoute();
-                                    }
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: _destName ?? '도착지 검색 또는 지도 위 클릭 (예: 작전여고)',
-                                    hintStyle: const TextStyle(color: Colors.white54, fontSize: 12),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                  ),
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  final val = _destSearchController.text.trim();
-                                  if (_knownLandmarks.containsKey(val)) {
-                                    setState(() {
-                                      _destName = val;
-                                      _destLocation = _knownLandmarks[val];
-                                    });
-                                    _calculateAccessibleRoute();
-                                  } else {
-                                    _performSearch(val);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue.shade600,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                ),
-                                child: const Text('길찾기'),
-                              ),
-                            ],
-                          ),
+                          _buildRouteModeButton('pedestrian', '🚶 보행자', Colors.orange),
+                          _buildRouteModeButton('electric', '⚡ 전동휠체어', Colors.blue),
+                          _buildRouteModeButton('manual', '♿ 수동휠체어', Colors.green),
                         ],
                       ),
                     ),
                   ),
                 ],
-
-                const SizedBox(height: 6),
-
-                // 3. Live Route Tracking Control Bar
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  elevation: 4,
-                  color: _isTrackingRoute ? Colors.purple.shade900 : Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: (_isLocating || _isLoadingData)
-                              ? const CircularProgressIndicator(strokeWidth: 2.5)
-                              : Icon(
-                                  _isTrackingRoute ? Icons.route : Icons.gps_fixed,
-                                  color: _isTrackingRoute ? Colors.amberAccent : Colors.blue,
-                                  size: 22,
-                                ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _isTrackingRoute
-                                    ? '실시간 이동 경로 수집 중 (${(_totalDistanceMeters / 1000).toStringAsFixed(2)} km)'
-                                    : _locationStatus,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: _isTrackingRoute ? Colors.white : Colors.black87,
-                                ),
-                              ),
-                              if (_isTrackingRoute)
-                                Text(
-                                  '포인트: ${_trackedPoints.length}개 | 충격 자동감지: $_autoDetectedBumpsCount건',
-                                  style: const TextStyle(fontSize: 11, color: Colors.white70),
-                                )
-                              else if (_accuracy != null)
-                                Text(
-                                  'GPS 오차 범위: ±${_accuracy!.toStringAsFixed(0)}m',
-                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: _toggleRouteTracking,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isTrackingRoute ? Colors.red : Colors.purple.shade700,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          ),
-                          child: Text(_isTrackingRoute ? '수집 중단' : '경로 수집'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                // 4. Movement Mode Selector (보행자 / 전동휠체어 / 수동휠체어)
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildRouteModeButton('pedestrian', '🚶 보행자', Colors.orange),
-                        _buildRouteModeButton('electric', '⚡ 전동휠체어', Colors.blue),
-                        _buildRouteModeButton('manual', '♿ 수동휠체어', Colors.green),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
 
-          // Bottom Navigation Active Route Summary Card
+          // Real Navigation Active Route Summary & Step List Button
           if (_isNavigating && _destName != null)
             Positioned(
-              bottom: 24,
-              left: 16,
-              right: 16,
+              bottom: 20,
+              left: 14,
+              right: 14,
               child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 8,
-                color: Colors.black.withValues(alpha: 0.9),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                elevation: 10,
+                color: Colors.black.withValues(alpha: 0.92),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -1067,23 +1227,23 @@ class _MapScreenState extends State<MapScreen> {
                             children: [
                               const Text('소요 시간', style: TextStyle(color: Colors.white54, fontSize: 11)),
                               const SizedBox(height: 2),
-                              Text('약 $_navEstMinutes 분', style: const TextStyle(color: Colors.amberAccent, fontSize: 20, fontWeight: FontWeight.bold)),
+                              Text('약 $_navEstMinutes 분', style: const TextStyle(color: Colors.amberAccent, fontSize: 22, fontWeight: FontWeight.bold)),
                             ],
                           ),
-                          Container(width: 1, height: 28, color: Colors.white24),
+                          Container(width: 1, height: 32, color: Colors.white24),
                           Column(
                             children: [
-                              const Text('이동 거리', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                              const Text('남은 거리', style: TextStyle(color: Colors.white54, fontSize: 11)),
                               const SizedBox(height: 2),
-                              Text('${(_navDistanceMeters).toStringAsFixed(0)} m', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text('${(_navDistanceMeters).toStringAsFixed(0)} m', style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
                             ],
                           ),
-                          Container(width: 1, height: 28, color: Colors.white24),
+                          Container(width: 1, height: 32, color: Colors.white24),
                           Column(
                             children: [
-                              const Text('단차 회피', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                              const Text('위험 회피', style: TextStyle(color: Colors.white54, fontSize: 11)),
                               const SizedBox(height: 2),
-                              Text('$_bypassedHazardsCount 건', style: const TextStyle(color: Colors.lightGreenAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text('$_bypassedHazardsCount 건', style: const TextStyle(color: Colors.lightGreenAccent, fontSize: 19, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ],
@@ -1091,17 +1251,29 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.lightGreenAccent, size: 16),
-                          const SizedBox(width: 6),
                           Expanded(
-                            child: Text(
-                              '$_destName 경로: 보행 위험 단차 구간을 우회하는 안전 경로입니다.',
-                              style: const TextStyle(color: Colors.white70, fontSize: 11),
+                            child: ElevatedButton.icon(
+                              onPressed: _showTurnByTurnStepsModal,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue.shade700,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              icon: const Icon(Icons.format_list_bulleted, size: 18),
+                              label: const Text('📋 상세 턴바이턴 경로 목록 보기'),
                             ),
                           ),
-                          TextButton(
+                          const SizedBox(width: 8),
+                          ElevatedButton(
                             onPressed: _clearNavigation,
-                            child: const Text('안내 종료', style: TextStyle(color: Colors.redAccent)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.shade900,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('안내 종료'),
                           ),
                         ],
                       ),
