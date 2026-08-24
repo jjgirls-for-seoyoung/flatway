@@ -801,7 +801,7 @@ class _MapScreenState extends State<MapScreen> {
                 initialCenter: _currentLocation,
                 initialZoom: 16.5,
                 minZoom: 5.0,
-                maxZoom: 19.0,
+                maxZoom: 22.0,
                 onTap: (tapPosition, point) {
                   setState(() {
                     _selectedTappedLocation = point;
@@ -817,6 +817,8 @@ class _MapScreenState extends State<MapScreen> {
                 TileLayer(
                   urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
                   subdomains: const ['a', 'b', 'c', 'd'],
+                  maxNativeZoom: 19,
+                  maxZoom: 22,
                   userAgentPackageName: 'com.example.flatway_app',
                 ),
                 
@@ -831,20 +833,20 @@ class _MapScreenState extends State<MapScreen> {
                       final lng = (h['longitude'] as num).toDouble();
                       return Marker(
                         point: LatLng(lat, lng),
-                        width: 42,
-                        height: 42,
+                        width: 28,
+                        height: 28,
                         child: GestureDetector(
                           onTap: () => _showHazardDetail(h),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.orange.shade800,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2.5),
+                              border: Border.all(color: Colors.white, width: 1.5),
                               boxShadow: const [
-                                BoxShadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 3)),
+                                BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(0, 2)),
                               ],
                             ),
-                            child: const Icon(Icons.warning_rounded, color: Colors.white, size: 22),
+                            child: const Icon(Icons.warning_rounded, color: Colors.white, size: 15),
                           ),
                         ),
                       );
@@ -855,20 +857,20 @@ class _MapScreenState extends State<MapScreen> {
                       final lng = (b['longitude'] as num).toDouble();
                       return Marker(
                         point: LatLng(lat, lng),
-                        width: 42,
-                        height: 42,
+                        width: 28,
+                        height: 28,
                         child: GestureDetector(
                           onTap: () => _showBuildingDetail(b),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.blue.shade700,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2.5),
+                              border: Border.all(color: Colors.white, width: 1.5),
                               boxShadow: const [
-                                BoxShadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 3)),
+                                BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(0, 2)),
                               ],
                             ),
-                            child: const Icon(Icons.business, color: Colors.white, size: 22),
+                            child: const Icon(Icons.business, color: Colors.white, size: 15),
                           ),
                         ),
                       );
