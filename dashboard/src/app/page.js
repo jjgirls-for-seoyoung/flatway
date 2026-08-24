@@ -32,6 +32,9 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
 
+  // Control center heatmap mode state
+  const [heatmapMode, setHeatmapMode] = useState(false);
+
   // Theme state ('dark' | 'light')
   const [theme, setTheme] = useState('dark');
 
@@ -152,6 +155,7 @@ export default function Home() {
               });
             } else if (payload.eventType === 'UPDATE') {
               setHazards(prev => prev.map(h => h.id === payload.new.id ? payload.new : h));
+              setSelectedItem(prev => (prev && prev.id === payload.new.id) ? { ...prev, ...payload.new } : prev);
             } else if (payload.eventType === 'DELETE') {
               setHazards(prev => prev.filter(h => h.id !== payload.old.id));
             }
@@ -190,9 +194,15 @@ export default function Home() {
 
   // 4. Handle new report submission
   const handleReportSubmit = async (newReport) => {
+    const reportToSave = {
+      ...newReport,
+      status: 'reported',
+      reported_at: new Date().toISOString()
+    };
+
     if (usingSupabase && supabase) {
       try {
-        const { data, error } = await supabase.from('hazards').insert([newReport]).select();
+        const { data, error } = await supabase.from('hazards').insert([reportToSave]).select();
         if (!error && data && data.length > 0) {
           const savedReport = data[0];
           setHazards(prev => [savedReport, ...prev]);
@@ -209,7 +219,7 @@ export default function Home() {
 
     // Local Storage fallback
     const reportWithId = {
-      ...newReport,
+      ...reportToSave,
       id: `local_${Date.now()}`
     };
     const updatedHazards = [reportWithId, ...hazards];
@@ -219,6 +229,29 @@ export default function Home() {
     setSelectedItemType('hazard');
     setShowMobileDetail(true);
     alert('제보가 브라우저 로컬 저장소(localStorage)에 등록되었습니다!');
+  };
+
+  // 5-2. Handle Maintenance Status Change
+  const handleStatusChange = async (id, newStatus) => {
+    // Update locally first
+    setHazards(prev => prev.map(h => h.id === id ? { ...h, status: newStatus } : h));
+    setSelectedItem(prev => (prev && prev.id === id) ? { ...prev, status: newStatus } : prev);
+
+    // Update in Supabase if connected
+    if (usingSupabase && supabase) {
+      try {
+        const { error } = await supabase
+          .from('hazards')
+          .update({ status: newStatus })
+          .eq('id', id);
+        
+        if (error) {
+          console.error("Failed to update status in Supabase:", error);
+        }
+      } catch (err) {
+        console.error("Supabase status update error:", err);
+      }
+    }
   };
 
   // 5. Handle item selection (Marker click)
@@ -272,6 +305,13 @@ export default function Home() {
   const totalBuildings = buildings.length;
   const buildingsWithRamp = buildings.filter(b => b.has_ramp).length;
   const rampPercentage = totalBuildings > 0 ? Math.round((buildingsWithRamp / totalBuildings) * 100) : 0;
+
+  // Maintenance pipeline stats
+  const countByStatus = (statusName) => hazards.filter(h => h.status === statusName).length;
+  const reportedCount = countByStatus('reported');
+  const processingCount = countByStatus('processing');
+  const scheduledCount = countByStatus('scheduled');
+  const resolvedCount = countByStatus('resolved');
 
   // Dynamic Safety Index Score
   const safetyScore = Math.max(
@@ -413,6 +453,64 @@ export default function Home() {
               ⚠️ {searchError}
             </p>
           )}
+        </div>
+
+        {/* Heatmap & Maintenance Control Center */}
+        <div className="control-panel glass-panel" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          padding: '12px 14px',
+          borderRadius: '10px',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--glass-border)',
+          marginBottom: '8px'
+        }}>
+          <h4 className="section-title" style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)' }}>
+            🛰️ 실시간 관제 및 분석 모드
+          </h4>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>열지도(Heatmap) 분석 활성화</span>
+            <label className="switch" style={{ margin: 0 }}>
+              <input 
+                type="checkbox" 
+                checked={heatmapMode} 
+                onChange={() => setHeatmapMode(prev => !prev)} 
+              />
+              <span className="slider" />
+            </label>
+          </div>
+        </div>
+
+        {/* Municipal Maintenance Dashboard */}
+        <div className="maintenance-board glass-panel" style={{
+          padding: '12px 14px',
+          borderRadius: '10px',
+          background: 'var(--info-badge-bg)',
+          border: '1px solid var(--info-badge-border)',
+          marginBottom: '10px'
+        }}>
+          <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            🚧 보도 유지보수 파이프라인 현황
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>접수</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#3b82f6' }}>{reportedCount}</div>
+            </div>
+            <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>조사중</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#8b5cf6' }}>{processingCount}</div>
+            </div>
+            <div style={{ background: 'rgba(249, 115, 22, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>보수예정</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#f97316' }}>{scheduledCount}</div>
+            </div>
+            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>완료</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>{resolvedCount}</div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -559,6 +657,29 @@ export default function Home() {
                   <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
                     제보일시: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>
+                  {/* Status badge & change dropdown */}
+                  <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                      🚧 유지보수 진행 관리
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className={`status-badge ${selectedItem.status || 'reported'}`}>
+                        {selectedItem.status === 'reported' ? '접수됨' :
+                         selectedItem.status === 'processing' ? '조사중' :
+                         selectedItem.status === 'scheduled' ? '보수 예정' : '보수 완료'}
+                      </span>
+                      <select
+                        className="status-select"
+                        value={selectedItem.status || 'reported'}
+                        onChange={(e) => handleStatusChange(selectedItem.id, e.target.value)}
+                      >
+                        <option value="reported">접수 (Reported)</option>
+                        <option value="processing">조사중 (Processing)</option>
+                        <option value="scheduled">보수 예정 (Scheduled)</option>
+                        <option value="resolved">보수 완료 (Resolved)</option>
+                      </select>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <>
@@ -681,6 +802,7 @@ export default function Home() {
           theme={theme}
           userLocation={userLocation}
           searchLocation={searchLocation}
+          heatmapMode={heatmapMode}
         />
 
         {/* Mobile Floating Bottom Detail Card */}
@@ -722,6 +844,25 @@ export default function Home() {
                       <strong>단차 높이:</strong> {selectedItem.step_height_cm} cm
                     </p>
                   )}
+                  {/* Mobile status selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    <span className={`status-badge ${selectedItem.status || 'reported'}`}>
+                      {selectedItem.status === 'reported' ? '접수됨' :
+                       selectedItem.status === 'processing' ? '조사중' :
+                       selectedItem.status === 'scheduled' ? '보수 예정' : '보수 완료'}
+                    </span>
+                    <select
+                      className="status-select"
+                      value={selectedItem.status || 'reported'}
+                      onChange={(e) => handleStatusChange(selectedItem.id, e.target.value)}
+                      style={{ padding: '4px 8px', fontSize: '11px' }}
+                    >
+                      <option value="reported">접수</option>
+                      <option value="processing">조사중</option>
+                      <option value="scheduled">보수 예정</option>
+                      <option value="resolved">보수 완료</option>
+                    </select>
+                  </div>
                   <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
                     제보: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>

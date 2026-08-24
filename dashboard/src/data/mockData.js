@@ -10,7 +10,8 @@ export const initialHazards = [
     severity: "high",
     description: "작전역 4번 출구 앞 보도 경계석 단차가 높아 휠체어 진입 불가",
     is_verified: true,
-    reported_at: new Date(Date.now() - 3600000 * 24).toISOString()
+    reported_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+    status: "scheduled"
   },
   {
     id: "Gyeyang_hazard_2",
@@ -21,7 +22,8 @@ export const initialHazards = [
     severity: "medium",
     description: "작전여고 통학로 보도블록 파손 및 요철 심함",
     is_verified: true,
-    reported_at: new Date(Date.now() - 3600000 * 48).toISOString()
+    reported_at: new Date(Date.now() - 3600000 * 48).toISOString(),
+    status: "resolved"
   },
   {
     id: "Gyeyang_hazard_3",
@@ -32,7 +34,8 @@ export const initialHazards = [
     severity: "high",
     description: "횡단보도 앞 불법 주차 차량 및 자전거 적치물로 시야 확보 불가 및 통행 방해",
     is_verified: false,
-    reported_at: new Date(Date.now() - 3600000 * 2).toISOString()
+    reported_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    status: "reported"
   },
   {
     id: "Gyeyang_hazard_4",
@@ -43,7 +46,8 @@ export const initialHazards = [
     severity: "low",
     description: "주택가 이면도로 경사 다소 급함 (수동 휠체어 이용 시 주의 요함)",
     is_verified: true,
-    reported_at: new Date(Date.now() - 3600000 * 12).toISOString()
+    reported_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+    status: "processing"
   }
 ];
 
