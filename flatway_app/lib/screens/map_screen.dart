@@ -41,6 +41,9 @@ class _MapScreenState extends State<MapScreen> {
   // UI Mode: 'search' | 'nav' (Navigation mode)
   String _uiMode = 'search';
 
+  // Map Tile Style: 'vworld' (VWorld Korean HD) | 'esri' (Esri Street Map) | 'carto' (CartoDB Voyager)
+  String _selectedMapTileStyle = 'vworld';
+
   // Navigation Origin & Destination
   final String _startName = '현재 위치';
   LatLng _startLocation = LocationService.defaultLocation;
@@ -730,6 +733,32 @@ class _MapScreenState extends State<MapScreen> {
     return list;
   }
 
+  TileLayer _buildTileLayer() {
+    if (_selectedMapTileStyle == 'vworld') {
+      return TileLayer(
+        urlTemplate: 'https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png',
+        maxNativeZoom: 19,
+        maxZoom: 22,
+        userAgentPackageName: 'com.example.flatway_app',
+      );
+    } else if (_selectedMapTileStyle == 'esri') {
+      return TileLayer(
+        urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        maxNativeZoom: 19,
+        maxZoom: 22,
+        userAgentPackageName: 'com.example.flatway_app',
+      );
+    } else {
+      return TileLayer(
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        subdomains: const ['a', 'b', 'c', 'd'],
+        maxNativeZoom: 19,
+        maxZoom: 22,
+        userAgentPackageName: 'com.example.flatway_app',
+      );
+    }
+  }
+
   List<Map<String, dynamic>> get _filteredHazards {
     if (_selectedCategoryFilter == 'all') {
       return _hazards;
@@ -772,6 +801,47 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: Colors.white,
         elevation: 1,
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.layers, color: Colors.blue),
+            tooltip: '지도 스타일 변경',
+            onSelected: (style) {
+              setState(() {
+                _selectedMapTileStyle = style;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'vworld',
+                child: Row(
+                  children: [
+                    Icon(Icons.map, color: Colors.blue, size: 20),
+                    SizedBox(width: 8),
+                    Text('🇰🇷 국토교통부 브이월드 (네이버지도 스타일)'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'esri',
+                child: Row(
+                  children: [
+                    Icon(Icons.public, color: Colors.green, size: 20),
+                    SizedBox(width: 8),
+                    Text('🗺️ Esri World HD 정밀 지도'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'carto',
+                child: Row(
+                  children: [
+                    Icon(Icons.explore, color: Colors.orange, size: 20),
+                    SizedBox(width: 8),
+                    Text('🌐 CartoDB 모던 지도'),
+                  ],
+                ),
+              ),
+            ],
+          ),
           IconButton(
             icon: Icon(_uiMode == 'nav' ? Icons.search : Icons.directions),
             tooltip: _uiMode == 'nav' ? '검색 모드' : '길찾기 모드',
@@ -814,13 +884,7 @@ class _MapScreenState extends State<MapScreen> {
                 },
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-                  subdomains: const ['a', 'b', 'c', 'd'],
-                  maxNativeZoom: 19,
-                  maxZoom: 22,
-                  userAgentPackageName: 'com.example.flatway_app',
-                ),
+                _buildTileLayer(),
                 
                 PolylineLayer(
                   polylines: _getRoutePolylines(),
