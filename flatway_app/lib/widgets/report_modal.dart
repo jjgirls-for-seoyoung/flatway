@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/supabase_service.dart';
 
@@ -25,6 +27,10 @@ class _ReportModalState extends State<ReportModal> {
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
 
+  // Photo Attachment State
+  XFile? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
   final Map<String, String> _typeLabels = {
     'step': '보행 단차 (턱)',
     'damage': '노면 파손 및 요철',
@@ -44,12 +50,36 @@ class _ReportModalState extends State<ReportModal> {
     super.dispose();
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+      if (picked != null) {
+        setState(() {
+          _selectedImage = picked;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
   Future<void> _submitReport() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isSubmitting = true;
     });
+
+    String? imageUrl;
+    if (_selectedImage != null) {
+      final bytes = await _selectedImage!.readAsBytes();
+      imageUrl = await SupabaseService.uploadHazardPhotoBytes(bytes);
+    }
 
     final newHazard = {
       'type': _selectedType,
@@ -58,6 +88,7 @@ class _ReportModalState extends State<ReportModal> {
       'step_height_cm': _selectedType == 'step' ? _stepHeight : null,
       'severity': _selectedSeverity,
       'description': _descriptionController.text.trim(),
+      'image_url': imageUrl,
       'is_verified': false,
       'reported_at': DateTime.now().toUtc().toIso8601String(),
     };
@@ -173,7 +204,7 @@ class _ReportModalState extends State<ReportModal> {
               ),
               const SizedBox(height: 16),
 
-              // Step Height Slider (Only for step type)
+              // Step Height Slider
               if (_selectedType == 'step') ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,6 +257,66 @@ class _ReportModalState extends State<ReportModal> {
               ),
               const SizedBox(height: 16),
 
+              // Photo Attachment Section
+              const Text('현장 사진 첨부', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.camera),
+                    icon: const Icon(Icons.camera_alt, size: 18),
+                    label: const Text('카메라 촬영'),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.gallery),
+                    icon: const Icon(Icons.photo_library, size: 18),
+                    label: const Text('갤러리 선택'),
+                  ),
+                ],
+              ),
+              if (_selectedImage != null) ...[
+                const SizedBox(height: 10),
+                Stack(
+                  children: [
+                    Container(
+                      height: 120,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: kIsWeb
+                            ? Image.network(_selectedImage!.path, fit: BoxFit.cover)
+                            : Image.network(_selectedImage!.path, fit: BoxFit.cover),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedImage = null;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.black87,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close, color: Colors.white, size: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 16),
+
               // Description Text Field
               const Text('상세 설명 및 특이사항', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
@@ -262,7 +353,7 @@ class _ReportModalState extends State<ReportModal> {
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
                       : const Icon(Icons.send),
-                  label: Text(_isSubmitting ? '제보 등록 중...' : '제보 등록하기'),
+                  label: Text(_isSubmitting ? '제보 등록 및 사진 업로드 중...' : '제보 등록하기'),
                 ),
               ),
               const SizedBox(height: 20),

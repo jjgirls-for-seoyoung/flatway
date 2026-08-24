@@ -44,11 +44,27 @@ class SupabaseService {
     }
   }
 
+  // Upload hazard photo bytes to Supabase Storage
+  static Future<String?> uploadHazardPhotoBytes(Uint8List bytes) async {
+    try {
+      final fileName = 'hazard_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await client.storage.from('hazard-photos').uploadBinary(
+        fileName,
+        bytes,
+        fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true),
+      );
+      final publicUrl = client.storage.from('hazard-photos').getPublicUrl(fileName);
+      return publicUrl;
+    } catch (e) {
+      debugPrint('Error uploading photo to Supabase Storage: $e');
+      return null;
+    }
+  }
+
   // Submit a new hazard report to Supabase with offline queue fallback
   static Future<bool> insertHazard(Map<String, dynamic> hazardData) async {
     try {
       await client.from('hazards').insert(hazardData);
-      // Attempt syncing any previously queued offline items
       syncPendingHazards();
       return true;
     } catch (e) {

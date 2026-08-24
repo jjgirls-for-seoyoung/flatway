@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -50,6 +51,19 @@ class _MapScreenState extends State<MapScreen> {
   double _navDistanceMeters = 0.0;
   int _navEstMinutes = 0;
   int _bypassedHazardsCount = 0;
+
+  // Voice Guidance (TTS)
+  final FlutterTts _flutterTts = FlutterTts();
+
+  void _speakGuidance(String text) async {
+    try {
+      await _flutterTts.setLanguage("ko-KR");
+      await _flutterTts.setSpeechRate(0.5);
+      await _flutterTts.speak(text);
+    } catch (e) {
+      debugPrint('TTS speak error: $e');
+    }
+  }
 
   // Map Tapped Location for reporting or navigation destination
   LatLng? _selectedTappedLocation;
@@ -176,6 +190,8 @@ class _MapScreenState extends State<MapScreen> {
 
     final bounds = LatLngBounds.fromPoints([start, dest]);
     _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)));
+
+    _speakGuidance('${_destName ?? "목적지"}까지 보행약자 안전 경로 안내를 시작합니다. 90m 앞 단차 회피 우회전하세요.');
   }
 
   void _clearNavigation() {
@@ -544,6 +560,19 @@ class _MapScreenState extends State<MapScreen> {
             Text('• 심각도: ${hazard['severity'] ?? '기본'}'),
             Text('• 설명: ${hazard['description'] ?? '설명 없음'}'),
             Text('• 제보 시각: ${hazard['reported_at'] ?? '-'}'),
+            if (hazard['image_url'] != null && hazard['image_url'].toString().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  hazard['image_url'],
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const SizedBox(),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
