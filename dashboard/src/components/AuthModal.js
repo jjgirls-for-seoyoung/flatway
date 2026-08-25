@@ -88,7 +88,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
         {/* Header */}
         <div className="modal-header" style={{ marginBottom: '16px' }}>
           <div style={{ textAlign: 'left' }}>
-            <h3 className="modal-title" style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <h3 className="modal-title" style={{ fontSize: '19px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {view === 'login' ? (
                 <>
                   <button 
@@ -105,7 +105,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
               )}
             </h3>
             {view === 'settings' && (
-              <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>
+              <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
                 일반 기본 환경설정 및 관리자 계정 권한을 관리합니다.
               </p>
             )}
@@ -200,9 +200,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
             </div>
 
-            <p style={{ margin: '10px 0 0 0', fontSize: '9.5px', color: 'var(--text-muted)', textAlign: 'left' }}>
-              본 서비스를 이용함으로써 <span style={{ color: 'var(--color-accent)', cursor: 'pointer' }}>이용약관</span>에 동의하게 됩니다.
-            </p>
+
 
           </div>
         ) : (
