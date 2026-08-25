@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { X, User, Lock, Mail, LogOut, ArrowLeft } from 'lucide-react';
+import { X, User, Lock, Mail, LogOut, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingSupabase, onToggleSync }) {
@@ -12,6 +12,9 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Password visibility toggle state
+  const [showPassword, setShowPassword] = useState(false);
 
   // Local switch toggle for location tracking (simulating map preference in local storage)
   const [locationTracking, setLocationTracking] = useState(true);
@@ -271,16 +274,38 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
             {/* Password */}
             <div className="form-group" style={{ textAlign: 'left' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', marginBottom: '4px' }}>
-                비밀번호
+                비밀번호 <span style={{ fontWeight: 'normal', color: 'var(--text-secondary)', marginLeft: '4px' }}>(6자리 이상)</span>
               </label>
-              <input
-                type="password"
-                className="form-control"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ paddingRight: '40px', width: '100%' }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px',
+                    opacity: 1
+                  }}
+                  aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             {errorMsg && (
@@ -304,15 +329,6 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                 style={{ width: '100%', padding: '10px' }}
               >
                 {loading ? '처리 중...' : isSignUp ? '가입하기' : '로그인 완료'}
-              </button>
-              
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setView('settings')}
-                style={{ width: '100%', padding: '10px' }}
-              >
-                취소 및 뒤로가기
               </button>
             </div>
           </form>
