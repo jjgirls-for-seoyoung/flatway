@@ -42,8 +42,9 @@ class _MapScreenState extends State<MapScreen> {
   // UI Mode: 'search' | 'nav' (Navigation mode)
   String _uiMode = 'search';
 
-  // Map Tile Style: 'vworld' (VWorld Korean HD) | 'esri' (Esri Street Map) | 'carto' (CartoDB Voyager)
+  // Map Tile Style: 'vworld' | 'satellite' | 'esri_sat' | 'dark' | 'carto'
   String _selectedMapTileStyle = 'vworld';
+  bool _isDarkMode = false;
 
   // Navigation Origin & Destination
   String _startName = '현재 위치';
@@ -770,25 +771,50 @@ class _MapScreenState extends State<MapScreen> {
     return list;
   }
 
-  TileLayer _buildTileLayer() {
-    if (_selectedMapTileStyle == 'vworld') {
+  Widget _buildTileLayer() {
+    if (_selectedMapTileStyle == 'satellite') {
+      return Stack(
+        children: [
+          TileLayer(
+            urlTemplate: 'https://xdworld.vworld.kr/2d/Satellite/service/{z}/{x}/{y}.jpeg',
+            maxNativeZoom: 19,
+            maxZoom: 22,
+            userAgentPackageName: 'com.example.flatway_app',
+          ),
+          TileLayer(
+            urlTemplate: 'https://xdworld.vworld.kr/2d/Hybrid/service/{z}/{x}/{y}.png',
+            maxNativeZoom: 19,
+            maxZoom: 22,
+            userAgentPackageName: 'com.example.flatway_app',
+          ),
+        ],
+      );
+    } else if (_selectedMapTileStyle == 'esri_sat') {
       return TileLayer(
-        urlTemplate: 'https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png',
+        urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         maxNativeZoom: 19,
         maxZoom: 22,
         userAgentPackageName: 'com.example.flatway_app',
       );
-    } else if (_selectedMapTileStyle == 'esri') {
+    } else if (_selectedMapTileStyle == 'dark') {
       return TileLayer(
-        urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        subdomains: const ['a', 'b', 'c', 'd'],
+        maxNativeZoom: 19,
+        maxZoom: 22,
+        userAgentPackageName: 'com.example.flatway_app',
+      );
+    } else if (_selectedMapTileStyle == 'carto') {
+      return TileLayer(
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        subdomains: const ['a', 'b', 'c', 'd'],
         maxNativeZoom: 19,
         maxZoom: 22,
         userAgentPackageName: 'com.example.flatway_app',
       );
     } else {
       return TileLayer(
-        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        subdomains: const ['a', 'b', 'c', 'd'],
+        urlTemplate: 'https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png',
         maxNativeZoom: 19,
         maxZoom: 22,
         userAgentPackageName: 'com.example.flatway_app',
@@ -853,17 +879,37 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     Icon(Icons.map, color: Colors.blue, size: 20),
                     SizedBox(width: 8),
-                    Text('🇰🇷 국토교통부 브이월드 (네이버지도 스타일)'),
+                    Text('🇰🇷 브이월드 한글 정밀 지도'),
                   ],
                 ),
               ),
               const PopupMenuItem(
-                value: 'esri',
+                value: 'satellite',
                 child: Row(
                   children: [
-                    Icon(Icons.public, color: Colors.green, size: 20),
+                    Icon(Icons.satellite_alt, color: Colors.purple, size: 20),
                     SizedBox(width: 8),
-                    Text('🗺️ Esri World HD 정밀 지도'),
+                    Text('🛰️ VWorld HD 위성 + 한글 하이브리드'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'esri_sat',
+                child: Row(
+                  children: [
+                    Icon(Icons.public, color: Colors.indigo, size: 20),
+                    SizedBox(width: 8),
+                    Text('🌍 Esri World HD 위성 지도'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'dark',
+                child: Row(
+                  children: [
+                    Icon(Icons.dark_mode, color: Colors.amber, size: 20),
+                    SizedBox(width: 8),
+                    Text('🌙 CartoDB Dark Matter 다크 지도'),
                   ],
                 ),
               ),
@@ -871,13 +917,33 @@ class _MapScreenState extends State<MapScreen> {
                 value: 'carto',
                 child: Row(
                   children: [
-                    Icon(Icons.explore, color: Colors.orange, size: 20),
+                    Icon(Icons.explore, color: Colors.teal, size: 20),
                     SizedBox(width: 8),
-                    Text('🌐 CartoDB 모던 지도'),
+                    Text('🌐 CartoDB Voyager 모던 지도'),
                   ],
                 ),
               ),
             ],
+          ),
+          IconButton(
+            icon: Icon(_isDarkMode ? Icons.wb_sunny : Icons.nightlight_round),
+            tooltip: _isDarkMode ? '라이트 모드' : '다크 모드',
+            onPressed: () {
+              setState(() {
+                _isDarkMode = !_isDarkMode;
+                if (_isDarkMode && _selectedMapTileStyle == 'vworld') {
+                  _selectedMapTileStyle = 'dark';
+                } else if (!_isDarkMode && _selectedMapTileStyle == 'dark') {
+                  _selectedMapTileStyle = 'vworld';
+                }
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_isDarkMode ? '🌙 야간 다크모드 테마가 적용되었습니다.' : '☀️ 라이트 테마가 적용되었습니다.'),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: Icon(_uiMode == 'nav' ? Icons.search : Icons.directions),
@@ -1107,7 +1173,7 @@ class _MapScreenState extends State<MapScreen> {
                 Card(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 6,
-                  color: Colors.blue.shade900,
+                  color: _isDarkMode ? const Color(0xFF1E293B) : Colors.blue.shade900,
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Column(
@@ -1200,7 +1266,7 @@ class _MapScreenState extends State<MapScreen> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue.shade600,
+                                backgroundColor: _isDarkMode ? const Color(0xFF059669) : Colors.blue.shade600,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               ),
@@ -1249,7 +1315,7 @@ class _MapScreenState extends State<MapScreen> {
                   Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 8,
-                    color: Colors.white.withValues(alpha: 0.95),
+                    color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white.withValues(alpha: 0.95),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
@@ -1259,7 +1325,7 @@ class _MapScreenState extends State<MapScreen> {
                             children: [
                               Icon(
                                 _isTrackingRoute ? Icons.route : Icons.my_location,
-                                color: _isTrackingRoute ? Colors.purple : Colors.blue,
+                                color: _isTrackingRoute ? Colors.purpleAccent : (_isDarkMode ? const Color(0xFF34D399) : Colors.blue),
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -1275,7 +1341,7 @@ class _MapScreenState extends State<MapScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: _isTrackingRoute ? Colors.purple.shade900 : Colors.black87,
+                                    color: _isDarkMode ? Colors.white : (_isTrackingRoute ? Colors.purple.shade900 : Colors.black87),
                                   ),
                                 ),
                               ),
