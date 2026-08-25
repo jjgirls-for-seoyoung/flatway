@@ -102,7 +102,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
         {/* Header */}
         <div className="modal-header" style={{ marginBottom: '16px' }}>
           <div style={{ textAlign: 'left' }}>
-            <h3 className="modal-title" style={{ fontSize: '19px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <h3 className="modal-title" style={{ fontSize: view === 'settings' ? '23px' : '19px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {view === 'login' ? (
                 <>
                   <button 
@@ -115,14 +115,9 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                   {isSignUp ? '새로운 계정 만들기' : '데이터베이스 로그인'}
                 </>
               ) : (
-                '계정 설정'
+                '계정'
               )}
             </h3>
-            {view === 'settings' && (
-              <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                일반 기본 환경설정 및 관리자 계정 권한을 관리합니다.
-              </p>
-            )}
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="닫기">
             <X size={20} />
@@ -142,7 +137,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                 <div className="settings-row-info">
                   <span className="settings-row-title">실시간 데이터 동기화</span>
                   <span className="settings-row-desc">
-                    지도 데이터와 Supabase 데이터베이스를 실시간으로 양방향 동기화합니다.
+                    지도와 데이터베이스를 실시간 동기화
                   </span>
                 </div>
                 <div 
@@ -166,7 +161,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                 <div className="settings-row-info">
                   <span className="settings-row-title">자동 현재 위치 추적</span>
                   <span className="settings-row-desc">
-                    GPS 센서를 활용하여 실시간으로 사용자의 위치를 추적하고 지도 상에 반영합니다.
+                    실시간 사용자 위치 추적해 지도에 반영
                   </span>
                 </div>
                 <div className="switch-container" onClick={() => setLocationTracking(!locationTracking)}>
@@ -188,7 +183,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                     관제 권한 등급: {user ? '최고 관리자' : '게스트 관찰자'}
                   </span>
                   <span className="settings-row-desc">
-                    {user ? '실시간 위험 요소 데이터베이스 삭제 및 유지보수 파이프라인 수정 권한이 활성화되었습니다.' : '지도 조회 및 위치 검색 전용 세션입니다. 제보 삭제 및 진행 상태 수정 권한이 제한됩니다.'}
+                    {user ? '권한 활성화' : '지도 조회 및 위치 검색 전용 세션입니다. 제보 삭제 및 진행 상태 수정 권한이 제한됩니다.'}
                   </span>
                 </div>
               </div>
@@ -196,7 +191,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
               {/* Email & Auth Actions Row */}
               <div className="settings-row">
                 <div className="settings-row-info">
-                  <span className="settings-row-title">로그인 이메일</span>
+                  <span className="settings-row-title">로그인 계정</span>
                   <span className="settings-row-desc" style={{ wordBreak: 'break-all', fontWeight: user ? '600' : 'normal' }}>
                     {user ? user.email : '로그인 정보 없음'}
                   </span>
