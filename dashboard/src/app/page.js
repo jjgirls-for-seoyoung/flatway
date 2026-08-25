@@ -1113,7 +1113,7 @@ export default function Home() {
       <aside className={`right-sidebar glass-panel ${isRightSidebarOpen ? 'open' : ''}`}>
         <div className="right-sidebar-header">
           <span className="right-sidebar-title">
-            <BookOpen size={16} color="var(--color-accent)" /> 관제 가이드 및 기준서
+            <BookOpen size={16} color="var(--color-accent)" /> 이용 가이드 및 기준서
           </span>
           <button 
             className="modal-close-btn" 
@@ -1129,27 +1129,27 @@ export default function Home() {
           {/* Accordion 1 */}
           <div className="accordion-item">
             <div className="accordion-header" onClick={() => toggleAccordion(0)}>
-              <h5><AlertTriangle size={14} color="var(--color-accent)" /> 노면 위험도 판단 기준</h5>
+              <h5><AlertTriangle size={14} color="var(--color-accent)" /> 노면 위험도 기준 (상·중·하)</h5>
               {expandedSection === 0 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </div>
             {expandedSection === 0 && (
               <div className="accordion-content">
                 <div className="accordion-sub-item">
-                  <strong style={{ color: 'var(--color-danger)' }}>상 (High Severity)</strong>
+                  <strong style={{ color: 'var(--color-danger)' }}>상 (매우 위험)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 3cm 이상 또는 노면 포트홀/파손이 매우 심해 휠체어의 자력 주행 및 진입이 불가능한 최우선 우회 대상 구간입니다.
+                    단차 3cm 이상 또는 심한 도로 파손. 휠체어/유모차 단독 주행이 불가능하여 반드시 안전한 길로 돌아가야(우회) 하는 구간입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: 'var(--color-warn)' }}>중 (Medium Severity)</strong>
+                  <strong style={{ color: 'var(--color-warn)' }}>중 (주의 필요)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 1.5cm ~ 3cm 이거나 노면 블록 요철 유실, 경사각 8~12도 사이의 급경사로 주행 시 충격 및 보조인의 밀착 관리가 필요한 구간입니다.
+                    단차 1.5cm~3cm, 덜컹거리는 보도블록, 급경사. 바퀴 충격이 크고 이동이 불편해 동반자의 보조가 권장됩니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: 'var(--color-safe)' }}>하 (Low Severity)</strong>
+                  <strong style={{ color: 'var(--color-safe)' }}>하 (경미함)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 1.5cm 미만의 미세한 턱이나 경미한 주행 진동을 동반하는 구간으로, 휠체어 자력 단독 통행에 큰 지장이 없는 관리 대상입니다.
+                    단차 1.5cm 미만의 완만한 턱이나 작은 흠집. 휠체어가 혼자서도 안전하게 통행할 수 있는 수준입니다.
                   </p>
                 </div>
               </div>
@@ -1159,33 +1159,33 @@ export default function Home() {
           {/* Accordion 2 */}
           <div className="accordion-item">
             <div className="accordion-header" onClick={() => toggleAccordion(1)}>
-              <h5><Wrench size={14} color="var(--color-accent)" /> 유지보수 파이프라인</h5>
+              <h5><Wrench size={14} color="var(--color-accent)" /> 보수 처리 진행 단계</h5>
               {expandedSection === 1 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </div>
             {expandedSection === 1 && (
               <div className="accordion-content">
                 <div className="accordion-sub-item">
-                  <strong style={{ color: '#2c7dfa' }}>접수 (Reported)</strong>
+                  <strong style={{ color: '#2c7dfa' }}>접수</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    FlatWay 현장 모바일 앱 또는 시민 제보 시스템을 통해 신규 제보 사진과 GPS 좌표가 서버 데이터베이스에 신규 등록된 초기 접수 단계입니다.
+                    시민 또는 현장 앱을 통해 위험 요소(턱/파손)의 위치와 내용이 신규 등록된 초기 상태입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: '#6366f1' }}>조사중 (Processing)</strong>
+                  <strong style={{ color: '#6366f1' }}>조사중</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    지자체 보도환경 정비단 또는 안전점검 실사팀이 지정되어 현장 검증, 실물 계측 및 노면 위험 수준에 대한 판정을 실시 중인 상태입니다.
+                    안전 점검 담당자가 현장 위험도를 확인하고 수리 계획을 검토 중인 단계입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: '#eab308' }}>보수 예정 (Scheduled)</strong>
+                  <strong style={{ color: '#eab308' }}>보수 예정</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 완화 경사판 덧댐 공사, 블록 교체 혹은 요철 평탄화 작업에 대한 관할 예산 집행과 공사 용역 일정이 공식 확정 및 예약된 단계입니다.
+                    턱 완화 경사판 설치나 보도블록 교체 등 보수 공사 일정이 확정된 상태입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: '#14b8a6' }}>보수 완료 (Resolved)</strong>
+                  <strong style={{ color: '#14b8a6' }}>보수 완료</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    현장 시공 복구 및 장애물 철거가 최종 완료되어 보행 약자가 안전하게 턱 없이 직진할 수 있게 보도 상태가 정상 회복된 상태입니다.
+                    공사가 완료되어 턱이 완만해지고 평탄하게 복구되어 누구나 안전하게 통행할 수 있는 상태입니다.
                   </p>
                 </div>
               </div>
@@ -1195,21 +1195,111 @@ export default function Home() {
           {/* Accordion 3 */}
           <div className="accordion-item">
             <div className="accordion-header" onClick={() => toggleAccordion(2)}>
-              <h5><Layers size={14} color="var(--color-accent)" /> 히트맵 가중치 해설</h5>
+              <h5><Navigation size={14} color="var(--color-accent)" /> 추천 안전 경로 & 우회 안내</h5>
               {expandedSection === 2 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </div>
             {expandedSection === 2 && (
               <div className="accordion-content">
                 <div className="accordion-sub-item">
-                  <strong>위험 등급별 히트맵 열원 규모</strong>
+                  <strong>보행 약자 맞춤 우회</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    제보 건의 심각도에 따라 고위험(상) 제보는 반경 80px의 대형 열원, 중위험(중)은 60px 규모, 저위험(하)은 40px 규모의 가중치가 누적 투사됩니다.
+                    계단, 높은 턱(3cm 이상), 급경사 구간을 자동으로 피하고 가장 평탄하고 안전한 길로 안내합니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong>히트맵 핫스팟 해석</strong>
+                  <strong>이동 모드별 맞춤 경로</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    일정 구역 내 다수의 제보 마커가 밀집되면 그라데이션 광원이 강력하게 중첩되어 붉은색 밀도가 매우 높게 표현됩니다. 이 지역은 우선 순위 정비 지역을 선별하는 과학적 지표로 사용됩니다.
+                    일반 보행, 수동 휠체어, 전동 휠체어 등 이동 수단에 맞춰 최적화된 도로를 추천합니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>실시간 길안내</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    경로 검색 후 상단 카드에서 다음 회전 방향과 남은 거리를 차례대로 확인하며 이동할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 4 */}
+          <div className="accordion-item">
+            <div className="accordion-header" onClick={() => toggleAccordion(3)}>
+              <h5><Building2 size={14} color="var(--color-accent)" /> 건물 입구 편의시설 안내</h5>
+              {expandedSection === 3 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+            {expandedSection === 3 && (
+              <div className="accordion-content">
+                <div className="accordion-sub-item">
+                  <strong>진입 경사로</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    계단 옆에 휠체어/유모차용 경사판이 있는지 표시합니다. (경사각이 완만할수록 오르기 쉽습니다.)
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>승강기 (엘리베이터)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    휠체어 탑승이 가능한 전용 승강기 설치 여부를 확인합니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>출입문 형태</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    자동문, 회전문, 수동 여닫이문 여부를 안내합니다. (버튼식 자동문이 가장 진입하기 편리합니다.)
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>장애인 화장실</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    휠체어 회전 공간과 안전 손잡이가 갖춰진 전용 화장실 유무를 표시합니다.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 5 */}
+          <div className="accordion-item">
+            <div className="accordion-header" onClick={() => toggleAccordion(4)}>
+              <h5><Layers size={14} color="var(--color-accent)" /> 위험 밀집 지역 (히트맵)</h5>
+              {expandedSection === 4 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+            {expandedSection === 4 && (
+              <div className="accordion-content">
+                <div className="accordion-sub-item">
+                  <strong>붉은색 집중 구역</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    단차나 도로 파손 제보가 한곳에 많이 몰려 있는 지역으로, 주행 시 각별한 주의가 필요합니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>히트맵 활용 팁</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    지도 좌측 필터에서 [위험 밀집도 (히트맵)]을 켜면 피해야 할 위험 구역이나 우선 수리 지역을 한눈에 확인할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 6 */}
+          <div className="accordion-item">
+            <div className="accordion-header" onClick={() => toggleAccordion(5)}>
+              <h5><MapPin size={14} color="var(--color-accent)" /> 실시간 제보 참여 방법</h5>
+              {expandedSection === 5 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+            {expandedSection === 5 && (
+              <div className="accordion-content">
+                <div className="accordion-sub-item">
+                  <strong>지도 클릭으로 간편 제보</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    지도에서 높은 턱이나 파손을 발견한 위치를 마우스로 클릭하면 바로 제보창이 열립니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>실시간 지도 반영</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    위험 유형과 간단한 설명을 적어 [등록]을 누르면 즉시 지도 마커와 안전 점수 통계에 반영됩니다.
                   </p>
                 </div>
               </div>
