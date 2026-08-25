@@ -958,11 +958,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Interactive instructions overlay */}
-        <div className="map-overlay-instructions">
-          <HelpCircle size={14} color="var(--color-accent)" />
-          <span>지도의 빈 보행로를 클릭해 새로운 단차 제보 시뮬레이션을 실행해 보세요.</span>
-        </div>
+
       </section>
 
       {/* Report Form Modal */}
