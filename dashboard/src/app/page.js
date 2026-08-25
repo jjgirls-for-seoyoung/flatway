@@ -1084,12 +1084,12 @@ export default function Home() {
             <BookOpen size={16} color="var(--color-accent)" /> 관제 가이드 및 기준서
           </span>
           <button 
-            className="mobile-sidebar-close" 
+            className="modal-close-btn" 
             onClick={() => setIsRightSidebarOpen(false)}
             aria-label="도움말 닫기"
-            style={{ display: 'flex' }}
+            style={{ display: 'flex', padding: '4px' }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
