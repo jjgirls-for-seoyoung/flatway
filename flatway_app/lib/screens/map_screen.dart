@@ -796,14 +796,6 @@ class _MapScreenState extends State<MapScreen> {
         maxZoom: 22,
         userAgentPackageName: 'com.example.flatway_app',
       );
-    } else if (_selectedMapTileStyle == 'dark') {
-      return TileLayer(
-        urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        subdomains: const ['a', 'b', 'c', 'd'],
-        maxNativeZoom: 19,
-        maxZoom: 22,
-        userAgentPackageName: 'com.example.flatway_app',
-      );
     } else if (_selectedMapTileStyle == 'carto') {
       return TileLayer(
         urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
@@ -875,53 +867,19 @@ class _MapScreenState extends State<MapScreen> {
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'vworld',
-                child: Row(
-                  children: [
-                    Icon(Icons.map, color: Colors.blue, size: 20),
-                    SizedBox(width: 8),
-                    Text('🇰🇷 브이월드 한글 정밀 지도'),
-                  ],
-                ),
+                child: Text('한글 정밀지도'),
               ),
               const PopupMenuItem(
                 value: 'satellite',
-                child: Row(
-                  children: [
-                    Icon(Icons.satellite_alt, color: Colors.purple, size: 20),
-                    SizedBox(width: 8),
-                    Text('🛰️ VWorld HD 위성 + 한글 하이브리드'),
-                  ],
-                ),
+                child: Text('위성 하이브리드지도'),
               ),
               const PopupMenuItem(
                 value: 'esri_sat',
-                child: Row(
-                  children: [
-                    Icon(Icons.public, color: Colors.indigo, size: 20),
-                    SizedBox(width: 8),
-                    Text('🌍 Esri World HD 위성 지도'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'dark',
-                child: Row(
-                  children: [
-                    Icon(Icons.dark_mode, color: Colors.amber, size: 20),
-                    SizedBox(width: 8),
-                    Text('🌙 CartoDB Dark Matter 다크 지도'),
-                  ],
-                ),
+                child: Text('위성지도'),
               ),
               const PopupMenuItem(
                 value: 'carto',
-                child: Row(
-                  children: [
-                    Icon(Icons.explore, color: Colors.teal, size: 20),
-                    SizedBox(width: 8),
-                    Text('🌐 CartoDB Voyager 모던 지도'),
-                  ],
-                ),
+                child: Text('모던 지도'),
               ),
             ],
           ),
@@ -931,15 +889,10 @@ class _MapScreenState extends State<MapScreen> {
             onPressed: () {
               setState(() {
                 _isDarkMode = !_isDarkMode;
-                if (_isDarkMode && _selectedMapTileStyle == 'vworld') {
-                  _selectedMapTileStyle = 'dark';
-                } else if (!_isDarkMode && _selectedMapTileStyle == 'dark') {
-                  _selectedMapTileStyle = 'vworld';
-                }
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(_isDarkMode ? '🌙 야간 다크모드 테마가 적용되었습니다.' : '☀️ 라이트 테마가 적용되었습니다.'),
+                  content: Text(_isDarkMode ? '야간 다크모드 테마가 적용되었습니다.' : '라이트 테마가 적용되었습니다.'),
                   duration: const Duration(seconds: 1),
                 ),
               );
