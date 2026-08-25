@@ -38,12 +38,24 @@ const createUserLocationIcon = () => {
   });
 };
 
-const createHeatmapIcon = () => {
+const createHeatmapIcon = (severity) => {
+  let color = 'rgba(232, 51, 46, 0.75)'; // High severity (red-600)
+  let size = 80;
+  if (severity === 'medium') {
+    color = 'rgba(249, 115, 22, 0.75)'; // Medium severity (orange)
+    size = 60;
+  } else if (severity === 'low') {
+    color = 'rgba(234, 179, 8, 0.75)'; // Low severity (yellow)
+    size = 40;
+  }
+
+  const styleStr = `background: radial-gradient(circle, ${color} 0%, ${color.replace('0.75', '0.25')} 50%, rgba(0, 0, 0, 0) 100%) !important; width: ${size}px; height: ${size}px; border-radius: 50%; pointer-events: none; border: none; box-shadow: none;`;
+
   return L.divIcon({
     className: 'heatmap-circle',
-    html: '',
-    iconSize: [80, 80],
-    iconAnchor: [40, 40]
+    html: `<div style="${styleStr}"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2]
   });
 };
 
@@ -125,9 +137,9 @@ export default function SafetyMap({
         {/* Render Hazards */}
         {filteredHazards.map((hazard) => (
           <Marker
-            key={hazard.id}
+            key={`${hazard.id}-${heatmapMode ? 'heatmap' : 'marker'}`}
             position={[hazard.latitude, hazard.longitude]}
-            icon={heatmapMode ? createHeatmapIcon() : createCustomIcon(hazard.type)}
+            icon={heatmapMode ? createHeatmapIcon(hazard.severity) : createCustomIcon(hazard.type)}
             eventHandlers={{
               click: heatmapMode ? undefined : () => onSelectItem(hazard, 'hazard')
             }}

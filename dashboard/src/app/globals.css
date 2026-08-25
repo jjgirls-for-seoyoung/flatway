@@ -1026,10 +1026,9 @@ input:checked + .slider:before {
 
 /* Heatmap Circle & Density Visualization */
 .heatmap-circle {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.75) 0%, rgba(239, 68, 68, 0.3) 50%, rgba(239, 68, 68, 0) 100%) !important;
-  border-radius: 50% !important;
   border: none !important;
   box-shadow: none !important;
+  background: transparent !important;
   pointer-events: none !important;
 }
 
