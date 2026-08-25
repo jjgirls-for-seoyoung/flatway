@@ -6,26 +6,47 @@ import L from 'leaflet';
 import { mockRoutes } from '../data/mockData';
 
 // Fix Leaflet marker icons using DivIcon for custom styling and reliability
-const createCustomIcon = (type) => {
-  let innerHtml = '';
-  if (type === 'building') {
-    innerHtml = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8"/><path d="M18 16h2a2 2 0 0 1 2 2v4"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>`;
-  } else if (type === 'step') {
-    innerHtml = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-  } else if (type === 'damage') {
-    innerHtml = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`;
-  } else if (type === 'obstacle') {
-    innerHtml = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`;
-  } else if (type === 'slope') {
-    innerHtml = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 13-10 5 10H3z"/></svg>`;
+const createCustomIcon = (type, severity) => {
+  let size = 28;
+  let svgSize = 13;
+  
+  if (type !== 'building' && severity) {
+    if (severity === 'high') {
+      size = 36;
+      svgSize = 17;
+    } else if (severity === 'medium') {
+      size = 28;
+      svgSize = 13;
+    } else if (severity === 'low') {
+      size = 20;
+      svgSize = 10;
+    }
   }
 
+  let innerHtml = '';
+  if (type === 'building') {
+    innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8"/><path d="M18 16h2a2 2 0 0 1 2 2v4"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>`;
+  } else if (type === 'step') {
+    // Stair icon for steps
+    innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-4h4v-4h4v-4h4"/></svg>`;
+  } else if (type === 'damage') {
+    // Exclamation Warning Triangle icon for damage
+    innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  } else if (type === 'obstacle') {
+    // Prohibition/Ban icon for obstacle
+    innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>`;
+  } else if (type === 'slope') {
+    // Incline slope triangle
+    innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 13-10 5 10H3z"/></svg>`;
+  }
+
+  const radius = size / 2;
   return L.divIcon({
     className: `custom-marker ${type}`,
     html: `<span style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">${innerHtml}</span>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14]
+    iconSize: [size, size],
+    iconAnchor: [radius, radius],
+    popupAnchor: [0, -radius]
   });
 };
 
@@ -139,7 +160,7 @@ export default function SafetyMap({
           <Marker
             key={`${hazard.id}-${heatmapMode ? 'heatmap' : 'marker'}`}
             position={[hazard.latitude, hazard.longitude]}
-            icon={heatmapMode ? createHeatmapIcon(hazard.severity) : createCustomIcon(hazard.type)}
+            icon={heatmapMode ? createHeatmapIcon(hazard.severity) : createCustomIcon(hazard.type, hazard.severity)}
             eventHandlers={{
               click: heatmapMode ? undefined : () => onSelectItem(hazard, 'hazard')
             }}

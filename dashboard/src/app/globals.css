@@ -692,8 +692,8 @@ input:checked + .slider:before {
 
 .custom-marker.step { background-color: var(--color-danger); }
 .custom-marker.damage { background-color: var(--color-warn); }
-.custom-marker.obstacle { background-color: var(--color-warn); }
-.custom-marker.slope { background-color: var(--color-accent); }
+.custom-marker.obstacle { background-color: #8b5cf6; } /* Purple for obstacle */
+.custom-marker.slope { background-color: #06b6d4; } /* Cyan for slope */
 .custom-marker.building { background-color: var(--color-safe); }
 
 /* Desktop-only defaults for mobile elements */
