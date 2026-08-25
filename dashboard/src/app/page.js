@@ -573,30 +573,34 @@ export default function Home() {
           )}
         </div>
 
-        {/* Heatmap & Maintenance Control Center */}
-        <div className="control-panel glass-panel" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          padding: '12px 14px',
-          borderRadius: 'var(--ldsg-radius-300)',
-          background: 'var(--card-bg)',
-          border: '1px solid var(--glass-border)',
-          marginBottom: '8px'
-        }}>
-          <h4 className="section-title" style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Eye size={12} color="var(--color-accent)" /> 실시간 관제 및 분석 모드
-          </h4>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>열지도(Heatmap) 분석 활성화</span>
-            <label className="switch" style={{ margin: 0 }}>
-              <input 
-                type="checkbox" 
-                checked={heatmapMode} 
-                onChange={() => setHeatmapMode(prev => !prev)} 
-              />
-              <span className="slider" />
-            </label>
+        {/* Stats Grid with Total Hazards & Heatmap Control */}
+        <div className="stats-grid" style={{ marginBottom: '8px' }}>
+          <div className="stat-card">
+            <div className="stat-header">
+              <span style={{ fontSize: '11px' }}>총 노면 위험</span>
+              <AlertTriangle size={14} color="var(--color-warn)" />
+            </div>
+            <div className="stat-value">{totalHazards}건</div>
+            <div className="stat-label">단차 턱 포함</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-header">
+              <span style={{ fontSize: '11px' }}>히트맵</span>
+              <Eye size={14} color="var(--color-accent)" />
+            </div>
+            <div className="stat-value" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '18px', lineHeight: '1.2' }}>
+              <span>{heatmapMode ? 'ON' : 'OFF'}</span>
+              <label className="switch" style={{ margin: 0 }}>
+                <input 
+                  type="checkbox" 
+                  checked={heatmapMode} 
+                  onChange={() => setHeatmapMode(prev => !prev)} 
+                />
+                <span className="slider" />
+              </label>
+            </div>
+            <div className="stat-label">열지도 시각화 제어</div>
           </div>
         </div>
 
@@ -631,25 +635,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-header">
-              <span style={{ fontSize: '11px' }}>총 노면 위험</span>
-              <AlertTriangle size={14} color="var(--color-warn)" />
-            </div>
-            <div className="stat-value">{totalHazards}건</div>
-            <div className="stat-label">단차 턱 포함</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-header">
-              <span style={{ fontSize: '11px' }}>건물 경사로율</span>
-              <Building2 size={14} color="var(--color-safe)" />
-            </div>
-            <div className="stat-value">{rampPercentage}%</div>
-            <div className="stat-label">진입 안전 보장</div>
-          </div>
-        </div>
+
 
 
 
