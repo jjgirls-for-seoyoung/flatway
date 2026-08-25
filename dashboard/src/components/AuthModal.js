@@ -112,7 +112,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                   >
                     <ArrowLeft size={16} />
                   </button>
-                  {isSignUp ? '새로운 계정 만들기' : '데이터베이스 로그인'}
+                  {isSignUp ? '계정이 없습니다.' : '이미 계정이 있습니다.'}
                 </>
               ) : (
                 '계정'
@@ -342,7 +342,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                 disabled={loading}
                 style={{ width: '100%', padding: '10px' }}
               >
-                {loading ? '처리 중...' : isSignUp ? '가입하기' : '로그인 완료'}
+                {loading ? '처리 중...' : isSignUp ? '가입하기' : '로그인하기'}
               </button>
             </div>
           </form>
