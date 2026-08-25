@@ -96,6 +96,38 @@ function MapViewCenter({ userLocation, searchLocation }) {
   return null;
 }
 
+// Auto-resizes map tiles to eliminate bottom blank spaces on mobile devices
+function MapAutoResize() {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+
+    const timer1 = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+
+    const timer2 = setTimeout(() => {
+      map.invalidateSize();
+    }, 500);
+
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [map]);
+
+  return null;
+}
+
 // Map event handler to capture click coordinates for report simulator
 function MapClickHandler({ onMapClick }) {
   useMapEvents({
@@ -246,6 +278,9 @@ export default function SafetyMap({
 
         {/* Center map view to User Location when updated */}
         <MapViewCenter userLocation={userLocation} searchLocation={searchLocation} />
+
+        {/* Auto resize listener to eliminate blank areas */}
+        <MapAutoResize />
 
         {/* Capture click on map for simulator */}
         <MapClickHandler onMapClick={onMapClick} />
