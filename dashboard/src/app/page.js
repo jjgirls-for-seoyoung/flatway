@@ -1121,7 +1121,7 @@ export default function Home() {
           {/* Accordion 1 */}
           <div className="accordion-item">
             <div className="accordion-header" onClick={() => toggleAccordion(0)}>
-              <h5><AlertTriangle size={14} color="var(--color-warn)" /> 노면 위험도 판단 기준</h5>
+              <h5><AlertTriangle size={14} color="var(--color-accent)" /> 노면 위험도 판단 기준</h5>
               {expandedSection === 0 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </div>
             {expandedSection === 0 && (

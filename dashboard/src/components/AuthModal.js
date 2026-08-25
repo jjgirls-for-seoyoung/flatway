@@ -203,8 +203,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                 </div>
                 {user ? (
                   <button 
-                    className="btn btn-secondary" 
-                    style={{ fontSize: '10.5px', padding: '6px 12px', height: 'auto', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
+                    className="settings-action-btn" 
                     onClick={handleSignOut}
                     disabled={loading}
                   >
@@ -212,8 +211,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                   </button>
                 ) : (
                   <button 
-                    className="btn btn-secondary" 
-                    style={{ fontSize: '10.5px', padding: '6px 12px', height: 'auto', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
+                    className="settings-action-btn" 
                     onClick={() => { setView('login'); setIsSignUp(false); }}
                   >
                     로그인

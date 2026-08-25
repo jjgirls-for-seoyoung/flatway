@@ -1301,3 +1301,35 @@ button:active,
   transform: translateX(14px);
 }
 
+/* Account settings modal row buttons */
+.settings-action-btn {
+  font-size: 10.5px;
+  padding: 6px 12px;
+  height: auto;
+  border-radius: var(--ldsg-radius-200); /* 5px */
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  border: 1px solid var(--glass-border);
+}
+
+[data-theme="dark"] .settings-action-btn {
+  background: #3e3e42; /* brighter gray in dark mode to contrast with #303030 row */
+  color: #ffffff;
+  border-color: #555555;
+}
+
+[data-theme="light"] .settings-action-btn {
+  background: #ffffff; /* pure white in light mode to contrast with #efefef row */
+  color: #000000;
+  border-color: #dfdfdf;
+}
+
+.settings-action-btn:hover {
+  opacity: 0.8;
+}
+
+.settings-action-btn:active {
+  opacity: 0.6;
+}
+
