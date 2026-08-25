@@ -131,7 +131,16 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                     지도 데이터와 Supabase 데이터베이스를 실시간으로 양방향 동기화합니다.
                   </span>
                 </div>
-                <div className="switch-container">
+                <div 
+                  className="switch-container" 
+                  onClick={() => {
+                    if (!supabase) {
+                      alert('Supabase가 활성화되어 있지 않아 실시간 동기화를 켤 수 없습니다. (환경 설정 확인 필요)');
+                      return;
+                    }
+                    onToggleSync(!usingSupabase);
+                  }}
+                >
                   <div className={`switch-track ${usingSupabase ? 'active' : ''}`}>
                     <div className="switch-thumb"></div>
                   </div>

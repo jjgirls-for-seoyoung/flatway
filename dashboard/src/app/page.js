@@ -1048,6 +1048,8 @@ export default function Home() {
         onClose={() => setIsAuthModalOpen(false)}
         user={user}
         onAuthSuccess={(u) => setUser(u)}
+        usingSupabase={usingSupabase}
+        onToggleSync={setUsingSupabase}
       />
       {/* Right Sidebar (Help & Guidelines) */}
       <aside className={`right-sidebar glass-panel ${isRightSidebarOpen ? 'open' : ''}`}>
