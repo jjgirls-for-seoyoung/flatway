@@ -611,7 +611,7 @@ export default function Home() {
           marginBottom: '10px'
         }}>
           <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Wrench size={12} color="var(--color-accent)" /> 보도 유지보수 파이프라인 현황
+            <Wrench size={12} color="var(--color-accent)" /> 유지보수 현황
           </h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
             <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
@@ -640,7 +640,7 @@ export default function Home() {
         {/* Filter Panel */}
         <div className="control-panel">
           <h4 className="section-title">
-            <Layers size={12} /> 지도 시각화 필터
+            <Layers size={12} /> 필터
           </h4>
           <div className="filter-group">
             {/* 1. 단차 */}
@@ -866,7 +866,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="detail-panel-empty">
-              지도 위에 배치된 핀(마커)을 탭하시면 해당 보행 장애물이나 건물의 접근성 상세 현황을 여기서 확인하실 수 있습니다.
+              지도 위의 핀을 탭하시면 해당하는 상세 현황을 여기에서 확인하실 수 있습니다.
             </div>
           )}
         </div>
