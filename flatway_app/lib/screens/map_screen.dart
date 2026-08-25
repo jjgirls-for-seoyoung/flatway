@@ -1317,7 +1317,7 @@ class _MapScreenState extends State<MapScreen> {
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
-                      side: BorderSide(color: const Color(0xFF10B981).withValues(alpha: 0.3), width: 1.5),
+                      side: BorderSide(color: const Color(0xFF047857).withValues(alpha: 0.3), width: 1.5),
                     ),
                     elevation: 5,
                     color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white,
@@ -1325,7 +1325,7 @@ class _MapScreenState extends State<MapScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Color(0xFF10B981), size: 22),
+                          const Icon(Icons.search, color: Color(0xFF047857), size: 22),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -1345,7 +1345,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.directions, color: Color(0xFF10B981)),
+                            icon: const Icon(Icons.directions, color: Color(0xFF047857)),
                             tooltip: '길찾기 출발/도착지 설정',
                             onPressed: () {
                               setState(() {
@@ -1546,7 +1546,7 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: () => _openReportModal(_currentLocation),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2563EB),
+                                    backgroundColor: const Color(0xFF1E3A8A),
                                     foregroundColor: Colors.white,
                                     elevation: 2,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1561,7 +1561,7 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: _toggleRouteTracking,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isTrackingRoute ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                                    backgroundColor: _isTrackingRoute ? const Color(0xFFB91C1C) : const Color(0xFF047857),
                                     foregroundColor: Colors.white,
                                     elevation: 2,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
