@@ -13,7 +13,13 @@ import {
   Menu,
   X,
   Sun,
-  Moon
+  Moon,
+  Search,
+  Trash2,
+  Wrench,
+  Info,
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 import DynamicMap from '../components/DynamicMap';
 import ReportModal from '../components/ReportModal';
@@ -449,7 +455,7 @@ export default function Home() {
           marginBottom: '8px'
         }}>
           <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            🔍 위치 및 목적지 검색
+            <Search size={14} color="var(--color-accent)" /> 위치 및 목적지 검색
           </h3>
           <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '6px', width: '100%' }}>
             <input
@@ -492,8 +498,8 @@ export default function Home() {
             </button>
           </form>
           {searchError && (
-            <p style={{ margin: 0, fontSize: '11px', color: '#ef4444' }}>
-              ⚠️ {searchError}
+            <p style={{ margin: 0, fontSize: '11px', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <AlertCircle size={12} color="#ef4444" /> {searchError}
             </p>
           )}
         </div>
@@ -509,8 +515,8 @@ export default function Home() {
           border: '1px solid var(--glass-border)',
           marginBottom: '8px'
         }}>
-          <h4 className="section-title" style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)' }}>
-            🛰️ 실시간 관제 및 분석 모드
+          <h4 className="section-title" style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Eye size={12} color="var(--color-accent)" /> 실시간 관제 및 분석 모드
           </h4>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>열지도(Heatmap) 분석 활성화</span>
@@ -534,7 +540,7 @@ export default function Home() {
           marginBottom: '10px'
         }}>
           <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            🚧 보도 유지보수 파이프라인 현황
+            <Wrench size={12} color="var(--color-accent)" /> 보도 유지보수 파이프라인 현황
           </h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
             <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
@@ -633,18 +639,19 @@ export default function Home() {
 
         {/* Selected Item Detail panel */}
         <div className="detail-panel">
-          <h4 className="section-title" style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '6px', marginBottom: '4px' }}>
-            🔍 세부 정보 조회
+          <h4 className="section-title" style={{ borderBottom: '1px solid var(--glass-border)', paddingBottom: '6px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Info size={12} color="var(--color-accent)" /> 세부 정보 조회
           </h4>
           {selectedItem ? (
             <div className="detail-body">
               {selectedItemType === 'hazard' ? (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="detail-header" style={{ color: 'var(--color-warn)' }}>
-                      ⚠️ {selectedItem.type === 'step' ? '보행 단차 장애물' : 
-                          selectedItem.type === 'damage' ? '보행 노면 파손' :
-                          selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
+                    <span className="detail-header" style={{ color: 'var(--color-warn)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertTriangle size={14} />
+                      {selectedItem.type === 'step' ? '보행 단차 장애물' : 
+                       selectedItem.type === 'damage' ? '보행 노면 파손' :
+                       selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
                     </span>
                     <span className={`detail-badge ${selectedItem.severity}`}>
                       위험도 {selectedItem.severity === 'high' ? '상' : selectedItem.severity === 'medium' ? '중' : '하'}
@@ -661,8 +668,8 @@ export default function Home() {
                   </p>
                   {/* Status badge & change dropdown */}
                   <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: 'var(--ldsg-radius-300)', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                      🚧 유지보수 진행 관리
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                      <Wrench size={12} /> 유지보수 진행 관리
                     </label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className={`status-badge ${selectedItem.status || 'reported'}`}>
@@ -709,13 +716,13 @@ export default function Home() {
                       e.target.style.background = 'transparent';
                     }}
                   >
-                    🗑️ 이 위험 제보 삭제
+                    <Trash2 size={13} /> 이 위험 제보 삭제
                   </button>
                 </>
               ) : (
                 <>
-                  <span className="detail-header" style={{ color: 'var(--color-safe)' }}>
-                    🏢 {selectedItem.name}
+                  <span className="detail-header" style={{ color: 'var(--color-safe)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Building2 size={14} /> {selectedItem.name}
                   </span>
                   <p style={{ marginTop: '4px' }}>건물 입구 및 편의시설 배치 현황입니다.</p>
                   <ul style={{ listStyle: 'none', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -759,7 +766,7 @@ export default function Home() {
                       e.target.style.background = 'transparent';
                     }}
                   >
-                    🗑️ 이 건물 접근성 정보 삭제
+                    <Trash2 size={13} /> 이 건물 접근성 정보 삭제
                   </button>
                 </>
               )}
@@ -845,18 +852,19 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 {selectedItemType === 'hazard' ? (
                   <>
-                    <span className="detail-header" style={{ color: 'var(--color-warn)', fontSize: '13px' }}>
-                      ⚠️ {selectedItem.type === 'step' ? '보행 단차' : 
-                          selectedItem.type === 'damage' ? '노면 파손' :
-                          selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
+                    <span className="detail-header" style={{ color: 'var(--color-warn)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertTriangle size={14} />
+                      {selectedItem.type === 'step' ? '보행 단차' : 
+                       selectedItem.type === 'damage' ? '노면 파손' :
+                       selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
                     </span>
                     <span className={`detail-badge ${selectedItem.severity}`}>
                       위험도 {selectedItem.severity === 'high' ? '상' : selectedItem.severity === 'medium' ? '중' : '하'}
                     </span>
                   </>
                 ) : (
-                  <span className="detail-header" style={{ color: 'var(--color-safe)', fontSize: '13px' }}>
-                    🏢 {selectedItem.name}
+                  <span className="detail-header" style={{ color: 'var(--color-safe)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Building2 size={14} /> {selectedItem.name}
                   </span>
                 )}
               </div>
@@ -919,7 +927,7 @@ export default function Home() {
                       gap: '4px'
                     }}
                   >
-                    🗑️ 이 위험 제보 삭제
+                    <Trash2 size={13} /> 이 위험 제보 삭제
                   </button>
                 </>
               ) : (
@@ -950,7 +958,7 @@ export default function Home() {
                       gap: '4px'
                     }}
                   >
-                    🗑️ 건물 정보 삭제
+                    <Trash2 size={13} /> 건물 정보 삭제
                   </button>
                 </>
               )}

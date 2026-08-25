@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 
 export default function ReportModal({
   isOpen,
@@ -45,7 +45,9 @@ export default function ReportModal({
     <div className="modal-overlay">
       <div className="modal-content glass-panel">
         <div className="modal-header">
-          <h3 className="modal-title">🚨 실시간 노면 안전 제보하기</h3>
+          <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertTriangle size={18} color="var(--color-warn)" /> 실시간 노면 안전 제보하기
+          </h3>
           <button className="modal-close-btn" onClick={onClose}>
             <X size={20} />
           </button>
