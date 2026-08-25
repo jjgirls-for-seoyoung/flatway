@@ -1,66 +1,73 @@
 @import "leaflet/dist/leaflet.css";
 
 :root, [data-theme="dark"] {
-  /* Color Palette - Dark Mode */
-  --bg-primary: #0b0f19;
-  --bg-secondary: #131a2e;
-  --bg-tertiary: #1e294b;
-  --glass-bg: rgba(19, 26, 46, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --card-bg: rgba(255, 255, 255, 0.02);
-  --card-border: rgba(255, 255, 255, 0.04);
-  --card-hover-bg: rgba(255, 255, 255, 0.05);
-  --card-hover-border: rgba(255, 255, 255, 0.08);
-  --logo-gradient: linear-gradient(135deg, #ffffff, #94a3b8);
-  --popup-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-  --modal-overlay-bg: rgba(0, 0, 0, 0.7);
-  --info-badge-bg: rgba(255, 255, 255, 0.02);
-  --info-badge-border: rgba(255, 255, 255, 0.04);
+  /* LDSG Design System Base Tokens - Dark Mode */
+  --bg-primary: #111111; /* ldsg-color-gray-900 */
+  --bg-secondary: #1e2742; /* ldsg-color-brand-secondary / linenavy */
+  --bg-tertiary: #303030; /* ldsg-color-gray-800 */
+  --glass-bg: #2a2a2a;
+  --glass-border: #555555; /* ldsg-color-gray-700 */
+  --text-primary: #fcfcfc; /* ldsg-color-gray-100 */
+  --text-secondary: #b7b7b7; /* ldsg-color-gray-400 */
+  --text-muted: #949494; /* ldsg-color-gray-500 */
+  --card-bg: #2a2a2a;
+  --card-border: #555555;
+  --card-hover-bg: #303030;
+  --card-hover-border: #777777;
+  --logo-gradient: #06c755; /* Solid brand primary */
+  --popup-shadow: 0px 1px 15px rgba(0, 0, 0, 0.4);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.4); /* ldsg-opacity-black-40 */
+  --info-badge-bg: #1e2742;
+  --info-badge-border: #303030;
   
   /* Status Colors */
-  --color-safe: #10b981;
-  --color-safe-glow: rgba(16, 185, 129, 0.2);
-  --color-warn: #f59e0b;
-  --color-warn-glow: rgba(245, 158, 11, 0.2);
-  --color-danger: #ef4444;
-  --color-danger-glow: rgba(239, 68, 68, 0.2);
-  --color-accent: #3b82f6;
+  --color-safe: #06c755; /* ldsg-color-role-positive */
+  --color-safe-glow: rgba(6, 199, 85, 0.2);
+  --color-warn: #f97316; /* ldsg-color-role-warn / scheduled */
+  --color-warn-glow: rgba(249, 115, 22, 0.2);
+  --color-danger: #e8332e; /* ldsg-color-role-negative */
+  --color-danger-glow: rgba(232, 51, 46, 0.2);
+  --color-accent: #06c755; /* ldsg-color-brand-primary */
   
-  /* Typography */
-  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  /* Font Stacks */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+
+  /* LDSG Radius Scale */
+  --ldsg-radius-100: 3px;
+  --ldsg-radius-200: 5px;
+  --ldsg-radius-300: 7px;
+  --ldsg-radius-400: 12px;
+  --ldsg-radius-circle: 50%;
 }
 
 [data-theme="light"] {
-  /* Color Palette - Light Mode */
-  --bg-primary: #f1f5f9;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e2e8f0;
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --card-bg: rgba(0, 0, 0, 0.02);
-  --card-border: rgba(0, 0, 0, 0.06);
-  --card-hover-bg: rgba(0, 0, 0, 0.04);
-  --card-hover-border: rgba(0, 0, 0, 0.1);
-  --logo-gradient: linear-gradient(135deg, #0f172a, #334155);
-  --popup-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --modal-overlay-bg: rgba(15, 23, 42, 0.45);
-  --info-badge-bg: rgba(0, 0, 0, 0.03);
-  --info-badge-border: rgba(0, 0, 0, 0.06);
+  /* LDSG Design System Base Tokens - Light Mode */
+  --bg-primary: #f5f5f5; /* ldsg-color-gray-150 */
+  --bg-secondary: #fcfcfc; /* ldsg-color-gray-100 */
+  --bg-tertiary: #efefef; /* ldsg-color-gray-200 */
+  --glass-bg: #ffffff;
+  --glass-border: #dfdfdf; /* ldsg-color-gray-300 */
+  --text-primary: #000000; /* ldsg-color-black */
+  --text-secondary: #555555; /* ldsg-color-gray-700 */
+  --text-muted: #949494; /* ldsg-color-gray-500 */
+  --card-bg: #ffffff;
+  --card-border: #dfdfdf;
+  --card-hover-bg: #efefef;
+  --card-hover-border: #c8c8c8;
+  --logo-gradient: #06c755; /* Solid brand primary */
+  --popup-shadow: 0px 1px 20px rgba(0, 0, 0, 0.07); /* ldsg-shadow-on-white-300 */
+  --modal-overlay-bg: rgba(0, 0, 0, 0.4); /* ldsg-opacity-black-40 */
+  --info-badge-bg: #f5f5f5;
+  --info-badge-border: #dfdfdf;
 
   /* Status Colors */
-  --color-safe: #059669;
-  --color-safe-glow: rgba(5, 150, 105, 0.2);
-  --color-warn: #d97706;
-  --color-warn-glow: rgba(217, 119, 6, 0.2);
-  --color-danger: #dc2626;
-  --color-danger-glow: rgba(220, 38, 38, 0.2);
-  --color-accent: #2563eb;
+  --color-safe: #06c755; /* ldsg-color-role-positive */
+  --color-safe-glow: rgba(6, 199, 85, 0.15);
+  --color-warn: #f97316;
+  --color-warn-glow: rgba(249, 115, 22, 0.15);
+  --color-danger: #e8332e;
+  --color-danger-glow: rgba(232, 51, 46, 0.15);
+  --color-accent: #06c755; /* ldsg-color-brand-primary */
 }
 
 * {
@@ -98,13 +105,12 @@ html, body {
   background: var(--text-muted);
 }
 
-/* Glassmorphic Utilities */
+/* Glassmorphic Utilities Override - Flat Clean Panels */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: var(--ldsg-radius-300); /* 7px */
+  box-shadow: var(--popup-shadow);
 }
 
 /* Dashboard Layout */
@@ -564,7 +570,6 @@ input:checked + .slider:before {
   right: 0;
   bottom: 0;
   background: var(--modal-overlay-bg);
-  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -576,7 +581,7 @@ input:checked + .slider:before {
   padding: 24px;
   background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: var(--ldsg-radius-400); /* 12px */
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -627,7 +632,7 @@ input:checked + .slider:before {
 .form-control {
   background: var(--bg-tertiary);
   border: 1px solid var(--glass-border);
-  border-radius: 8px;
+  border-radius: var(--ldsg-radius-200); /* 5px */
   padding: 10px 12px;
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -655,7 +660,7 @@ input:checked + .slider:before {
 
 .btn {
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: var(--ldsg-radius-200); /* 5px */
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -668,18 +673,10 @@ input:checked + .slider:before {
   color: var(--text-primary);
 }
 
-.btn-secondary:hover {
-  background: var(--card-hover-bg);
-}
-
 .btn-primary {
   background: var(--color-accent);
   border: none;
   color: white;
-}
-
-.btn-primary:hover {
-  background: #2563eb;
 }
 
 /* Custom Marker Styling */
@@ -1076,7 +1073,7 @@ input:checked + .slider:before {
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--ldsg-radius-200); /* 5px */
   font-size: 12px;
   font-weight: 600;
   outline: none;
@@ -1086,6 +1083,26 @@ input:checked + .slider:before {
 
 .status-select:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
+}
+
+/* LDSG Interactive Element State Rules - 70% opacity hover, 50% opacity pressed */
+button:hover,
+.filter-item:hover,
+.theme-toggle-btn:hover,
+.mobile-sidebar-close:hover,
+.status-select:hover,
+.tab-btn:hover {
+  opacity: 0.7 !important;
+  transition: opacity 0.15s ease;
+}
+
+button:active,
+.filter-item:active,
+.theme-toggle-btn:active,
+.mobile-sidebar-close:active,
+.status-select:active,
+.tab-btn:active {
+  opacity: 0.5 !important;
 }
 

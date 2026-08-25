@@ -391,7 +391,7 @@ export default function Home() {
               <img 
                 src="/logo.png" 
                 alt="FlatWay Logo" 
-                style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }}
+                style={{ width: '100%', height: '100%', borderRadius: 'var(--ldsg-radius-200)', objectFit: 'cover' }}
               />
               <span 
                 className={`db-status-dot ${usingSupabase ? 'online' : 'offline'}`} 
@@ -443,7 +443,7 @@ export default function Home() {
           flexDirection: 'column',
           gap: '8px',
           padding: '14px 16px',
-          borderRadius: '12px',
+          borderRadius: 'var(--ldsg-radius-300)',
           background: 'var(--card-bg)',
           border: '1px solid var(--glass-border)',
           marginBottom: '8px'
@@ -460,7 +460,7 @@ export default function Home() {
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                borderRadius: '8px',
+                borderRadius: 'var(--ldsg-radius-200)',
                 border: '1px solid var(--glass-border)',
                 background: 'var(--bg-secondary)',
                 color: 'var(--text-primary)',
@@ -474,7 +474,7 @@ export default function Home() {
               disabled={isSearching}
               style={{
                 padding: '8px 14px',
-                borderRadius: '8px',
+                borderRadius: 'var(--ldsg-radius-200)',
                 border: 'none',
                 background: 'var(--color-accent)',
                 color: 'white',
@@ -504,7 +504,7 @@ export default function Home() {
           flexDirection: 'column',
           gap: '8px',
           padding: '12px 14px',
-          borderRadius: '10px',
+          borderRadius: 'var(--ldsg-radius-300)',
           background: 'var(--card-bg)',
           border: '1px solid var(--glass-border)',
           marginBottom: '8px'
@@ -528,7 +528,7 @@ export default function Home() {
         {/* Municipal Maintenance Dashboard */}
         <div className="maintenance-board glass-panel" style={{
           padding: '12px 14px',
-          borderRadius: '10px',
+          borderRadius: 'var(--ldsg-radius-300)',
           background: 'var(--info-badge-bg)',
           border: '1px solid var(--info-badge-border)',
           marginBottom: '10px'
@@ -537,19 +537,19 @@ export default function Home() {
             🚧 보도 유지보수 파이프라인 현황
           </h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
-            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>접수</div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#3b82f6' }}>{reportedCount}</div>
             </div>
-            <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+            <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>조사중</div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#8b5cf6' }}>{processingCount}</div>
             </div>
-            <div style={{ background: 'rgba(249, 115, 22, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.2)' }}>
+            <div style={{ background: 'rgba(249, 115, 22, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(249, 115, 22, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>보수예정</div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#f97316' }}>{scheduledCount}</div>
             </div>
-            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>완료</div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>{resolvedCount}</div>
             </div>
@@ -660,7 +660,7 @@ export default function Home() {
                     제보일시: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>
                   {/* Status badge & change dropdown */}
-                  <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                  <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: 'var(--ldsg-radius-300)', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>
                       🚧 유지보수 진행 관리
                     </label>
@@ -689,7 +689,7 @@ export default function Home() {
                       marginTop: '12px',
                       width: '100%',
                       padding: '8px',
-                      borderRadius: '6px',
+                      borderRadius: 'var(--ldsg-radius-200)',
                       border: '1px solid #ef4444',
                       background: 'transparent',
                       color: '#ef4444',
@@ -739,7 +739,7 @@ export default function Home() {
                       marginTop: '12px',
                       width: '100%',
                       padding: '8px',
-                      borderRadius: '6px',
+                      borderRadius: 'var(--ldsg-radius-200)',
                       border: '1px solid #ef4444',
                       background: 'transparent',
                       color: '#ef4444',
@@ -906,7 +906,7 @@ export default function Home() {
                       marginTop: '10px',
                       width: '100%',
                       padding: '6px',
-                      borderRadius: '6px',
+                      borderRadius: 'var(--ldsg-radius-200)',
                       border: '1px solid #ef4444',
                       background: 'transparent',
                       color: '#ef4444',
@@ -937,7 +937,7 @@ export default function Home() {
                       marginTop: '10px',
                       width: '100%',
                       padding: '6px',
-                      borderRadius: '6px',
+                      borderRadius: 'var(--ldsg-radius-200)',
                       border: '1px solid #ef4444',
                       background: 'transparent',
                       color: '#ef4444',
