@@ -246,7 +246,7 @@ export default function Home() {
           .eq('id', id);
         
         if (error) {
-          console.error("Failed to update status in Supabase:", error);
+          console.error("Failed to update status in Supabase:", error.message || error);
         }
       } catch (err) {
         console.error("Supabase status update error:", err);
@@ -307,7 +307,7 @@ export default function Home() {
   const rampPercentage = totalBuildings > 0 ? Math.round((buildingsWithRamp / totalBuildings) * 100) : 0;
 
   // Maintenance pipeline stats
-  const countByStatus = (statusName) => hazards.filter(h => h.status === statusName).length;
+  const countByStatus = (statusName) => hazards.filter(h => (h.status || 'reported') === statusName).length;
   const reportedCount = countByStatus('reported');
   const processingCount = countByStatus('processing');
   const scheduledCount = countByStatus('scheduled');
@@ -664,7 +664,7 @@ export default function Home() {
                     </label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className={`status-badge ${selectedItem.status || 'reported'}`}>
-                        {selectedItem.status === 'reported' ? '접수됨' :
+                        {(selectedItem.status || 'reported') === 'reported' ? '접수됨' :
                          selectedItem.status === 'processing' ? '조사중' :
                          selectedItem.status === 'scheduled' ? '보수 예정' : '보수 완료'}
                       </span>
@@ -847,7 +847,7 @@ export default function Home() {
                   {/* Mobile status selector */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
                     <span className={`status-badge ${selectedItem.status || 'reported'}`}>
-                      {selectedItem.status === 'reported' ? '접수됨' :
+                      {(selectedItem.status || 'reported') === 'reported' ? '접수됨' :
                        selectedItem.status === 'processing' ? '조사중' :
                        selectedItem.status === 'scheduled' ? '보수 예정' : '보수 완료'}
                     </span>

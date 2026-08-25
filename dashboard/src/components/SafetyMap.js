@@ -139,7 +139,7 @@ export default function SafetyMap({
                        hazard.type === 'obstacle' ? '적치물' : '급경사'} ({hazard.severity === 'high' ? '상' : hazard.severity === 'medium' ? '중' : '하'})
                     </span>
                     <span className={`status-badge ${hazard.status || 'reported'}`} style={{ transform: 'scale(0.85)', transformOrigin: 'right' }}>
-                      {hazard.status === 'reported' ? '접수' :
+                      {(hazard.status || 'reported') === 'reported' ? '접수' :
                        hazard.status === 'processing' ? '조사중' :
                        hazard.status === 'scheduled' ? '보수예정' : '보수완료'}
                     </span>
