@@ -97,7 +97,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content glass-panel" style={{ width: '400px', maxWidth: '90vw', padding: '24px' }}>
+      <div className="modal-content" style={{ width: '400px', maxWidth: '90vw', padding: '24px' }}>
         
         {/* Header */}
         <div className="modal-header" style={{ marginBottom: '16px' }}>

@@ -157,7 +157,7 @@ html, body {
   width: 36px;
   height: 36px;
   background: transparent;
-  border-radius: 10px;
+  border-radius: var(--ldsg-radius-200); /* 5px */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,7 +185,7 @@ html, body {
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: var(--ldsg-radius-200); /* 5px */
   background: var(--card-bg);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
@@ -275,7 +275,7 @@ html, body {
 .stat-card {
   padding: 14px;
   background: var(--card-bg);
-  border-radius: 12px;
+  border-radius: var(--ldsg-radius-300); /* 7px */
   border: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
@@ -890,7 +890,7 @@ input:checked + .slider:before {
     color: var(--text-secondary);
     width: 34px;
     height: 34px;
-    border-radius: 8px;
+    border-radius: var(--ldsg-radius-200); /* 5px */
     cursor: pointer;
   }
 
@@ -910,7 +910,7 @@ input:checked + .slider:before {
     z-index: 1000;
     padding: 14px 16px;
     gap: 8px;
-    border-radius: 14px;
+    border-radius: var(--ldsg-radius-400); /* 12px */
     box-shadow: var(--popup-shadow);
     animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -929,7 +929,7 @@ input:checked + .slider:before {
     color: var(--text-secondary);
     width: 26px;
     height: 26px;
-    border-radius: 50%;
+    border-radius: var(--ldsg-radius-circle); /* 50% */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1039,7 +1039,7 @@ input:checked + .slider:before {
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--ldsg-radius-100); /* 3px */
   font-size: 10px;
   font-weight: 700;
   color: white !important;
