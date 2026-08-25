@@ -132,11 +132,15 @@ export default function SafetyMap({
   // Filtered lists
   const showStep = filters.step;
   const showDamage = filters.damage;
+  const showObstacle = filters.obstacle;
+  const showSlope = filters.slope;
   const showBuilding = filters.building;
 
   const filteredHazards = hazards.filter(h => {
     if (h.type === 'step' && showStep) return true;
-    if ((h.type === 'damage' || h.type === 'obstacle' || h.type === 'slope') && showDamage) return true;
+    if (h.type === 'damage' && showDamage) return true;
+    if (h.type === 'obstacle' && showObstacle) return true;
+    if (h.type === 'slope' && showSlope) return true;
     return false;
   });
 

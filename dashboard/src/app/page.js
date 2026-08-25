@@ -69,6 +69,8 @@ export default function Home() {
   const [filters, setFilters] = useState({
     step: true,
     damage: true,
+    obstacle: true,
+    slope: true,
     building: true
   });
 
@@ -397,6 +399,9 @@ export default function Home() {
   // Calculations for stats & gauges
   const totalHazards = hazards.length;
   const activeStepsCount = hazards.filter(h => h.type === 'step').length;
+  const activeDamageCount = hazards.filter(h => h.type === 'damage').length;
+  const activeObstacleCount = hazards.filter(h => h.type === 'obstacle').length;
+  const activeSlopeCount = hazards.filter(h => h.type === 'slope').length;
   const totalBuildings = buildings.length;
   const buildingsWithRamp = buildings.filter(b => b.has_ramp).length;
   const rampPercentage = totalBuildings > 0 ? Math.round((buildingsWithRamp / totalBuildings) * 100) : 0;
@@ -654,6 +659,7 @@ export default function Home() {
             <Layers size={12} /> 지도 시각화 필터
           </h4>
           <div className="filter-group">
+            {/* 1. 단차 */}
             <div className="filter-item" onClick={() => toggleFilter('step')}>
               <div className="filter-label-group">
                 <span className="filter-dot step" />
@@ -669,10 +675,11 @@ export default function Home() {
               </label>
             </div>
 
+            {/* 2. 파손 */}
             <div className="filter-item" onClick={() => toggleFilter('damage')}>
               <div className="filter-label-group">
                 <span className="filter-dot damage" />
-                <span>파손/급경사/적치물 노출 ({totalHazards - activeStepsCount}개)</span>
+                <span>노면 파손 노출 ({activeDamageCount}개)</span>
               </div>
               <label className="switch" onClick={(e) => e.stopPropagation()}>
                 <input 
@@ -684,6 +691,39 @@ export default function Home() {
               </label>
             </div>
 
+            {/* 3. 적치물 */}
+            <div className="filter-item" onClick={() => toggleFilter('obstacle')}>
+              <div className="filter-label-group">
+                <span className="filter-dot obstacle" />
+                <span>보행 적치물 노출 ({activeObstacleCount}개)</span>
+              </div>
+              <label className="switch" onClick={(e) => e.stopPropagation()}>
+                <input 
+                  type="checkbox" 
+                  checked={filters.obstacle} 
+                  onChange={() => toggleFilter('obstacle')} 
+                />
+                <span className="slider" />
+              </label>
+            </div>
+
+            {/* 4. 경사 */}
+            <div className="filter-item" onClick={() => toggleFilter('slope')}>
+              <div className="filter-label-group">
+                <span className="filter-dot slope" />
+                <span>보도 급경사 노출 ({activeSlopeCount}개)</span>
+              </div>
+              <label className="switch" onClick={(e) => e.stopPropagation()}>
+                <input 
+                  type="checkbox" 
+                  checked={filters.slope} 
+                  onChange={() => toggleFilter('slope')} 
+                />
+                <span className="slider" />
+              </label>
+            </div>
+
+            {/* 5. 접근성 건물 */}
             <div className="filter-item" onClick={() => toggleFilter('building')}>
               <div className="filter-label-group">
                 <span className="filter-dot building" />
