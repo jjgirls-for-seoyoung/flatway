@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../services/location_service.dart';
+import '../services/route_service.dart';
 import '../services/supabase_service.dart';
 import '../widgets/report_modal.dart';
 
@@ -45,7 +46,7 @@ class _MapScreenState extends State<MapScreen> {
   String _selectedMapTileStyle = 'vworld';
 
   // Navigation Origin & Destination
-  final String _startName = '현재 위치';
+  String _startName = '현재 위치';
   LatLng _startLocation = LocationService.defaultLocation;
   String? _destName;
   LatLng? _destLocation;
@@ -143,15 +144,14 @@ class _MapScreenState extends State<MapScreen> {
     _showSearchSnackBar('검색 결과가 없습니다. (예: 작전역, 작전여고)');
   }
 
-  // Calculate obstacle-avoiding accessible safe route
-  void _calculateAccessibleRoute() {
+  // Calculate real OSRM pedestrian road route following actual streets and crosswalks
+  Future<void> _calculateAccessibleRoute() async {
     final dest = _destLocation;
     if (dest == null) return;
 
     final start = _startLocation;
-    const distanceUtil = Distance();
 
-    // Calculate intermediate points avoiding dangerous hazard pins (> 8cm or severity high)
+    // Calculate dangerous hazards near route
     final dangerousHazards = _hazards.where((h) {
       final lat = (h['latitude'] as num?)?.toDouble();
       final lng = (h['longitude'] as num?)?.toDouble();
@@ -163,38 +163,27 @@ class _MapScreenState extends State<MapScreen> {
 
     _bypassedHazardsCount = dangerousHazards.length;
 
-    // Build smooth Waypoints list bypassing obstacles
-    final midLat = (start.latitude + dest.latitude) / 2;
-    final midLng = (start.longitude + dest.longitude) / 2;
-    
-    final offsetLat = (_selectedRouteMode == 'electric') ? 0.0008 : (_selectedRouteMode == 'manual') ? -0.0006 : 0.0003;
-    final offsetLng = (_selectedRouteMode == 'electric') ? 0.0005 : (_selectedRouteMode == 'manual') ? -0.0004 : 0.0002;
-
-    final waypoint1 = LatLng(start.latitude + (midLat - start.latitude) * 0.5 + offsetLat, start.longitude + (midLng - start.longitude) * 0.5 + offsetLng);
-    final waypoint2 = LatLng(midLat + offsetLat, midLng + offsetLng);
-    final waypoint3 = LatLng(midLat + (dest.latitude - midLat) * 0.5 + offsetLat, midLng + (dest.longitude - midLng) * 0.5 + offsetLng);
-
-    final points = [start, waypoint1, waypoint2, waypoint3, dest];
-
-    double totalMeters = 0.0;
-    for (int i = 0; i < points.length - 1; i++) {
-      totalMeters += distanceUtil.as(LengthUnit.Meter, points[i], points[i + 1]);
-    }
+    // Fetch real OSRM pedestrian walking route following actual streets and sidewalks
+    final result = await RouteService.fetchPedestrianRoute(origin: start, destination: dest);
 
     final speedKmh = (_selectedRouteMode == 'electric') ? 6.0 : (_selectedRouteMode == 'manual') ? 3.2 : 4.0;
-    final minutes = (totalMeters / (speedKmh * 1000 / 60)).round();
+    final minutes = (result.distanceMeters / (speedKmh * 1000 / 60)).round();
 
-    setState(() {
-      _navRoutePoints = points;
-      _navDistanceMeters = totalMeters;
-      _navEstMinutes = max(1, minutes);
-      _isNavigating = true;
-    });
+    if (mounted) {
+      setState(() {
+        _navRoutePoints = result.points;
+        _navDistanceMeters = result.distanceMeters;
+        _navEstMinutes = max(1, minutes);
+        _isNavigating = true;
+      });
 
-    final bounds = LatLngBounds.fromPoints([start, dest]);
-    _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)));
+      if (result.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints(result.points);
+        _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)));
+      }
 
-    _speakGuidance('${_destName ?? "목적지"}까지 보행약자 안전 경로 안내를 시작합니다. 90m 앞 단차 회피 우회전하세요.');
+      _speakGuidance('${_destName ?? "목적지"}까지 보행자 도로망 실시간 경로 안내를 시작합니다.');
+    }
   }
 
   void _clearNavigation() {
@@ -645,7 +634,29 @@ class _MapScreenState extends State<MapScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                if (lat != null && lng != null)
+                if (lat != null && lng != null) ...[
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _startName = building['name'] ?? '선택 건물';
+                          _startLocation = LatLng(lat, lng);
+                          _startSearchController.text = _startName;
+                          _uiMode = 'nav';
+                        });
+                        if (_destLocation != null) _calculateAccessibleRoute();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green.shade700,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      ),
+                      icon: const Icon(Icons.my_location, size: 16),
+                      label: const Text('출발지로 지정', style: TextStyle(fontSize: 12)),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
@@ -653,6 +664,7 @@ class _MapScreenState extends State<MapScreen> {
                         setState(() {
                           _destName = building['name'] ?? '도착 건물';
                           _destLocation = LatLng(lat, lng);
+                          _destSearchController.text = _destName!;
                           _uiMode = 'nav';
                         });
                         _calculateAccessibleRoute();
@@ -660,16 +672,13 @@ class _MapScreenState extends State<MapScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade700,
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                       ),
-                      icon: const Icon(Icons.navigation),
-                      label: const Text('여기로 길찾기'),
+                      icon: const Icon(Icons.location_on, size: 16),
+                      label: const Text('도착지로 지정', style: TextStyle(fontSize: 12)),
                     ),
                   ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('닫기'),
-                ),
+                ],
               ],
             ),
           ],
@@ -1164,10 +1173,44 @@ class _MapScreenState extends State<MapScreen> {
                                 const Icon(Icons.my_location, color: Colors.lightGreenAccent, size: 20),
                                 const SizedBox(width: 10),
                                 Expanded(
-                                  child: Text(
-                                    '출발: $_startName',
-                                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                                  child: TextField(
+                                    controller: _startSearchController,
+                                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                                    onSubmitted: (val) {
+                                      if (_knownLandmarks.containsKey(val)) {
+                                        setState(() {
+                                          _startName = val;
+                                          _startLocation = _knownLandmarks[val]!;
+                                        });
+                                        if (_destLocation != null) _calculateAccessibleRoute();
+                                      } else {
+                                        _performSearch(val);
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: '출발: $_startName',
+                                      hintStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
                                   ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.swap_vert, color: Colors.white70, size: 22),
+                                  tooltip: '출발지/도착지 위치 교환',
+                                  onPressed: () {
+                                    setState(() {
+                                      final tempName = _startName;
+                                      final tempLoc = _startLocation;
+                                      _startName = _destName ?? '현재 위치';
+                                      _startLocation = _destLocation ?? _currentLocation;
+                                      _destName = tempName;
+                                      _destLocation = tempLoc;
+                                      _startSearchController.text = _startName;
+                                      _destSearchController.text = _destName ?? '';
+                                    });
+                                    if (_destLocation != null) _calculateAccessibleRoute();
+                                  },
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.close, color: Colors.white70, size: 20),
@@ -1180,7 +1223,7 @@ class _MapScreenState extends State<MapScreen> {
                                 ),
                               ],
                             ),
-                            const Divider(color: Colors.white24, height: 12),
+                            const Divider(color: Colors.white24, height: 10),
                             Row(
                               children: [
                                 const Icon(Icons.location_on, color: Colors.redAccent, size: 20),
@@ -1190,17 +1233,18 @@ class _MapScreenState extends State<MapScreen> {
                                     controller: _destSearchController,
                                     style: const TextStyle(color: Colors.white, fontSize: 13),
                                     onSubmitted: (val) {
-                                      _performSearch(val);
                                       if (_knownLandmarks.containsKey(val)) {
                                         setState(() {
                                           _destName = val;
                                           _destLocation = _knownLandmarks[val];
                                         });
                                         _calculateAccessibleRoute();
+                                      } else {
+                                        _performSearch(val);
                                       }
                                     },
                                     decoration: InputDecoration(
-                                      hintText: _destName ?? '도착지 검색 또는 지도 위 클릭 (예: 작전여고)',
+                                      hintText: _destName ?? '도착지 검색 또는 지도 핀 터치 (예: 작전여고)',
                                       hintStyle: const TextStyle(color: Colors.white54, fontSize: 12),
                                       border: InputBorder.none,
                                       isDense: true,
