@@ -25,13 +25,9 @@ class _MapScreenState extends State<MapScreen> {
   final TextEditingController _destSearchController = TextEditingController();
   
   LatLng _currentLocation = LocationService.defaultLocation;
-  bool _isLocating = false;
-  String _locationStatus = '현재 위치 안내 중';
-  double? _accuracy;
 
   List<Map<String, dynamic>> _hazards = [];
   List<Map<String, dynamic>> _buildings = [];
-  bool _isLoadingData = false;
 
   // Selected Category Filter: 'all' | 'step' | 'damage' | 'obstacle' | 'building'
   String _selectedCategoryFilter = 'all';
@@ -50,7 +46,7 @@ class _MapScreenState extends State<MapScreen> {
 
   // Map Tile Style: 'vworld' | 'satellite' | 'esri_sat' | 'dark' | 'carto'
   String _selectedMapTileStyle = 'vworld';
-  bool _isDarkMode = false;
+  final bool _isDarkMode = false;
 
   // Navigation Origin & Destination
   String _startName = '현재 위치';
@@ -507,7 +503,6 @@ class _MapScreenState extends State<MapScreen> {
         }
         _trackedPoints.add(newPoint);
         _currentLocation = newPoint;
-        _accuracy = position.accuracy;
       });
 
       try {
@@ -691,10 +686,6 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _fetchCurrentLocation() async {
     if (!mounted) return;
-    setState(() {
-      _isLocating = true;
-      _locationStatus = '위치 확인 중...';
-    });
 
     try {
       final Position? position = await LocationService.getCurrentPosition();
@@ -705,9 +696,6 @@ class _MapScreenState extends State<MapScreen> {
           setState(() {
             _currentLocation = newLoc;
             _startLocation = newLoc;
-            _accuracy = position.accuracy;
-            _isLocating = false;
-            _locationStatus = '현재 위치 연결';
           });
           
           try {
@@ -716,19 +704,11 @@ class _MapScreenState extends State<MapScreen> {
             debugPrint('MapController move deferred: $e');
           }
         } else {
-          setState(() {
-            _isLocating = false;
-            _locationStatus = '위치 설정 필요';
-          });
           _checkGpsAndPermissions();
         }
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLocating = false;
-          _locationStatus = '위치 설정 필요';
-        });
         _checkGpsAndPermissions();
       }
     }
@@ -736,9 +716,6 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _loadSupabaseData() async {
     if (!mounted) return;
-    setState(() {
-      _isLoadingData = true;
-    });
 
     try {
       final hazards = await SupabaseService.fetchHazards();
@@ -748,15 +725,10 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _hazards = hazards;
           _buildings = buildings;
-          _isLoadingData = false;
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingData = false;
-        });
-      }
+      debugPrint('Error loading Supabase data: $e');
     }
   }
 
@@ -1123,30 +1095,6 @@ class _MapScreenState extends State<MapScreen> {
                 child: Text('모던 지도'),
               ),
             ],
-          ),
-          IconButton(
-            icon: Icon(_isDarkMode ? Icons.wb_sunny : Icons.nightlight_round),
-            tooltip: _isDarkMode ? '라이트 모드' : '다크 모드',
-            onPressed: () {
-              setState(() {
-                _isDarkMode = !_isDarkMode;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(_isDarkMode ? '야간 다크모드 테마가 적용되었습니다.' : '라이트 테마가 적용되었습니다.'),
-                  duration: const Duration(seconds: 1),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(_isRouteSearchExpanded ? Icons.search : Icons.directions),
-            tooltip: _isRouteSearchExpanded ? '검색 모드' : '길찾기 모드',
-            onPressed: () {
-              setState(() {
-                _isRouteSearchExpanded = !_isRouteSearchExpanded;
-              });
-            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -1571,39 +1519,27 @@ class _MapScreenState extends State<MapScreen> {
                   Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 8,
-                    color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white.withValues(alpha: 0.95),
+                    color: Colors.white.withValues(alpha: 0.95),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                _isTrackingRoute ? Icons.route : Icons.my_location,
-                                color: _isTrackingRoute ? Colors.purpleAccent : (_isDarkMode ? const Color(0xFF34D399) : Colors.blue),
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _isTrackingRoute
-                                      ? '실시간 이동 수집 중 (${(_totalDistanceMeters / 1000).toStringAsFixed(2)}km, 충격: $_autoDetectedBumpsCount건)'
-                                      : (_isLocating || _isLoadingData)
-                                          ? '위치 수집 및 지도 데이터 로딩 중...'
-                                          : _accuracy != null
-                                              ? '$_locationStatus (GPS 오차 ±${_accuracy!.toStringAsFixed(0)}m)'
-                                              : _locationStatus,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: _isDarkMode ? Colors.white : (_isTrackingRoute ? Colors.purple.shade900 : Colors.black87),
+                          if (_isTrackingRoute) ...[
+                            Row(
+                              children: [
+                                const Icon(Icons.route, color: Colors.purpleAccent, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '실시간 이동 수집 중 (${(_totalDistanceMeters / 1000).toStringAsFixed(2)}km, 충격: $_autoDetectedBumpsCount건)',
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple.shade900),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 16),
+                              ],
+                            ),
+                            const Divider(height: 12),
+                          ],
                           Row(
                             children: [
                               Expanded(
@@ -1748,7 +1684,7 @@ class _MapScreenState extends State<MapScreen> {
 
           // Floating Compass Heading-up View Toggle Button
           Positioned(
-            bottom: _isNavigating ? 190 : 80,
+            bottom: _isNavigating ? 210 : 105,
             right: 16,
             child: FloatingActionButton.small(
               heroTag: 'compass_toggle',
