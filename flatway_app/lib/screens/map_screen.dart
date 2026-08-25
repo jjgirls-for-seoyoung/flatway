@@ -39,8 +39,14 @@ class _MapScreenState extends State<MapScreen> {
   // Route Mode: 'pedestrian' | 'electric' | 'manual'
   String _selectedRouteMode = 'pedestrian';
 
-  // UI Mode: 'search' | 'nav' (Navigation mode)
-  String _uiMode = 'search';
+  // Search Expansion & Recommendation State
+  bool _isRouteSearchExpanded = false;
+  final List<String> _recentSearches = ['작전역', '작전여고', '계양구청', '작전역 1번 출구'];
+  final List<Map<String, String>> _recommendedPlaces = [
+    {'name': '작전역 1번 출구', 'sub': '휠체어/유모차 전용 엘리베이터 완비'},
+    {'name': '작전여고 정문', 'sub': '단차 없는 완만 경사 보도 완비'},
+    {'name': '계양구청 주출입구', 'sub': '장애인 전용 주차 및 점자 블록 완비'},
+  ];
 
   // Map Tile Style: 'vworld' | 'satellite' | 'esri_sat' | 'dark' | 'carto'
   String _selectedMapTileStyle = 'vworld';
@@ -146,6 +152,101 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     _showSearchSnackBar('검색 결과가 없습니다. (예: 작전역, 작전여고)');
+  }
+
+  void _showSearchRecommendationModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.stars_rounded, color: Color(0xFF10B981), size: 22),
+                    SizedBox(width: 8),
+                    Text('추천 장소 & 최근 검색', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const Divider(height: 16),
+            const Text('🕒 최근 검색 기록', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: _recentSearches.map((term) {
+                return ActionChip(
+                  avatar: const Icon(Icons.history, size: 14, color: Colors.grey),
+                  label: Text(term, style: const TextStyle(fontSize: 12)),
+                  backgroundColor: Colors.grey.shade100,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _destSearchController.text = term;
+                    if (_knownLandmarks.containsKey(term)) {
+                      setState(() {
+                        _destName = term;
+                        _destLocation = _knownLandmarks[term];
+                        _isRouteSearchExpanded = true;
+                      });
+                      _calculateAccessibleRoute();
+                    } else {
+                      _performSearch(term);
+                    }
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            const Text('💡 현위치 근처 추천 장소', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+            const SizedBox(height: 8),
+            ..._recommendedPlaces.map((place) {
+              return ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.place, color: Color(0xFF10B981), size: 18),
+                ),
+                title: Text(place['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                subtitle: Text(place['sub']!, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                onTap: () {
+                  Navigator.pop(context);
+                  final nameKey = place['name']!.split(' ')[0];
+                  _destSearchController.text = place['name']!;
+                  if (_knownLandmarks.containsKey(nameKey)) {
+                    setState(() {
+                      _destName = place['name'];
+                      _destLocation = _knownLandmarks[nameKey];
+                      _isRouteSearchExpanded = true;
+                    });
+                    _calculateAccessibleRoute();
+                  } else {
+                    _performSearch(nameKey);
+                  }
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
   }
 
   // Calculate real OSRM pedestrian road route following actual streets and crosswalks
@@ -653,7 +754,7 @@ class _MapScreenState extends State<MapScreen> {
                           _startName = building['name'] ?? '선택 건물';
                           _startLocation = LatLng(lat, lng);
                           _startSearchController.text = _startName;
-                          _uiMode = 'nav';
+                          _isRouteSearchExpanded = true;
                         });
                         if (_destLocation != null) _calculateAccessibleRoute();
                       },
@@ -675,7 +776,7 @@ class _MapScreenState extends State<MapScreen> {
                           _destName = building['name'] ?? '도착 건물';
                           _destLocation = LatLng(lat, lng);
                           _destSearchController.text = _destName!;
-                          _uiMode = 'nav';
+                          _isRouteSearchExpanded = true;
                         });
                         _calculateAccessibleRoute();
                       },
@@ -899,11 +1000,11 @@ class _MapScreenState extends State<MapScreen> {
             },
           ),
           IconButton(
-            icon: Icon(_uiMode == 'nav' ? Icons.search : Icons.directions),
-            tooltip: _uiMode == 'nav' ? '검색 모드' : '길찾기 모드',
+            icon: Icon(_isRouteSearchExpanded ? Icons.search : Icons.directions),
+            tooltip: _isRouteSearchExpanded ? '검색 모드' : '길찾기 모드',
             onPressed: () {
               setState(() {
-                _uiMode = (_uiMode == 'nav') ? 'search' : 'nav';
+                _isRouteSearchExpanded = !_isRouteSearchExpanded;
               });
             },
           ),
@@ -931,7 +1032,7 @@ class _MapScreenState extends State<MapScreen> {
                 onTap: (tapPosition, point) {
                   setState(() {
                     _selectedTappedLocation = point;
-                    if (_uiMode == 'nav') {
+                    if (_isRouteSearchExpanded) {
                       _destLocation = point;
                       _destName = '지도 선택 위치';
                       _calculateAccessibleRoute();
@@ -1116,77 +1217,158 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-          // 1. Top Section: Clean Dual Search Card (Start & Destination Inputs)
+          // 1. Top Section: Clean Search Box (Collapsed single search or Expanded dual route search)
           Positioned(
             top: 10,
             left: 12,
             right: 12,
             child: Column(
               children: [
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 6,
-                  color: _isDarkMode ? const Color(0xFF1E293B) : Colors.blue.shade900,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.my_location, color: Colors.lightGreenAccent, size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: _startSearchController,
-                                style: const TextStyle(color: Colors.white, fontSize: 13),
-                                onSubmitted: (val) {
-                                  if (_knownLandmarks.containsKey(val)) {
-                                    setState(() {
-                                      _startName = val;
-                                      _startLocation = _knownLandmarks[val]!;
-                                    });
-                                    if (_destLocation != null) _calculateAccessibleRoute();
-                                  } else {
-                                    _performSearch(val);
-                                  }
-                                },
-                                decoration: InputDecoration(
-                                  hintText: '출발: $_startName',
-                                  hintStyle: const TextStyle(color: Colors.white70, fontSize: 12),
-                                  border: InputBorder.none,
-                                  isDense: true,
+                if (!_isRouteSearchExpanded) ...[
+                  // Collapsed Single Search Bar (White/Light Emerald)
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      side: BorderSide(color: const Color(0xFF10B981).withValues(alpha: 0.3), width: 1.5),
+                    ),
+                    elevation: 5,
+                    color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, color: Color(0xFF10B981), size: 22),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              readOnly: false,
+                              onTap: _showSearchRecommendationModal,
+                              onSubmitted: (val) {
+                                _performSearch(val);
+                              },
+                              decoration: const InputDecoration(
+                                hintText: '지도 검색 (장소, 건물 입력)...',
+                                hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                                border: InputBorder.none,
+                                isDense: true,
+                              ),
+                              style: TextStyle(fontSize: 13, color: _isDarkMode ? Colors.white : Colors.black87),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.directions, color: Color(0xFF10B981)),
+                            tooltip: '길찾기 출발/도착지 설정',
+                            onPressed: () {
+                              setState(() {
+                                _isRouteSearchExpanded = true;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  // Expanded Dual Route Search Card (White / Dark Glass)
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      side: BorderSide(color: const Color(0xFF10B981).withValues(alpha: 0.4), width: 1.5),
+                    ),
+                    elevation: 8,
+                    color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.my_location, color: Color(0xFF10B981), size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _startSearchController,
+                                  style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black87, fontSize: 13),
+                                  onSubmitted: (val) {
+                                    if (_knownLandmarks.containsKey(val)) {
+                                      setState(() {
+                                        _startName = val;
+                                        _startLocation = _knownLandmarks[val]!;
+                                      });
+                                      if (_destLocation != null) _calculateAccessibleRoute();
+                                    } else {
+                                      _performSearch(val);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: '출발: $_startName',
+                                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                  ),
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.swap_vert, color: Colors.white70, size: 20),
-                              tooltip: '출발지/도착지 위치 교환',
-                              onPressed: () {
-                                setState(() {
-                                  final tempName = _startName;
-                                  final tempLoc = _startLocation;
-                                  _startName = _destName ?? '현재 위치';
-                                  _startLocation = _destLocation ?? _currentLocation;
-                                  _destName = tempName;
-                                  _destLocation = tempLoc;
-                                  _startSearchController.text = _startName;
-                                  _destSearchController.text = _destName ?? '';
-                                });
-                                if (_destLocation != null) _calculateAccessibleRoute();
-                              },
-                            ),
-                          ],
-                        ),
-                        const Divider(color: Colors.white24, height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on, color: Colors.redAccent, size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: _destSearchController,
-                                style: const TextStyle(color: Colors.white, fontSize: 13),
-                                onSubmitted: (val) {
+                              IconButton(
+                                icon: const Icon(Icons.swap_vert, color: Color(0xFF10B981), size: 20),
+                                tooltip: '출발지/도착지 위치 교환',
+                                onPressed: () {
+                                  setState(() {
+                                    final tempName = _startName;
+                                    final tempLoc = _startLocation;
+                                    _startName = _destName ?? '현재 위치';
+                                    _startLocation = _destLocation ?? _currentLocation;
+                                    _destName = tempName;
+                                    _destLocation = tempLoc;
+                                    _startSearchController.text = _startName;
+                                    _destSearchController.text = _destName ?? '';
+                                  });
+                                  if (_destLocation != null) _calculateAccessibleRoute();
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                tooltip: '접기',
+                                onPressed: () {
+                                  setState(() {
+                                    _isRouteSearchExpanded = false;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 10),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on, color: Colors.redAccent, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _destSearchController,
+                                  onTap: _showSearchRecommendationModal,
+                                  style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black87, fontSize: 13),
+                                  onSubmitted: (val) {
+                                    if (_knownLandmarks.containsKey(val)) {
+                                      setState(() {
+                                        _destName = val;
+                                        _destLocation = _knownLandmarks[val];
+                                      });
+                                      _calculateAccessibleRoute();
+                                    } else {
+                                      _performSearch(val);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: _destName ?? '도착지 검색 또는 추천 터치',
+                                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  final val = _destSearchController.text.trim();
                                   if (_knownLandmarks.containsKey(val)) {
                                     setState(() {
                                       _destName = val;
@@ -1197,40 +1379,21 @@ class _MapScreenState extends State<MapScreen> {
                                     _performSearch(val);
                                   }
                                 },
-                                decoration: InputDecoration(
-                                  hintText: _destName ?? '도착지 검색 또는 지도 핀 터치 (예: 작전여고)',
-                                  hintStyle: const TextStyle(color: Colors.white54, fontSize: 12),
-                                  border: InputBorder.none,
-                                  isDense: true,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF10B981),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
+                                child: const Text('길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                               ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                final val = _destSearchController.text.trim();
-                                if (_knownLandmarks.containsKey(val)) {
-                                  setState(() {
-                                    _destName = val;
-                                    _destLocation = _knownLandmarks[val];
-                                  });
-                                  _calculateAccessibleRoute();
-                                } else {
-                                  _performSearch(val);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isDarkMode ? const Color(0xFF059669) : Colors.blue.shade600,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              ),
-                              child: const Text('길찾기', style: TextStyle(fontSize: 12)),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                ],
 
                 const SizedBox(height: 6),
 
