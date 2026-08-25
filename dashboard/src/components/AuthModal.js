@@ -47,9 +47,15 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
     try {
       if (isSignUp) {
+        const isEmailAdmin = sanitizedEmail.startsWith('bugye6816');
         const { error } = await supabase.auth.signUp({
           email: sanitizedEmail,
-          password: sanitizedPassword
+          password: sanitizedPassword,
+          options: {
+            data: {
+              role: isEmailAdmin ? 'admin' : 'user'
+            }
+          }
         });
         if (error) throw error;
         setMessage('회원가입 완료! (SMTP 상태에 따라 인증 메일 확인이 필요할 수 있습니다)');

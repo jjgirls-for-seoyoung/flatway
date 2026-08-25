@@ -293,6 +293,13 @@ export default function Home() {
 
   // 5-3. Handle Item Deletion (Hazards or Buildings)
   const handleDeleteItem = async (id, type) => {
+    // Check admin permission
+    const isAdmin = user && (user.user_metadata?.role === 'admin' || user.email?.startsWith('bugye6816'));
+    if (!isAdmin) {
+      alert('삭제 권한이 없습니다. 최고 관리자 계정으로 로그인해 주세요.');
+      return;
+    }
+
     if (!confirm('정말로 이 정보를 데이터베이스에서 삭제하시겠습니까?')) return;
 
     // Update locally first
@@ -411,6 +418,8 @@ export default function Home() {
   // SVG Circle Stroke calculation (r = 32, circ = 201)
   const circumference = 201;
   const strokeDashoffset = circumference - (circumference * safetyScore) / 100;
+
+  const isAdmin = user && (user.user_metadata?.role === 'admin' || user.email?.startsWith('bugye6816'));
 
   return (
     <main className="dashboard-container">
@@ -738,34 +747,36 @@ export default function Home() {
                     </div>
                   </div>
                   {/* Delete Button */}
-                  <button
-                    onClick={() => handleDeleteItem(selectedItem.id, 'hazard')}
-                    style={{
-                      marginTop: '12px',
-                      width: '100%',
-                      padding: '8px',
-                      borderRadius: 'var(--ldsg-radius-200)',
-                      border: '1px solid #ef4444',
-                      background: 'transparent',
-                      color: '#ef4444',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = 'rgba(239, 68, 68, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = 'transparent';
-                    }}
-                  >
-                    <Trash2 size={13} /> 이 위험 제보 삭제
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteItem(selectedItem.id, 'hazard')}
+                      style={{
+                        marginTop: '12px',
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: 'var(--ldsg-radius-200)',
+                        border: '1px solid #ef4444',
+                        background: 'transparent',
+                        color: '#ef4444',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'transparent';
+                      }}
+                    >
+                      <Trash2 size={13} /> 이 위험 제보 삭제
+                    </button>
+                  )}
                 </>
               ) : (
                 <>
@@ -788,34 +799,36 @@ export default function Home() {
                     </li>
                   </ul>
                   {/* Delete Button */}
-                  <button
-                    onClick={() => handleDeleteItem(selectedItem.id, 'building')}
-                    style={{
-                      marginTop: '12px',
-                      width: '100%',
-                      padding: '8px',
-                      borderRadius: 'var(--ldsg-radius-200)',
-                      border: '1px solid #ef4444',
-                      background: 'transparent',
-                      color: '#ef4444',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = 'rgba(239, 68, 68, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = 'transparent';
-                    }}
-                  >
-                    <Trash2 size={13} /> 이 건물 접근성 정보 삭제
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteItem(selectedItem.id, 'building')}
+                      style={{
+                        marginTop: '12px',
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: 'var(--ldsg-radius-200)',
+                        border: '1px solid #ef4444',
+                        background: 'transparent',
+                        color: '#ef4444',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'transparent';
+                      }}
+                    >
+                      <Trash2 size={13} /> 이 건물 접근성 정보 삭제
+                    </button>
+                  )}
                 </>
               )}
             </div>
@@ -972,27 +985,29 @@ export default function Home() {
                     제보: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>
                   {/* Mobile Delete Button */}
-                  <button
-                    onClick={() => handleDeleteItem(selectedItem.id, 'hazard')}
-                    style={{
-                      marginTop: '10px',
-                      width: '100%',
-                      padding: '6px',
-                      borderRadius: 'var(--ldsg-radius-200)',
-                      border: '1px solid #ef4444',
-                      background: 'transparent',
-                      color: '#ef4444',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    <Trash2 size={13} /> 이 위험 제보 삭제
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteItem(selectedItem.id, 'hazard')}
+                      style={{
+                        marginTop: '10px',
+                        width: '100%',
+                        padding: '6px',
+                        borderRadius: 'var(--ldsg-radius-200)',
+                        border: '1px solid #ef4444',
+                        background: 'transparent',
+                        color: '#ef4444',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Trash2 size={13} /> 이 위험 제보 삭제
+                    </button>
+                  )}
                 </>
               ) : (
                 <>
@@ -1003,27 +1018,29 @@ export default function Home() {
                     <div><strong>화장실:</strong> {selectedItem.disabled_toilet ? '장애인용' : '일반'}</div>
                   </div>
                   {/* Mobile Delete Button */}
-                  <button
-                    onClick={() => handleDeleteItem(selectedItem.id, 'building')}
-                    style={{
-                      marginTop: '10px',
-                      width: '100%',
-                      padding: '6px',
-                      borderRadius: 'var(--ldsg-radius-200)',
-                      border: '1px solid #ef4444',
-                      background: 'transparent',
-                      color: '#ef4444',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    <Trash2 size={13} /> 건물 정보 삭제
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteItem(selectedItem.id, 'building')}
+                      style={{
+                        marginTop: '10px',
+                        width: '100%',
+                        padding: '6px',
+                        borderRadius: 'var(--ldsg-radius-200)',
+                        border: '1px solid #ef4444',
+                        background: 'transparent',
+                        color: '#ef4444',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Trash2 size={13} /> 건물 정보 삭제
+                    </button>
+                  )}
                 </>
               )}
             </div>
