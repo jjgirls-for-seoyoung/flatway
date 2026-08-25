@@ -278,6 +278,22 @@ export default function Home() {
     alert('제보가 브라우저 로컬 저장소(localStorage)에 등록되었습니다!');
   };
 
+  // Helper to get pin color matching hazard type
+  const getHazardColor = (type) => {
+    switch (type) {
+      case 'step':
+        return 'var(--color-danger)'; // Red for step (단차)
+      case 'damage':
+        return 'var(--color-warn)'; // Orange for damage (파손)
+      case 'obstacle':
+        return '#8b5cf6'; // Purple for obstacle (적치물)
+      case 'slope':
+        return '#06b6d4'; // Cyan for slope (급경사)
+      default:
+        return 'var(--color-warn)';
+    }
+  };
+
   // Helper to check admin permission
   const checkIsAdmin = (u) => {
     if (!u) return false;
@@ -751,7 +767,7 @@ export default function Home() {
               {selectedItemType === 'hazard' ? (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="detail-header" style={{ color: 'var(--color-warn)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span className="detail-header" style={{ color: getHazardColor(selectedItem.type), display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <AlertTriangle size={14} />
                       {selectedItem.type === 'step' ? '보행 단차 장애물' : 
                        selectedItem.type === 'damage' ? '보행 노면 파손' :
@@ -977,7 +993,7 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 {selectedItemType === 'hazard' ? (
                   <>
-                    <span className="detail-header" style={{ color: 'var(--color-warn)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span className="detail-header" style={{ color: getHazardColor(selectedItem.type), fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <AlertTriangle size={14} />
                       {selectedItem.type === 'step' ? '보행 단차' : 
                        selectedItem.type === 'damage' ? '노면 파손' :
