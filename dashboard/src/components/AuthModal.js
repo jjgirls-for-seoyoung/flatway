@@ -97,10 +97,10 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content" style={{ width: '400px', maxWidth: '90vw', padding: '24px' }}>
+      <div className="modal-content" style={{ width: '400px', maxWidth: '90vw', padding: '22px 24px' }}>
         
         {/* Header */}
-        <div className="modal-header" style={{ marginBottom: '16px' }}>
+        <div className="modal-header" style={{ marginBottom: '14px' }}>
           <div style={{ textAlign: 'left' }}>
             <h3 className="modal-title" style={{ fontSize: view === 'settings' ? '23px' : '19px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {view === 'login' ? (
@@ -126,7 +126,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
         {/* View content */}
         {view === 'settings' ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             
             {/* General Settings Section */}
             <div className="settings-section">
@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
             </div>
 
             {/* Account Info Section */}
-            <div className="settings-section" style={{ marginTop: '4px' }}>
+            <div className="settings-section">
               <h4 className="settings-section-title">계정 및 권한</h4>
               
               {/* Plan Row */}
