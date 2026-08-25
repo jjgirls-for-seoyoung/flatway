@@ -19,7 +19,10 @@ import {
   Wrench,
   Info,
   AlertCircle,
-  Eye
+  Eye,
+  BookOpen,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import DynamicMap from '../components/DynamicMap';
 import ReportModal from '../components/ReportModal';
@@ -40,6 +43,14 @@ export default function Home() {
 
   // Control center heatmap mode state
   const [heatmapMode, setHeatmapMode] = useState(false);
+
+  // Right sidebar help and guide states
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [expandedSection, setExpandedSection] = useState(0);
+
+  const toggleAccordion = (idx) => {
+    setExpandedSection(expandedSection === idx ? null : idx);
+  };
 
   // Theme state ('dark' | 'light')
   const [theme, setTheme] = useState('dark');
@@ -421,7 +432,15 @@ export default function Home() {
               <p>휠체어·보행 약자 맞춤 경로 대시보드</p>
             </div>
           </div>
-          <div className="logo-actions">
+          <div className="logo-actions" style={{ display: 'flex', gap: '6px' }}>
+            <button 
+              className="theme-toggle-btn" 
+              onClick={() => setIsRightSidebarOpen(prev => !prev)}
+              title="도움말 및 기준서 보기"
+              aria-label="도움말 및 기준서 보기"
+            >
+              <BookOpen size={16} />
+            </button>
             <button 
               className="theme-toggle-btn" 
               onClick={toggleTheme}
@@ -821,7 +840,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="mobile-top-right">
+          <div className="mobile-top-right" style={{ display: 'flex', gap: '6px' }}>
+            <button 
+              className="theme-toggle-btn" 
+              onClick={() => setIsRightSidebarOpen(prev => !prev)}
+              title="도움말 및 기준서 보기"
+              aria-label="도움말 및 기준서 보기"
+            >
+              <BookOpen size={16} />
+            </button>
             <button 
               className="theme-toggle-btn" 
               onClick={toggleTheme}
@@ -977,6 +1004,114 @@ export default function Home() {
         latitude={clickCoords.lat}
         longitude={clickCoords.lng}
       />
+      {/* Right Sidebar (Help & Guidelines) */}
+      <aside className={`right-sidebar glass-panel ${isRightSidebarOpen ? 'open' : ''}`}>
+        <div className="right-sidebar-header">
+          <span className="right-sidebar-title">
+            <BookOpen size={16} color="var(--color-accent)" /> 관제 가이드 및 기준서
+          </span>
+          <button 
+            className="mobile-sidebar-close" 
+            onClick={() => setIsRightSidebarOpen(false)}
+            aria-label="도움말 닫기"
+            style={{ display: 'flex' }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+          {/* Accordion 1 */}
+          <div className="accordion-item">
+            <div className="accordion-header" onClick={() => toggleAccordion(0)}>
+              <h5><AlertTriangle size={14} color="var(--color-warn)" /> 노면 위험도 판단 기준</h5>
+              {expandedSection === 0 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+            {expandedSection === 0 && (
+              <div className="accordion-content">
+                <div className="accordion-sub-item">
+                  <strong style={{ color: 'var(--color-danger)' }}>상 (High Severity)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    단차 3cm 이상 또는 노면 공사/파손이 심해 바퀴가 빠질 위험이 있어 휠체어 자력 통행이 불가능한 구간입니다. 우회 경로 설정이 필수적입니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong style={{ color: 'var(--color-warn)' }}>중 (Medium Severity)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    단차 1.5cm ~ 3cm 사이이거나 노면 요철이 불규칙하여 주행 시 충격이 크고 동반자의 일시적인 뒤떨어짐/보조가 필요한 구간입니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong style={{ color: 'var(--color-safe)' }}>하 (Low Severity)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    단차 1.5cm 미만으로 미세한 진동은 있으나 휠체어 단독 주행이 가능하며 경미한 주의만 요구되는 구간입니다.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 2 */}
+          <div className="accordion-item">
+            <div className="accordion-header" onClick={() => toggleAccordion(1)}>
+              <h5><Wrench size={14} color="var(--color-accent)" /> 유지보수 파이프라인</h5>
+              {expandedSection === 1 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+            {expandedSection === 1 && (
+              <div className="accordion-content">
+                <div className="accordion-sub-item">
+                  <strong style={{ color: '#2c7dfa' }}>접수 (Reported)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    보행 약자 앱 또는 시민 제보를 통해 도로의 단차가 시스템에 신규로 접수 및 등록된 초기 대기 상태입니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong style={{ color: '#8b5cf6' }}>조사중 (Processing)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    지자체 담당 부서에서 현장 조사를 나가 실제 노면 높이 및 휠체어 진입 가능 여부를 정밀 실사 중인 상태입니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong style={{ color: '#f97316' }}>보수 예정 (Scheduled)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    보도 블록 교체, 아스콘 평탄화 공사 또는 경사로 추가 설치 관련 예산 및 공사 일정이 확정되어 보수 대기 중인 상태입니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong style={{ color: '#06c755' }}>보수 완료 (Resolved)</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    공사가 완료되어 단차가 평탄하게 복구되었거나 장애물이 수거되어 보행 약자가 안전하게 통행할 수 있는 청정 상태입니다.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Accordion 3 */}
+          <div className="accordion-item">
+            <div className="accordion-header" onClick={() => toggleAccordion(2)}>
+              <h5><Layers size={14} color="var(--color-accent)" /> 열지도 가중치 해설</h5>
+              {expandedSection === 2 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </div>
+            {expandedSection === 2 && (
+              <div className="accordion-content">
+                <div className="accordion-sub-item">
+                  <strong>위험 수준별 열원 크기</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    위험 등급에 비례해 고위험(상) 제보는 80px 반경의 붉은 열원, 중위험(중)은 60px 주황색, 저위험(하)은 40px 노란색 열원을 지도 상에 생성합니다.
+                  </p>
+                </div>
+                <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
+                  <strong>위험 누적 핫스팟</strong>
+                  <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    여러 개의 위험 마커가 밀집된 구역은 그라데이션이 합쳐지며 농도가 매우 짙어집니다. 이 구역은 관제 우선순위 1순위로 고려됩니다.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
     </main>
   );
 }
