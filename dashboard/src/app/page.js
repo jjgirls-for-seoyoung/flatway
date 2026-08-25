@@ -1165,7 +1165,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => toggleDetail(0)} 
-                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   {expandedDetails[0] ? '자세히 닫기' : '자세히'}
                   {expandedDetails[0] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -1219,7 +1219,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => toggleDetail(1)} 
-                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   {expandedDetails[1] ? '자세히 닫기' : '자세히'}
                   {expandedDetails[1] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -1267,7 +1267,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => toggleDetail(2)} 
-                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   {expandedDetails[2] ? '자세히 닫기' : '자세히'}
                   {expandedDetails[2] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -1320,7 +1320,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => toggleDetail(3)} 
-                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   {expandedDetails[3] ? '자세히 닫기' : '자세히'}
                   {expandedDetails[3] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -1361,7 +1361,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => toggleDetail(4)} 
-                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   {expandedDetails[4] ? '자세히 닫기' : '자세히'}
                   {expandedDetails[4] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -1401,7 +1401,7 @@ export default function Home() {
                 <button 
                   type="button" 
                   onClick={() => toggleDetail(5)} 
-                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '11px', fontWeight: '500', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   {expandedDetails[5] ? '자세히 닫기' : '자세히'}
                   {expandedDetails[5] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
