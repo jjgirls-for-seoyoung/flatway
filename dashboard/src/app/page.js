@@ -273,7 +273,7 @@ export default function Home() {
   // Helper to check admin permission
   const checkIsAdmin = (u) => {
     if (!u) return false;
-    const isEmailAdmin = u.email?.toLowerCase().includes('bugye');
+    const isEmailAdmin = u.email?.toLowerCase().trim() === 'bugye6816@gmail.com';
     const isRoleAdmin = u.user_metadata?.role === 'admin' || u.app_metadata?.role === 'admin';
     return Boolean(isEmailAdmin || isRoleAdmin);
   };

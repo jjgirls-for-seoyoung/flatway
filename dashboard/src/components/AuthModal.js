@@ -47,7 +47,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
     try {
       if (isSignUp) {
-        const isEmailAdmin = sanitizedEmail.startsWith('bugye') || sanitizedEmail.includes('bugye');
+        const isEmailAdmin = sanitizedEmail === 'bugye6816@gmail.com';
         const { data, error } = await supabase.auth.signUp({
           email: sanitizedEmail,
           password: sanitizedPassword,
@@ -178,7 +178,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
               
               {/* Plan Row */}
               {(() => {
-                const isEmailAdmin = user?.email?.toLowerCase().includes('bugye');
+                const isEmailAdmin = user?.email?.toLowerCase().trim() === 'bugye6816@gmail.com';
                 const isRoleAdmin = user?.user_metadata?.role === 'admin' || user?.app_metadata?.role === 'admin';
                 const isAdmin = Boolean(isEmailAdmin || isRoleAdmin);
                 const roleLabel = !user ? '게스트' : isAdmin ? '관리자' : '일반';
