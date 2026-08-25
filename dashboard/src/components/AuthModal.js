@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, User, Lock, Mail, LogOut, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingSupabase }) {
+export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingSupabase, onToggleSync }) {
   const [view, setView] = useState('settings'); // 'settings' or 'login'
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
