@@ -52,6 +52,7 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _destLocation;
   bool _isNavigating = false;
   List<LatLng> _navRoutePoints = [];
+  List<RouteStep> _navRouteSteps = [];
   double _navDistanceMeters = 0.0;
   int _navEstMinutes = 0;
   int _bypassedHazardsCount = 0;
@@ -172,6 +173,7 @@ class _MapScreenState extends State<MapScreen> {
     if (mounted) {
       setState(() {
         _navRoutePoints = result.points;
+        _navRouteSteps = result.steps;
         _navDistanceMeters = result.distanceMeters;
         _navEstMinutes = max(1, minutes);
         _isNavigating = true;
@@ -238,44 +240,49 @@ class _MapScreenState extends State<MapScreen> {
             ),
             const Divider(height: 20),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildNavStepItem(
-                    icon: Icons.my_location,
-                    iconColor: Colors.green,
-                    title: '출발지: $_startName',
-                    subtitle: '작전역 승강기 위치에서 출발 준비 (평지 보도)',
-                    distance: '0m',
-                  ),
-                  _buildNavStepItem(
-                    icon: Icons.straight,
-                    iconColor: Colors.blue,
-                    title: '보도 직진 구간',
-                    subtitle: '계양대로 방면 140m 직진 (경사도 1.5° 평탄 보도)',
-                    distance: '140m',
-                  ),
-                  _buildNavStepItem(
-                    icon: Icons.turn_right,
-                    iconColor: Colors.orange,
-                    title: '위험 단차 우회 & 우회전',
-                    subtitle: '단차 12.5cm 위험 구간 감지 ➔ 우측 턱 없는 경사로 진입',
-                    distance: '90m',
-                  ),
-                  _buildNavStepItem(
-                    icon: Icons.straight,
-                    iconColor: Colors.blue,
-                    title: '통학로 보행자 전용도로 진입',
-                    subtitle: '보도블록 완충 구간 지나 120m 직진',
-                    distance: '120m',
-                  ),
-                  _buildNavStepItem(
-                    icon: Icons.flag,
-                    iconColor: Colors.red,
-                    title: '도착: $dest',
-                    subtitle: '주출입문 도착 (자동문 및 휠체어 진입 경사로 완비)',
-                    distance: '도착',
-                  ),
-                ],
+              child: ListView.builder(
+                itemCount: _navRouteSteps.isEmpty ? 1 : _navRouteSteps.length,
+                itemBuilder: (context, index) {
+                  if (_navRouteSteps.isEmpty) {
+                    return _buildNavStepItem(
+                      icon: Icons.my_location,
+                      iconColor: Colors.green,
+                      title: '출발지: $_startName ➔ 도착지: $dest',
+                      subtitle: '경로 데이터를 계산 중입니다.',
+                      distance: '${_navDistanceMeters.toStringAsFixed(0)}m',
+                    );
+                  }
+
+                  final step = _navRouteSteps[index];
+                  final isLast = index == _navRouteSteps.length - 1;
+                  final isFirst = index == 0;
+
+                  final IconData stepIcon = isFirst
+                      ? Icons.my_location
+                      : isLast
+                          ? Icons.flag
+                          : step.modifier.contains('right')
+                              ? Icons.turn_right
+                              : step.modifier.contains('left')
+                                  ? Icons.turn_left
+                                  : Icons.straight;
+
+                  final Color stepColor = isFirst
+                      ? Colors.green
+                      : isLast
+                          ? Colors.red
+                          : step.modifier.contains('right') || step.modifier.contains('left')
+                              ? Colors.orange
+                              : Colors.blue;
+
+                  return _buildNavStepItem(
+                    icon: stepIcon,
+                    iconColor: stepColor,
+                    title: isFirst ? '출발지: $_startName' : isLast ? '도착지: $dest' : '보행 이동 구간 ${index + 1}',
+                    subtitle: step.instruction,
+                    distance: '${step.distanceMeters.toStringAsFixed(0)}m',
+                  );
+                },
               ),
             ),
           ],
