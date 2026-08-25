@@ -1265,18 +1265,18 @@ class _MapScreenState extends State<MapScreen> {
               child: Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 8,
-                color: Colors.blue.shade900,
+                color: const Color(0xFF1E3A8A),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.lightGreenAccent.shade400,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF047857),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.turn_right, color: Colors.black87, size: 28),
+                        child: const Icon(Icons.turn_right, color: Colors.white, size: 24),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -1284,7 +1284,7 @@ class _MapScreenState extends State<MapScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              '90m 앞 우회전 (단차 12.5cm 우회 구간)',
+                              '90m 앞 우회전 (단차 우회 구간)',
                               style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 2),
@@ -1301,13 +1301,14 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-          // 1. Top Section: Clean Search Box (Collapsed single search or Expanded dual route search)
-          Positioned(
-            top: 10,
-            left: 12,
-            right: 12,
-            child: Column(
-              children: [
+          // 1. Top Section: Clean Search Box (Shown when NOT navigating)
+          if (!_isNavigating)
+            Positioned(
+              top: 10,
+              left: 12,
+              right: 12,
+              child: Column(
+                children: [
                 if (!_isRouteSearchExpanded) ...[
                   // Collapsed Single Search Bar (White/Light Emerald)
                   Card(
