@@ -614,21 +614,21 @@ export default function Home() {
             <Wrench size={12} color="var(--color-accent)" /> 유지보수 현황
           </h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
-            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+            <div style={{ background: 'rgba(44, 125, 250, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(44, 125, 250, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>접수</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#3b82f6' }}>{reportedCount}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#2c7dfa' }}>{reportedCount}</div>
             </div>
-            <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>조사중</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#8b5cf6' }}>{processingCount}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#6366f1' }}>{processingCount}</div>
             </div>
-            <div style={{ background: 'rgba(249, 115, 22, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(249, 115, 22, 0.2)' }}>
+            <div style={{ background: 'rgba(234, 179, 8, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(234, 179, 8, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>보수예정</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#f97316' }}>{scheduledCount}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#eab308' }}>{scheduledCount}</div>
             </div>
-            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <div style={{ background: 'rgba(20, 184, 166, 0.1)', padding: '6px 2px', borderRadius: 'var(--ldsg-radius-200)', border: '1px solid rgba(20, 184, 166, 0.2)' }}>
               <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>완료</div>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>{resolvedCount}</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#14b8a6' }}>{resolvedCount}</div>
             </div>
           </div>
         </div>
@@ -1129,19 +1129,19 @@ export default function Home() {
                 <div className="accordion-sub-item">
                   <strong style={{ color: 'var(--color-danger)' }}>상 (High Severity)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 3cm 이상 또는 노면 공사/파손이 심해 바퀴가 빠질 위험이 있어 휠체어 자력 통행이 불가능한 구간입니다. 우회 경로 설정이 필수적입니다.
+                    단차 3cm 이상 또는 노면 포트홀/파손이 매우 심해 휠체어의 자력 주행 및 진입이 불가능한 최우선 우회 대상 구간입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
                   <strong style={{ color: 'var(--color-warn)' }}>중 (Medium Severity)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 1.5cm ~ 3cm 사이이거나 노면 요철이 불규칙하여 주행 시 충격이 크고 동반자의 일시적인 뒤떨어짐/보조가 필요한 구간입니다.
+                    단차 1.5cm ~ 3cm 이거나 노면 블록 요철 유실, 경사각 8~12도 사이의 급경사로 주행 시 충격 및 보조인의 밀착 관리가 필요한 구간입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
                   <strong style={{ color: 'var(--color-safe)' }}>하 (Low Severity)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    단차 1.5cm 미만으로 미세한 진동은 있으나 휠체어 단독 주행이 가능하며 경미한 주의만 요구되는 구간입니다.
+                    단차 1.5cm 미만의 미세한 턱이나 경미한 주행 진동을 동반하는 구간으로, 휠체어 자력 단독 통행에 큰 지장이 없는 관리 대상입니다.
                   </p>
                 </div>
               </div>
@@ -1159,25 +1159,25 @@ export default function Home() {
                 <div className="accordion-sub-item">
                   <strong style={{ color: '#2c7dfa' }}>접수 (Reported)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    보행 약자 앱 또는 시민 제보를 통해 도로의 단차가 시스템에 신규로 접수 및 등록된 초기 대기 상태입니다.
+                    FlatWay 현장 모바일 앱 또는 시민 제보 시스템을 통해 신규 제보 사진과 GPS 좌표가 서버 데이터베이스에 신규 등록된 초기 접수 단계입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: '#8b5cf6' }}>조사중 (Processing)</strong>
+                  <strong style={{ color: '#6366f1' }}>조사중 (Processing)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    지자체 담당 부서에서 현장 조사를 나가 실제 노면 높이 및 휠체어 진입 가능 여부를 정밀 실사 중인 상태입니다.
+                    지자체 보도환경 정비단 또는 안전점검 실사팀이 지정되어 현장 검증, 실물 계측 및 노면 위험 수준에 대한 판정을 실시 중인 상태입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: '#f97316' }}>보수 예정 (Scheduled)</strong>
+                  <strong style={{ color: '#eab308' }}>보수 예정 (Scheduled)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    보도 블록 교체, 아스콘 평탄화 공사 또는 경사로 추가 설치 관련 예산 및 공사 일정이 확정되어 보수 대기 중인 상태입니다.
+                    단차 완화 경사판 덧댐 공사, 블록 교체 혹은 요철 평탄화 작업에 대한 관할 예산 집행과 공사 용역 일정이 공식 확정 및 예약된 단계입니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong style={{ color: '#06c755' }}>보수 완료 (Resolved)</strong>
+                  <strong style={{ color: '#14b8a6' }}>보수 완료 (Resolved)</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    공사가 완료되어 단차가 평탄하게 복구되었거나 장애물이 수거되어 보행 약자가 안전하게 통행할 수 있는 청정 상태입니다.
+                    현장 시공 복구 및 장애물 철거가 최종 완료되어 보행 약자가 안전하게 턱 없이 직진할 수 있게 보도 상태가 정상 회복된 상태입니다.
                   </p>
                 </div>
               </div>
@@ -1187,21 +1187,21 @@ export default function Home() {
           {/* Accordion 3 */}
           <div className="accordion-item">
             <div className="accordion-header" onClick={() => toggleAccordion(2)}>
-              <h5><Layers size={14} color="var(--color-accent)" /> 열지도 가중치 해설</h5>
+              <h5><Layers size={14} color="var(--color-accent)" /> 히트맵 가중치 해설</h5>
               {expandedSection === 2 ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </div>
             {expandedSection === 2 && (
               <div className="accordion-content">
                 <div className="accordion-sub-item">
-                  <strong>위험 수준별 열원 크기</strong>
+                  <strong>위험 등급별 히트맵 열원 규모</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    위험 등급에 비례해 고위험(상) 제보는 80px 반경의 붉은 열원, 중위험(중)은 60px 주황색, 저위험(하)은 40px 노란색 열원을 지도 상에 생성합니다.
+                    제보 건의 심각도에 따라 고위험(상) 제보는 반경 80px의 대형 열원, 중위험(중)은 60px 규모, 저위험(하)은 40px 규모의 가중치가 누적 투사됩니다.
                   </p>
                 </div>
                 <div className="accordion-sub-item" style={{ marginTop: '8px' }}>
-                  <strong>위험 누적 핫스팟</strong>
+                  <strong>히트맵 핫스팟 해석</strong>
                   <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    여러 개의 위험 마커가 밀집된 구역은 그라데이션이 합쳐지며 농도가 매우 짙어집니다. 이 구역은 관제 우선순위 1순위로 고려됩니다.
+                    일정 구역 내 다수의 제보 마커가 밀집되면 그라데이션 광원이 강력하게 중첩되어 붉은색 밀도가 매우 높게 표현됩니다. 이 지역은 우선 순위 정비 지역을 선별하는 과학적 지표로 사용됩니다.
                   </p>
                 </div>
               </div>

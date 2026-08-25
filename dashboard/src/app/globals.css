@@ -1059,23 +1059,23 @@ textarea::placeholder {
 }
 
 .status-badge.reported {
-  background-color: #3b82f6 !important; /* Blue */
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: #2c7dfa !important; /* Blue */
+  border: 1px solid rgba(44, 125, 250, 0.3);
 }
 
 .status-badge.processing {
-  background-color: #8b5cf6 !important; /* Purple */
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background-color: #6366f1 !important; /* Indigo */
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 .status-badge.scheduled {
-  background-color: #f97316 !important; /* Orange */
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background-color: #eab308 !important; /* Yellow */
+  border: 1px solid rgba(234, 179, 8, 0.3);
 }
 
 .status-badge.resolved {
-  background-color: #10b981 !important; /* Green */
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: #14b8a6 !important; /* Teal */
+  border: 1px solid rgba(20, 184, 166, 0.3);
 }
 
 /* Status Change Dropdown Selector */
