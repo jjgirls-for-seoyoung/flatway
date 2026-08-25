@@ -22,10 +22,12 @@ import {
   Eye,
   BookOpen,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  User
 } from 'lucide-react';
 import DynamicMap from '../components/DynamicMap';
 import ReportModal from '../components/ReportModal';
+import AuthModal from '../components/AuthModal';
 import { supabase } from '../lib/supabaseClient';
 import { initialHazards, initialBuildings, mockRoutes } from '../data/mockData';
 
@@ -54,6 +56,10 @@ export default function Home() {
 
   // Theme state ('dark' | 'light')
   const [theme, setTheme] = useState('dark');
+
+  // Auth states
+  const [user, setUser] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Mobile drawer & detail card state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -94,6 +100,21 @@ export default function Home() {
     document.documentElement.setAttribute('data-theme', nextTheme);
     localStorage.setItem('flatway_theme', nextTheme);
   };
+
+  // 1-2. Supabase Auth Session Listener
+  useEffect(() => {
+    if (supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, []);
 
   // 1-1. Browser Geolocation Request
   useEffect(() => {
@@ -429,7 +450,7 @@ export default function Home() {
             </div>
             <div className="logo-text">
               <h1>FlatWay</h1>
-              <p>휠체어·보행 약자 맞춤 경로 대시보드</p>
+              <p>대시보드</p>
             </div>
           </div>
           <div className="logo-actions" style={{ display: 'flex', gap: '6px' }}>
@@ -448,6 +469,14 @@ export default function Home() {
               aria-label={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
             >
               {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            <button 
+              className="theme-toggle-btn" 
+              onClick={() => setIsAuthModalOpen(true)}
+              title={user ? `${user.email} (로그아웃)` : '로그인 / 회원가입'}
+              aria-label="로그인 / 회원가입"
+            >
+              <User size={16} />
             </button>
             {/* Mobile close button */}
             <button 
@@ -857,6 +886,14 @@ export default function Home() {
             >
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
+            <button 
+              className="theme-toggle-btn" 
+              onClick={() => setIsAuthModalOpen(true)}
+              title={user ? `${user.email} (로그아웃)` : '로그인 / 회원가입'}
+              aria-label="로그인 / 회원가입"
+            >
+              <User size={16} />
+            </button>
           </div>
         </div>
 
@@ -1003,6 +1040,14 @@ export default function Home() {
         onSubmit={handleReportSubmit}
         latitude={clickCoords.lat}
         longitude={clickCoords.lng}
+      />
+
+      {/* Auth Login/Signup Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        user={user}
+        onAuthSuccess={(u) => setUser(u)}
       />
       {/* Right Sidebar (Help & Guidelines) */}
       <aside className={`right-sidebar glass-panel ${isRightSidebarOpen ? 'open' : ''}`}>
