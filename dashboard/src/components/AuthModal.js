@@ -112,7 +112,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                   >
                     <ArrowLeft size={16} />
                   </button>
-                  {isSignUp ? '계정이 없습니다.' : '이미 계정이 있습니다.'}
+                  {isSignUp ? '새 계정 만들기' : '이미 계정이 있나요?'}
                 </>
               ) : (
                 '계정'
