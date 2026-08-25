@@ -1220,33 +1220,33 @@ class _MapScreenState extends State<MapScreen> {
                     if (_destLocation != null)
                       Marker(
                         point: _destLocation!,
-                        width: 48,
-                        height: 48,
+                        width: 30,
+                        height: 30,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.red.shade700,
+                            color: Colors.red.shade600,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 8)],
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 4)],
                           ),
-                          child: const Icon(Icons.location_on, color: Colors.white, size: 28),
+                          child: const Icon(Icons.location_on, color: Colors.white, size: 18),
                         ),
                       ),
 
                     if (_selectedTappedLocation != null && _destLocation != _selectedTappedLocation)
                       Marker(
                         point: _selectedTappedLocation!,
-                        width: 44,
-                        height: 44,
+                        width: 28,
+                        height: 28,
                         child: GestureDetector(
                           onTap: () => _openReportModal(_selectedTappedLocation!),
                           child: Container(
                             decoration: const BoxDecoration(
-                              color: Colors.purple,
+                              color: Color(0xFF10B981),
                               shape: BoxShape.circle,
-                              boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 6)],
+                              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
                             ),
-                            child: const Icon(Icons.add_location_alt, color: Colors.white, size: 26),
+                            child: const Icon(Icons.add_location_alt, color: Colors.white, size: 16),
                           ),
                         ),
                       ),
@@ -1546,12 +1546,13 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: () => _openReportModal(_currentLocation),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange.shade800,
+                                    backgroundColor: const Color(0xFF2563EB),
                                     foregroundColor: Colors.white,
+                                    elevation: 2,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                   ),
-                                  icon: const Icon(Icons.report_problem, size: 18),
+                                  icon: const Icon(Icons.report_problem_rounded, size: 18),
                                   label: const Text('📍 현위치 제보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                 ),
                               ),
@@ -1560,12 +1561,13 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: _toggleRouteTracking,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isTrackingRoute ? Colors.red.shade800 : Colors.purple.shade700,
+                                    backgroundColor: _isTrackingRoute ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                                     foregroundColor: Colors.white,
+                                    elevation: 2,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                   ),
-                                  icon: Icon(_isTrackingRoute ? Icons.stop : Icons.directions_walk, size: 18),
+                                  icon: Icon(_isTrackingRoute ? Icons.stop_circle_rounded : Icons.directions_walk_rounded, size: 18),
                                   label: Text(
                                     _isTrackingRoute ? '🔴 수집 중단' : '🚶 이동 수집 시작',
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
