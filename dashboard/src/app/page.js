@@ -270,12 +270,20 @@ export default function Home() {
     alert('제보가 브라우저 로컬 저장소(localStorage)에 등록되었습니다!');
   };
 
+  // Helper to check admin permission
+  const checkIsAdmin = (u) => {
+    if (!u) return false;
+    const isEmailAdmin = u.email?.toLowerCase().includes('bugye');
+    const isRoleAdmin = u.user_metadata?.role === 'admin' || u.app_metadata?.role === 'admin';
+    return Boolean(isEmailAdmin || isRoleAdmin);
+  };
+
   // 5-2. Handle Maintenance Status Change
   const handleStatusChange = async (id, newStatus) => {
     // Check admin permission
-    const isAdmin = user && (user.user_metadata?.role === 'admin' || user.email?.startsWith('bugye6816'));
+    const isAdmin = checkIsAdmin(user);
     if (!isAdmin) {
-      alert('유지보수 상태 수정 권한이 없습니다. 최고 관리자 계정으로 로그인해 주세요.');
+      alert('유지보수 상태 수정 권한이 없습니다. 관리자 계정으로 로그인해 주세요.');
       return;
     }
 
@@ -303,9 +311,9 @@ export default function Home() {
   // 5-3. Handle Item Deletion (Hazards or Buildings)
   const handleDeleteItem = async (id, type) => {
     // Check admin permission
-    const isAdmin = user && (user.user_metadata?.role === 'admin' || user.email?.startsWith('bugye6816'));
+    const isAdmin = checkIsAdmin(user);
     if (!isAdmin) {
-      alert('삭제 권한이 없습니다. 최고 관리자 계정으로 로그인해 주세요.');
+      alert('삭제 권한이 없습니다. 관리자 계정으로 로그인해 주세요.');
       return;
     }
 
@@ -431,7 +439,7 @@ export default function Home() {
   const circumference = 201;
   const strokeDashoffset = circumference - (circumference * safetyScore) / 100;
 
-  const isAdmin = user && (user.user_metadata?.role === 'admin' || user.email?.startsWith('bugye6816'));
+  const isAdmin = checkIsAdmin(user);
 
   return (
     <main className="dashboard-container">

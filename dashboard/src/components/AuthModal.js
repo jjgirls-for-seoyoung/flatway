@@ -47,7 +47,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
     try {
       if (isSignUp) {
-        const isEmailAdmin = sanitizedEmail.startsWith('bugye6816');
+        const isEmailAdmin = sanitizedEmail.startsWith('bugye') || sanitizedEmail.includes('bugye');
         const { data, error } = await supabase.auth.signUp({
           email: sanitizedEmail,
           password: sanitizedPassword,
@@ -177,16 +177,30 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
               <h4 className="settings-section-title">계정 및 권한</h4>
               
               {/* Plan Row */}
-              <div className="settings-row">
-                <div className="settings-row-info">
-                  <span className="settings-row-title">
-                    관제 권한 등급: {user ? '최고 관리자' : '게스트 관찰자'}
-                  </span>
-                  <span className="settings-row-desc">
-                    {user ? '권한 활성화' : '지도 조회 및 위치 검색 전용 세션입니다. 제보 삭제 및 진행 상태 수정 권한이 제한됩니다.'}
-                  </span>
-                </div>
-              </div>
+              {(() => {
+                const isEmailAdmin = user?.email?.toLowerCase().includes('bugye');
+                const isRoleAdmin = user?.user_metadata?.role === 'admin' || user?.app_metadata?.role === 'admin';
+                const isAdmin = Boolean(isEmailAdmin || isRoleAdmin);
+                const roleLabel = !user ? '게스트' : isAdmin ? '관리자' : '일반';
+                const roleDesc = !user 
+                  ? '지도 조회 및 위치 검색 전용 세션입니다. 제보 삭제 및 진행 상태 수정 권한이 제한됩니다.' 
+                  : isAdmin 
+                    ? '권한 활성화' 
+                    : '기본 사용자 권한입니다. 제보 등록 및 조회가 가능하며, 관리자 권한은 제한됩니다.';
+
+                return (
+                  <div className="settings-row">
+                    <div className="settings-row-info">
+                      <span className="settings-row-title">
+                        관리 등급: {roleLabel}
+                      </span>
+                      <span className="settings-row-desc">
+                        {roleDesc}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Email & Auth Actions Row */}
               <div className="settings-row">
