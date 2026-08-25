@@ -71,7 +71,6 @@ function MapClickHandler({ onMapClick }) {
 export default function SafetyMap({
   hazards,
   buildings,
-  selectedRouteMode,
   onMapClick,
   onSelectItem,
   filters,
@@ -103,8 +102,6 @@ export default function SafetyMap({
   });
 
   const filteredBuildings = buildings.filter(() => showBuilding);
-
-  const currentRoute = mockRoutes[selectedRouteMode];
 
   return (
     <div className={`map-container ${theme === 'dark' ? 'dark-theme-map' : 'light-theme-map'}`}>
@@ -191,30 +188,7 @@ export default function SafetyMap({
           </Marker>
         ))}
 
-        {/* Draw Safe/Recommended Route Line */}
-        {currentRoute && (
-          <Polyline
-            positions={currentRoute.coordinates}
-            color={currentRoute.color}
-            weight={6}
-            opacity={0.85}
-            lineCap="round"
-          >
-            <Popup>
-              <div style={{ minWidth: '150px' }}>
-                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: currentRoute.color, fontWeight: '700' }}>
-                  {currentRoute.name}
-                </h4>
-                <p style={{ margin: '2px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  거리: {currentRoute.distance} | 소요시간: {currentRoute.time}
-                </p>
-                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', borderTop: '1px solid var(--glass-border)', paddingTop: '4px', marginTop: '4px' }}>
-                  {currentRoute.notes}
-                </p>
-              </div>
-            </Popup>
-          </Polyline>
-        )}
+
 
         {/* Render User Current Location if available */}
         {userLocation && (

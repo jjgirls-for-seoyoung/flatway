@@ -44,12 +44,7 @@ VALUES
   ('slope', 37.5372, 126.7245, NULL, 'low', '주택가 이면도로 경사 다소 급함 (수동 휠체어 이용 시 주의 요함)', true, 'processing');
 
 -- Seed Buildings
-INSERT INTO buildings (name, latitude, longitude, has_ramp, ramp_slope_degree, has_elevator, main_entrance_type, disabled_toilet)
-VALUES 
-  ('작전역 (인천1호선)', 37.5346, 126.7225, true, 4.5, true, 'automatic', true),
-  ('작전여자고등학교', 37.5385, 126.7240, true, 8.0, true, 'automatic', true),
-  ('작전1동 행정복지센터', 37.5360, 126.7250, true, 6.5, true, 'automatic', true),
-  ('근처 빌딩 (상가건물)', 37.5352, 126.7215, false, NULL, false, 'manual', false);
+-- (건물 접근성 정보 삭제)
 
 -- 4. Enable Realtime for tables (실시간 변경 사항 브로드캐스트 활성화)
 -- 이 명령을 Supabase SQL Editor에서 실행해야 클라이언트로 실시간 변경 데이터가 수신됩니다.

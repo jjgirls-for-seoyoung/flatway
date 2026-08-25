@@ -51,56 +51,7 @@ export const initialHazards = [
   }
 ];
 
-export const initialBuildings = [
-  {
-    id: "Gyeyang_bldg_1",
-    name: "작전역 (인천1호선)",
-    latitude: 37.5346,
-    longitude: 126.7225,
-    has_ramp: true,
-    ramp_slope_degree: 4.5,
-    has_elevator: true,
-    main_entrance_type: "automatic",
-    disabled_toilet: true,
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "Gyeyang_bldg_2",
-    name: "작전여자고등학교",
-    latitude: 37.5385,
-    longitude: 126.7240,
-    has_ramp: true,
-    ramp_slope_degree: 8.0,
-    has_elevator: true,
-    main_entrance_type: "automatic",
-    disabled_toilet: true,
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "Gyeyang_bldg_3",
-    name: "작전1동 행정복지센터",
-    latitude: 37.5360,
-    longitude: 126.7250,
-    has_ramp: true,
-    ramp_slope_degree: 6.5,
-    has_elevator: true,
-    main_entrance_type: "automatic",
-    disabled_toilet: true,
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "Gyeyang_bldg_4",
-    name: "근처 상가빌딩",
-    latitude: 37.5352,
-    longitude: 126.7215,
-    has_ramp: false,
-    ramp_slope_degree: null,
-    has_elevator: false,
-    main_entrance_type: "manual",
-    disabled_toilet: false,
-    updated_at: new Date().toISOString()
-  }
-];
+export const initialBuildings = [];
 
 // Routes between Jakjeon Girls' HS [37.5385, 126.7240] and Jakjeon Station [37.5346, 126.7225]
 export const mockRoutes = {
