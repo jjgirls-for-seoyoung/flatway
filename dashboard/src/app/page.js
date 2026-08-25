@@ -581,7 +581,6 @@ export default function Home() {
               <AlertTriangle size={14} color="var(--color-warn)" />
             </div>
             <div className="stat-value">{totalHazards}건</div>
-            <div className="stat-label">단차 턱 포함</div>
           </div>
           
           <div className="stat-card">
@@ -600,7 +599,6 @@ export default function Home() {
                 <span className="slider" />
               </label>
             </div>
-            <div className="stat-label">열지도 시각화 제어</div>
           </div>
         </div>
 
