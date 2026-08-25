@@ -32,6 +32,9 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
 
+  // Control center heatmap mode state
+  const [heatmapMode, setHeatmapMode] = useState(false);
+
   // Theme state ('dark' | 'light')
   const [theme, setTheme] = useState('dark');
 
@@ -40,7 +43,6 @@ export default function Home() {
   const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   // Selector and filter states
-  const [selectedRouteMode, setSelectedRouteMode] = useState('pedestrian');
   const [filters, setFilters] = useState({
     step: true,
     damage: true,
@@ -152,6 +154,7 @@ export default function Home() {
               });
             } else if (payload.eventType === 'UPDATE') {
               setHazards(prev => prev.map(h => h.id === payload.new.id ? payload.new : h));
+              setSelectedItem(prev => (prev && prev.id === payload.new.id) ? { ...prev, ...payload.new } : prev);
             } else if (payload.eventType === 'DELETE') {
               setHazards(prev => prev.filter(h => h.id !== payload.old.id));
             }
@@ -190,9 +193,15 @@ export default function Home() {
 
   // 4. Handle new report submission
   const handleReportSubmit = async (newReport) => {
+    const reportToSave = {
+      ...newReport,
+      status: 'reported',
+      reported_at: new Date().toISOString()
+    };
+
     if (usingSupabase && supabase) {
       try {
-        const { data, error } = await supabase.from('hazards').insert([newReport]).select();
+        const { data, error } = await supabase.from('hazards').insert([reportToSave]).select();
         if (!error && data && data.length > 0) {
           const savedReport = data[0];
           setHazards(prev => [savedReport, ...prev]);
@@ -209,7 +218,7 @@ export default function Home() {
 
     // Local Storage fallback
     const reportWithId = {
-      ...newReport,
+      ...reportToSave,
       id: `local_${Date.now()}`
     };
     const updatedHazards = [reportWithId, ...hazards];
@@ -219,6 +228,73 @@ export default function Home() {
     setSelectedItemType('hazard');
     setShowMobileDetail(true);
     alert('제보가 브라우저 로컬 저장소(localStorage)에 등록되었습니다!');
+  };
+
+  // 5-2. Handle Maintenance Status Change
+  const handleStatusChange = async (id, newStatus) => {
+    // Update locally first
+    setHazards(prev => prev.map(h => h.id === id ? { ...h, status: newStatus } : h));
+    setSelectedItem(prev => (prev && prev.id === id) ? { ...prev, status: newStatus } : prev);
+
+    // Update in Supabase if connected
+    if (usingSupabase && supabase) {
+      try {
+        const { error } = await supabase
+          .from('hazards')
+          .update({ status: newStatus })
+          .eq('id', id);
+        
+        if (error) {
+          console.error("Failed to update status in Supabase:", error.message || error);
+        }
+      } catch (err) {
+        console.error("Supabase status update error:", err);
+      }
+    }
+  };
+
+  // 5-3. Handle Item Deletion (Hazards or Buildings)
+  const handleDeleteItem = async (id, type) => {
+    if (!confirm('정말로 이 정보를 데이터베이스에서 삭제하시겠습니까?')) return;
+
+    // Update locally first
+    if (type === 'hazard') {
+      setHazards(prev => prev.filter(h => h.id !== id));
+      if (!usingSupabase) {
+        const stored = localStorage.getItem('flatway_hazards');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          localStorage.setItem('flatway_hazards', JSON.stringify(parsed.filter(h => h.id !== id)));
+        }
+      }
+    } else if (type === 'building') {
+      setBuildings(prev => prev.filter(b => b.id !== id));
+    }
+
+    // Clear selected item
+    setSelectedItem(null);
+    setSelectedItemType(null);
+
+    // Delete in Supabase if connected
+    if (usingSupabase && supabase) {
+      try {
+        const { error } = await supabase
+          .from(type === 'hazard' ? 'hazards' : 'buildings')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          console.error(`Failed to delete ${type} from Supabase:`, error.message || error);
+          alert(`서버에서 삭제에 실패했습니다: ${error.message}`);
+        } else {
+          alert('데이터베이스에서 성공적으로 삭제되었습니다!');
+        }
+      } catch (err) {
+        console.error("Supabase delete error:", err);
+      }
+    } else {
+      alert('로컬 상태에서 성공적으로 삭제되었습니다!');
+    }
   };
 
   // 5. Handle item selection (Marker click)
@@ -272,6 +348,13 @@ export default function Home() {
   const totalBuildings = buildings.length;
   const buildingsWithRamp = buildings.filter(b => b.has_ramp).length;
   const rampPercentage = totalBuildings > 0 ? Math.round((buildingsWithRamp / totalBuildings) * 100) : 0;
+
+  // Maintenance pipeline stats
+  const countByStatus = (statusName) => hazards.filter(h => (h.status || 'reported') === statusName).length;
+  const reportedCount = countByStatus('reported');
+  const processingCount = countByStatus('processing');
+  const scheduledCount = countByStatus('scheduled');
+  const resolvedCount = countByStatus('resolved');
 
   // Dynamic Safety Index Score
   const safetyScore = Math.max(
@@ -415,6 +498,64 @@ export default function Home() {
           )}
         </div>
 
+        {/* Heatmap & Maintenance Control Center */}
+        <div className="control-panel glass-panel" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          padding: '12px 14px',
+          borderRadius: '10px',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--glass-border)',
+          marginBottom: '8px'
+        }}>
+          <h4 className="section-title" style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)' }}>
+            🛰️ 실시간 관제 및 분석 모드
+          </h4>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>열지도(Heatmap) 분석 활성화</span>
+            <label className="switch" style={{ margin: 0 }}>
+              <input 
+                type="checkbox" 
+                checked={heatmapMode} 
+                onChange={() => setHeatmapMode(prev => !prev)} 
+              />
+              <span className="slider" />
+            </label>
+          </div>
+        </div>
+
+        {/* Municipal Maintenance Dashboard */}
+        <div className="maintenance-board glass-panel" style={{
+          padding: '12px 14px',
+          borderRadius: '10px',
+          background: 'var(--info-badge-bg)',
+          border: '1px solid var(--info-badge-border)',
+          marginBottom: '10px'
+        }}>
+          <h4 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            🚧 보도 유지보수 파이프라인 현황
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>접수</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#3b82f6' }}>{reportedCount}</div>
+            </div>
+            <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>조사중</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#8b5cf6' }}>{processingCount}</div>
+            </div>
+            <div style={{ background: 'rgba(249, 115, 22, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>보수예정</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#f97316' }}>{scheduledCount}</div>
+            </div>
+            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '6px 2px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>완료</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>{resolvedCount}</div>
+            </div>
+          </div>
+        </div>
+
         {/* Stats Grid */}
         <div className="stats-grid">
           <div className="stat-card">
@@ -435,48 +576,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Route Selector */}
-        <div className="route-selector">
-          <h4 className="section-title">
-            <Navigation size={12} /> 이동 수단 및 안전 경로 모드
-          </h4>
-          <div className="route-options">
-            <button 
-              className={`route-btn ${selectedRouteMode === 'pedestrian' ? 'active' : ''}`}
-              onClick={() => setSelectedRouteMode('pedestrian')}
-            >
-              <span>🚶</span>
-              <span>보행자</span>
-            </button>
-            <button 
-              className={`route-btn ${selectedRouteMode === 'electric' ? 'active' : ''}`}
-              onClick={() => setSelectedRouteMode('electric')}
-            >
-              <span>⚡</span>
-              <span>전동휠체어</span>
-            </button>
-            <button 
-              className={`route-btn ${selectedRouteMode === 'manual' ? 'active' : ''}`}
-              onClick={() => setSelectedRouteMode('manual')}
-            >
-              <span>♿</span>
-              <span>수동휠체어</span>
-            </button>
-          </div>
-          {mockRoutes[selectedRouteMode] && (
-            <div style={{
-              fontSize: '11px',
-              color: 'var(--text-secondary)',
-              background: 'var(--info-badge-bg)',
-              padding: '8px 10px',
-              borderRadius: '6px',
-              marginTop: '4px',
-              lineHeight: '1.4'
-            }}>
-              <strong>경로 설명: </strong>{mockRoutes[selectedRouteMode].notes}
-            </div>
-          )}
-        </div>
+
 
         {/* Filter Panel */}
         <div className="control-panel">
@@ -559,6 +659,58 @@ export default function Home() {
                   <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
                     제보일시: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>
+                  {/* Status badge & change dropdown */}
+                  <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                      🚧 유지보수 진행 관리
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className={`status-badge ${selectedItem.status || 'reported'}`}>
+                        {(selectedItem.status || 'reported') === 'reported' ? '접수됨' :
+                         selectedItem.status === 'processing' ? '조사중' :
+                         selectedItem.status === 'scheduled' ? '보수 예정' : '보수 완료'}
+                      </span>
+                      <select
+                        className="status-select"
+                        value={selectedItem.status || 'reported'}
+                        onChange={(e) => handleStatusChange(selectedItem.id, e.target.value)}
+                      >
+                        <option value="reported">접수 (Reported)</option>
+                        <option value="processing">조사중 (Processing)</option>
+                        <option value="scheduled">보수 예정 (Scheduled)</option>
+                        <option value="resolved">보수 완료 (Resolved)</option>
+                      </select>
+                    </div>
+                  </div>
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDeleteItem(selectedItem.id, 'hazard')}
+                    style={{
+                      marginTop: '12px',
+                      width: '100%',
+                      padding: '8px',
+                      borderRadius: '6px',
+                      border: '1px solid #ef4444',
+                      background: 'transparent',
+                      color: '#ef4444',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    🗑️ 이 위험 제보 삭제
+                  </button>
                 </>
               ) : (
                 <>
@@ -580,6 +732,35 @@ export default function Home() {
                       <strong>장애인 화장실:</strong> {selectedItem.disabled_toilet ? '있음' : '없음'}
                     </li>
                   </ul>
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDeleteItem(selectedItem.id, 'building')}
+                    style={{
+                      marginTop: '12px',
+                      width: '100%',
+                      padding: '8px',
+                      borderRadius: '6px',
+                      border: '1px solid #ef4444',
+                      background: 'transparent',
+                      color: '#ef4444',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    🗑️ 이 건물 접근성 정보 삭제
+                  </button>
                 </>
               )}
             </div>
@@ -634,32 +815,6 @@ export default function Home() {
             </div>
           </div>
           <div className="mobile-top-right">
-            <div className="mobile-route-pills">
-              <button 
-                className={`mobile-route-pill ${selectedRouteMode === 'pedestrian' ? 'active' : ''}`}
-                onClick={() => setSelectedRouteMode('pedestrian')}
-                title="보행자 모드"
-              >
-                <span>🚶</span>
-                <span>보행자</span>
-              </button>
-              <button 
-                className={`mobile-route-pill ${selectedRouteMode === 'electric' ? 'active' : ''}`}
-                onClick={() => setSelectedRouteMode('electric')}
-                title="전동휠체어 모드"
-              >
-                <span>⚡</span>
-                <span>전동</span>
-              </button>
-              <button 
-                className={`mobile-route-pill ${selectedRouteMode === 'manual' ? 'active' : ''}`}
-                onClick={() => setSelectedRouteMode('manual')}
-                title="수동휠체어 모드"
-              >
-                <span>♿</span>
-                <span>수동</span>
-              </button>
-            </div>
             <button 
               className="theme-toggle-btn" 
               onClick={toggleTheme}
@@ -674,13 +829,13 @@ export default function Home() {
         <DynamicMap 
           hazards={hazards}
           buildings={buildings}
-          selectedRouteMode={selectedRouteMode}
           onMapClick={handleMapClick}
           onSelectItem={handleSelectItem}
           filters={filters}
           theme={theme}
           userLocation={userLocation}
           searchLocation={searchLocation}
+          heatmapMode={heatmapMode}
         />
 
         {/* Mobile Floating Bottom Detail Card */}
@@ -722,17 +877,82 @@ export default function Home() {
                       <strong>단차 높이:</strong> {selectedItem.step_height_cm} cm
                     </p>
                   )}
+                  {/* Mobile status selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                    <span className={`status-badge ${selectedItem.status || 'reported'}`}>
+                      {(selectedItem.status || 'reported') === 'reported' ? '접수됨' :
+                       selectedItem.status === 'processing' ? '조사중' :
+                       selectedItem.status === 'scheduled' ? '보수 예정' : '보수 완료'}
+                    </span>
+                    <select
+                      className="status-select"
+                      value={selectedItem.status || 'reported'}
+                      onChange={(e) => handleStatusChange(selectedItem.id, e.target.value)}
+                      style={{ padding: '4px 8px', fontSize: '11px' }}
+                    >
+                      <option value="reported">접수</option>
+                      <option value="processing">조사중</option>
+                      <option value="scheduled">보수 예정</option>
+                      <option value="resolved">보수 완료</option>
+                    </select>
+                  </div>
                   <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
                     제보: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>
+                  {/* Mobile Delete Button */}
+                  <button
+                    onClick={() => handleDeleteItem(selectedItem.id, 'hazard')}
+                    style={{
+                      marginTop: '10px',
+                      width: '100%',
+                      padding: '6px',
+                      borderRadius: '6px',
+                      border: '1px solid #ef4444',
+                      background: 'transparent',
+                      color: '#ef4444',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    🗑️ 이 위험 제보 삭제
+                  </button>
                 </>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', fontSize: '11px', marginTop: '2px' }}>
-                  <div><strong>경사로:</strong> {selectedItem.has_ramp ? `설치 (${selectedItem.ramp_slope_degree || '?'}°)` : '미설치'}</div>
-                  <div><strong>승강기:</strong> {selectedItem.has_elevator ? '있음' : '없음'}</div>
-                  <div><strong>출입문:</strong> {selectedItem.main_entrance_type === 'automatic' ? '자동문' : selectedItem.main_entrance_type === 'revolving' ? '회전문' : '여닫이문'}</div>
-                  <div><strong>화장실:</strong> {selectedItem.disabled_toilet ? '장애인용' : '일반'}</div>
-                </div>
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', fontSize: '11px', marginTop: '2px' }}>
+                    <div><strong>경사로:</strong> {selectedItem.has_ramp ? `설치 (${selectedItem.ramp_slope_degree || '?'}°)` : '미설치'}</div>
+                    <div><strong>승강기:</strong> {selectedItem.has_elevator ? '있음' : '없음'}</div>
+                    <div><strong>출입문:</strong> {selectedItem.main_entrance_type === 'automatic' ? '자동문' : selectedItem.main_entrance_type === 'revolving' ? '회전문' : '여닫이문'}</div>
+                    <div><strong>화장실:</strong> {selectedItem.disabled_toilet ? '장애인용' : '일반'}</div>
+                  </div>
+                  {/* Mobile Delete Button */}
+                  <button
+                    onClick={() => handleDeleteItem(selectedItem.id, 'building')}
+                    style={{
+                      marginTop: '10px',
+                      width: '100%',
+                      padding: '6px',
+                      borderRadius: '6px',
+                      border: '1px solid #ef4444',
+                      background: 'transparent',
+                      color: '#ef4444',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    🗑️ 건물 정보 삭제
+                  </button>
+                </>
               )}
             </div>
           </div>

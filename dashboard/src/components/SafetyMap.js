@@ -32,6 +32,15 @@ const createUserLocationIcon = () => {
   });
 };
 
+const createHeatmapIcon = () => {
+  return L.divIcon({
+    className: 'heatmap-circle',
+    html: '',
+    iconSize: [80, 80],
+    iconAnchor: [40, 40]
+  });
+};
+
 function MapViewCenter({ userLocation, searchLocation }) {
   const map = useMap();
   useEffect(() => {
@@ -62,13 +71,13 @@ function MapClickHandler({ onMapClick }) {
 export default function SafetyMap({
   hazards,
   buildings,
-  selectedRouteMode,
   onMapClick,
   onSelectItem,
   filters,
   theme = 'dark',
   userLocation,
-  searchLocation
+  searchLocation,
+  heatmapMode = false
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -94,8 +103,6 @@ export default function SafetyMap({
 
   const filteredBuildings = buildings.filter(() => showBuilding);
 
-  const currentRoute = mockRoutes[selectedRouteMode];
-
   return (
     <div className={`map-container ${theme === 'dark' ? 'dark-theme-map' : 'light-theme-map'}`}>
       <MapContainer 
@@ -114,29 +121,38 @@ export default function SafetyMap({
           <Marker
             key={hazard.id}
             position={[hazard.latitude, hazard.longitude]}
-            icon={createCustomIcon(hazard.type)}
+            icon={heatmapMode ? createHeatmapIcon() : createCustomIcon(hazard.type)}
             eventHandlers={{
-              click: () => onSelectItem(hazard, 'hazard')
+              click: heatmapMode ? undefined : () => onSelectItem(hazard, 'hazard')
             }}
           >
-            <Popup>
-              <div style={{ minWidth: '150px' }}>
-                <span className={`detail-badge ${hazard.severity}`} style={{ marginBottom: '4px' }}>
-                  {hazard.type === 'step' ? '단차' : 
-                   hazard.type === 'damage' ? '노면 파손' :
-                   hazard.type === 'obstacle' ? '적치물 장애물' : '급경사'} ({hazard.severity === 'high' ? '상' : hazard.severity === 'medium' ? '중' : '하'})
-                </span>
-                <h4 style={{ margin: '4px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  {hazard.step_height_cm ? `${hazard.step_height_cm}cm 단차 위험` : '노면 안전 위험'}
-                </h4>
-                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  {hazard.description}
-                </p>
-                <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                  제보: {new Date(hazard.reported_at).toLocaleString('ko-KR')}
+            {!heatmapMode && (
+              <Popup>
+                <div style={{ minWidth: '160px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', gap: '6px' }}>
+                    <span className={`detail-badge ${hazard.severity}`}>
+                      {hazard.type === 'step' ? '단차' : 
+                       hazard.type === 'damage' ? '노면 파손' :
+                       hazard.type === 'obstacle' ? '적치물' : '급경사'} ({hazard.severity === 'high' ? '상' : hazard.severity === 'medium' ? '중' : '하'})
+                    </span>
+                    <span className={`status-badge ${hazard.status || 'reported'}`} style={{ transform: 'scale(0.85)', transformOrigin: 'right' }}>
+                      {(hazard.status || 'reported') === 'reported' ? '접수' :
+                       hazard.status === 'processing' ? '조사중' :
+                       hazard.status === 'scheduled' ? '보수예정' : '보수완료'}
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '4px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                    {hazard.step_height_cm ? `${hazard.step_height_cm}cm 단차 위험` : '노면 안전 위험'}
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    {hazard.description}
+                  </p>
+                  <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                    제보: {new Date(hazard.reported_at).toLocaleString('ko-KR')}
+                  </div>
                 </div>
-              </div>
-            </Popup>
+              </Popup>
+            )}
           </Marker>
         ))}
 
@@ -172,30 +188,7 @@ export default function SafetyMap({
           </Marker>
         ))}
 
-        {/* Draw Safe/Recommended Route Line */}
-        {currentRoute && (
-          <Polyline
-            positions={currentRoute.coordinates}
-            color={currentRoute.color}
-            weight={6}
-            opacity={0.85}
-            lineCap="round"
-          >
-            <Popup>
-              <div style={{ minWidth: '150px' }}>
-                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: currentRoute.color, fontWeight: '700' }}>
-                  {currentRoute.name}
-                </h4>
-                <p style={{ margin: '2px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  거리: {currentRoute.distance} | 소요시간: {currentRoute.time}
-                </p>
-                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', borderTop: '1px solid var(--glass-border)', paddingTop: '4px', marginTop: '4px' }}>
-                  {currentRoute.notes}
-                </p>
-              </div>
-            </Popup>
-          </Polyline>
-        )}
+
 
         {/* Render User Current Location if available */}
         {userLocation && (

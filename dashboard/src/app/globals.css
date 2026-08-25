@@ -1026,3 +1026,66 @@ input:checked + .slider:before {
     opacity: 0;
   }
 }
+
+/* Heatmap Circle & Density Visualization */
+.heatmap-circle {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.75) 0%, rgba(239, 68, 68, 0.3) 50%, rgba(239, 68, 68, 0) 100%) !important;
+  border-radius: 50% !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+/* Municipal Repair Pipeline Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.status-badge.reported {
+  background-color: #3b82f6 !important; /* Blue */
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.status-badge.processing {
+  background-color: #8b5cf6 !important; /* Purple */
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.status-badge.scheduled {
+  background-color: #f97316 !important; /* Orange */
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.status-badge.resolved {
+  background-color: #10b981 !important; /* Green */
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Status Change Dropdown Selector */
+.status-select {
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
