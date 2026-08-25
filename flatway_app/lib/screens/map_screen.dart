@@ -57,6 +57,8 @@ class _MapScreenState extends State<MapScreen> {
   int _navEstMinutes = 0;
   int _bypassedHazardsCount = 0;
 
+  bool _isHeadingUp = false;
+  
   // Voice Guidance (TTS)
   final FlutterTts _flutterTts = FlutterTts();
 
@@ -1455,6 +1457,32 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
+
+          // Floating Compass Heading-up View Toggle Button
+          Positioned(
+            bottom: _isNavigating ? 190 : 80,
+            right: 16,
+            child: FloatingActionButton.small(
+              heroTag: 'compass_toggle',
+              backgroundColor: _isHeadingUp ? Colors.blue.shade800 : Colors.white,
+              foregroundColor: _isHeadingUp ? Colors.white : Colors.black87,
+              onPressed: () {
+                setState(() {
+                  _isHeadingUp = !_isHeadingUp;
+                });
+                if (!_isHeadingUp) {
+                  _mapController.rotate(0);
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(_isHeadingUp ? '🧭 주행 방향 3D 회전 모드가 켜졌습니다.' : '⬆️ 북쪽 정방향 지도 모드로 변경되었습니다.'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+              child: const Icon(Icons.explore),
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
