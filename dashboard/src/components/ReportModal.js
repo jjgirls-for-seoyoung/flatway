@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export default function ReportModal({
   isOpen,
@@ -45,10 +45,10 @@ export default function ReportModal({
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <AlertTriangle size={18} color="var(--color-warn)" /> 실시간 노면 안전 제보하기
+          <h3 className="modal-title">
+            제보하기
           </h3>
-          <button className="modal-close-btn" onClick={onClose}>
+          <button className="modal-close-btn" onClick={onClose} aria-label="닫기">
             <X size={20} />
           </button>
         </div>
@@ -86,10 +86,10 @@ export default function ReportModal({
               value={type} 
               onChange={(e) => setType(e.target.value)}
             >
-              <option value="step">보도 턱/단차 (Step)</option>
-              <option value="damage">노면 파손/요철 (Damage)</option>
-              <option value="obstacle">적치물/불법주차 (Obstacle)</option>
-              <option value="slope">급경사 구간 (Slope)</option>
+              <option value="step">보도 턱/단차</option>
+              <option value="damage">노면 파손/요철</option>
+              <option value="obstacle">적치물/불법주차</option>
+              <option value="slope">급경사 구간</option>
             </select>
           </div>
 
@@ -143,7 +143,7 @@ export default function ReportModal({
               취소
             </button>
             <button type="submit" className="btn btn-primary">
-              제보 등록하기
+              등록
             </button>
           </div>
         </form>
