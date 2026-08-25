@@ -20,7 +20,10 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess }) {
     setErrorMsg('');
     setMessage('');
 
-    if (!email.trim() || !password.trim()) {
+    const sanitizedEmail = email.trim().toLowerCase();
+    const sanitizedPassword = password.trim();
+
+    if (!sanitizedEmail || !sanitizedPassword) {
       setErrorMsg('이메일과 비밀번호를 모두 입력해 주세요.');
       setLoading(false);
       return;
@@ -29,15 +32,15 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess }) {
     try {
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
-          email,
-          password
+          email: sanitizedEmail,
+          password: sanitizedPassword
         });
         if (error) throw error;
-        setMessage('회원가입 확인 메일이 발송되었습니다! (이메일을 확인해 주세요)');
+        setMessage('회원가입 완료! (SMTP 상태에 따라 인증 메일 확인이 필요할 수 있습니다)');
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
+          email: sanitizedEmail,
+          password: sanitizedPassword
         });
         if (error) throw error;
         onAuthSuccess(data.user);
