@@ -61,7 +61,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
         if (data?.user) {
           onAuthSuccess(data.user);
         }
-        alert('성공적으로 회원가입되었습니다!');
+        alert('회원가입이 완료되었습니다.');
         onClose();
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -70,7 +70,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
         });
         if (error) throw error;
         onAuthSuccess(data.user);
-        alert('성공적으로 로그인되었습니다!');
+        alert('로그인되었습니다.');
         onClose();
       }
     } catch (err) {
@@ -86,7 +86,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       onAuthSuccess(null);
-      alert('성공적으로 로그아웃되었습니다.');
+      alert('로그아웃되었습니다.');
       onClose();
     } catch (err) {
       alert(`로그아웃 실패: ${err.message}`);
