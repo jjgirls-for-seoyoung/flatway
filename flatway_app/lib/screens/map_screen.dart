@@ -586,6 +586,107 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  bool _isGpsRequiredModalOpen = false;
+
+  void _checkGpsAndPermissions() async {
+    bool serviceEnabled = await LocationService.isLocationServiceEnabled();
+    LocationPermission permission = await LocationService.checkPermission();
+
+    if (!serviceEnabled || permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (mounted && !_isGpsRequiredModalOpen) {
+        _isGpsRequiredModalOpen = true;
+        _showMandatoryGpsDialog();
+      }
+    }
+  }
+
+  void _showMandatoryGpsDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
+              children: [
+                Icon(Icons.location_off_rounded, color: Colors.redAccent, size: 26),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '위치(GPS) 및 권한 설정 필요',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'FlatWay 보행약자 안전 지도 서비스를 이용하려면 스마트폰의 위치(GPS) 기능 및 앱 위치 권한이 반드시 필요합니다.',
+                  style: TextStyle(fontSize: 13, height: 1.4),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  '아래 버튼을 눌러 위치(GPS)를 켜고 위치 권한을 "허용"으로 변경해 주세요.',
+                  style: TextStyle(fontSize: 12, color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            actions: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await LocationService.openLocationSettings();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    icon: const Icon(Icons.settings_remote, size: 18),
+                    label: const Text('⚙️ 위치(GPS) 기능 켜기 (설정)'),
+                  ),
+                  const SizedBox(height: 6),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await LocationService.openAppSettings();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    icon: const Icon(Icons.security, size: 18),
+                    label: const Text('🔒 앱 위치 권한 허용 (설정)'),
+                  ),
+                  const SizedBox(height: 6),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      _isGpsRequiredModalOpen = false;
+                      await _fetchCurrentLocation();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('🔄 설정 완료 후 다시 시도'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _fetchCurrentLocation() async {
     if (!mounted) return;
     setState(() {
@@ -615,16 +716,18 @@ class _MapScreenState extends State<MapScreen> {
         } else {
           setState(() {
             _isLocating = false;
-            _locationStatus = 'GPS 미연동 (기본 작전역 위치 표시)';
+            _locationStatus = '위치(GPS) 및 권한 설정 필요';
           });
+          _checkGpsAndPermissions();
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _isLocating = false;
-          _locationStatus = '위치 수집 오프라인 모드';
+          _locationStatus = '위치(GPS) 및 권한 설정 필요';
         });
+        _checkGpsAndPermissions();
       }
     }
   }

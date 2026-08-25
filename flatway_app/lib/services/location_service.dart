@@ -6,20 +6,31 @@ class LocationService {
   // Default fallback location (Jakjeon Station area in Incheon)
   static const LatLng defaultLocation = LatLng(37.5307, 126.7225);
 
-  /// Check location service and permissions, then return current LatLng position.
-  /// Throws Exception if permissions are denied or services are disabled.
-  static Future<Position?> getCurrentPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  /// Check location service status
+  static Future<bool> isLocationServiceEnabled() async {
+    return await Geolocator.isLocationServiceEnabled();
+  }
 
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  /// Check location permission status
+  static Future<LocationPermission> checkPermission() async {
+    return await Geolocator.checkPermission();
+  }
+
+  /// Request location permission
+  static Future<LocationPermission> requestPermission() async {
+    return await Geolocator.requestPermission();
+  }
+
+  /// Check location service and permissions, then return current LatLng position.
+  /// Returns null if GPS is disabled or permissions are denied.
+  static Future<Position?> getCurrentPosition() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       debugPrint('Location services are disabled.');
       return null;
     }
 
-    permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -33,12 +44,15 @@ class LocationService {
       return null;
     }
 
-    // When permissions are granted, get current position
     try {
+      // 1. Try last known position first for instant speed on startup
+      Position? lastPos = await Geolocator.getLastKnownPosition();
+      if (lastPos != null) return lastPos;
+
+      // 2. Fetch high-accuracy current position
       return await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
         ),
       );
     } catch (e) {
@@ -65,5 +79,15 @@ class LocationService {
         distanceFilter: 0,
       ),
     );
+  }
+
+  /// Open device OS location settings (GPS toggle page)
+  static Future<bool> openLocationSettings() async {
+    return await Geolocator.openLocationSettings();
+  }
+
+  /// Open app settings page for location permission grant
+  static Future<bool> openAppSettings() async {
+    return await Geolocator.openAppSettings();
   }
 }
