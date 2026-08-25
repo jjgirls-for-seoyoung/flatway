@@ -537,7 +537,7 @@ export default function Home() {
                 padding: '8px 12px',
                 borderRadius: 'var(--ldsg-radius-200)',
                 border: '1px solid var(--glass-border)',
-                background: 'var(--bg-secondary)',
+                background: 'var(--bg-tertiary)',
                 color: 'var(--text-primary)',
                 fontSize: '12px',
                 outline: 'none',

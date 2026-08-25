@@ -3,22 +3,22 @@
 :root, [data-theme="dark"] {
   /* LDSG Design System Base Tokens - Dark Mode */
   --bg-primary: #111111; /* ldsg-color-gray-900 */
-  --bg-secondary: #1e2742; /* ldsg-color-brand-secondary / linenavy */
+  --bg-secondary: #1c1c1e; /* neutral premium dark gray */
   --bg-tertiary: #303030; /* ldsg-color-gray-800 */
   --glass-bg: #252525;
-  --glass-border: #3e4b6c; /* subtle border matching dark blue/linenavy background */
+  --glass-border: #333333; /* neutral subtle gray border */
   --text-primary: #ffffff; /* pure white for supreme contrast */
   --text-secondary: #dfdfdf; /* bright light grey for high readability */
   --text-muted: #b7b7b7; /* readable muted grey */
   --text-placeholder: #777777; /* placeholder color in dark mode */
   --card-bg: #252525;
-  --card-border: #3e4b6c;
+  --card-border: #333333;
   --card-hover-bg: #303030;
   --card-hover-border: #555555;
   --logo-gradient: #06c755; /* Solid brand primary */
   --popup-shadow: 0px 1px 15px rgba(0, 0, 0, 0.4);
   --modal-overlay-bg: rgba(0, 0, 0, 0.4); /* ldsg-opacity-black-40 */
-  --info-badge-bg: #1e2742;
+  --info-badge-bg: #1c1c1e;
   --info-badge-border: #303030;
   
   /* Status Colors */
@@ -1235,7 +1235,7 @@ button:active,
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
   border: 1px solid var(--glass-border);
   border-radius: var(--ldsg-radius-200); /* 5px */
   margin-bottom: 6px;
