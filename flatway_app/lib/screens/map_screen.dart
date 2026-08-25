@@ -576,13 +576,32 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('닫기'),
-              ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('👍 제보 검증 감사 드리며, 위험 신뢰도가 상승했습니다!'),
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.thumb_up_alt_outlined, color: Colors.blue, size: 18),
+                    label: const Text('도움이 돼요'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('닫기'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -1331,6 +1350,14 @@ class _MapScreenState extends State<MapScreen> {
                               const Text('남은 거리', style: TextStyle(color: Colors.white54, fontSize: 11)),
                               const SizedBox(height: 2),
                               Text('${(_navDistanceMeters).toStringAsFixed(0)} m', style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          Container(width: 1, height: 32, color: Colors.white24),
+                          Column(
+                            children: [
+                              const Text('보행 안전 지수', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                              const SizedBox(height: 2),
+                              Text('${max(80, 100 - _bypassedHazardsCount * 2)}점', style: const TextStyle(color: Colors.cyanAccent, fontSize: 19, fontWeight: FontWeight.bold)),
                             ],
                           ),
                           Container(width: 1, height: 32, color: Colors.white24),
