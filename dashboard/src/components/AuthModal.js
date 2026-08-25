@@ -48,7 +48,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
     try {
       if (isSignUp) {
         const isEmailAdmin = sanitizedEmail.startsWith('bugye6816');
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: sanitizedEmail,
           password: sanitizedPassword,
           options: {
@@ -58,7 +58,11 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
           }
         });
         if (error) throw error;
-        setMessage('회원가입 완료! (SMTP 상태에 따라 인증 메일 확인이 필요할 수 있습니다)');
+        if (data?.user) {
+          onAuthSuccess(data.user);
+        }
+        alert('성공적으로 회원가입되었습니다!');
+        onClose();
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email: sanitizedEmail,
@@ -67,7 +71,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
         if (error) throw error;
         onAuthSuccess(data.user);
         alert('성공적으로 로그인되었습니다!');
-        setView('settings');
+        onClose();
       }
     } catch (err) {
       setErrorMsg(err.message || '인증 과정 중 오류가 발생했습니다.');
@@ -83,6 +87,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
       if (error) throw error;
       onAuthSuccess(null);
       alert('성공적으로 로그아웃되었습니다.');
+      onClose();
     } catch (err) {
       alert(`로그아웃 실패: ${err.message}`);
     } finally {

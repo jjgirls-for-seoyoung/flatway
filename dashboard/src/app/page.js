@@ -270,6 +270,13 @@ export default function Home() {
 
   // 5-2. Handle Maintenance Status Change
   const handleStatusChange = async (id, newStatus) => {
+    // Check admin permission
+    const isAdmin = user && (user.user_metadata?.role === 'admin' || user.email?.startsWith('bugye6816'));
+    if (!isAdmin) {
+      alert('유지보수 상태 수정 권한이 없습니다. 최고 관리자 계정으로 로그인해 주세요.');
+      return;
+    }
+
     // Update locally first
     setHazards(prev => prev.map(h => h.id === id ? { ...h, status: newStatus } : h));
     setSelectedItem(prev => (prev && prev.id === id) ? { ...prev, status: newStatus } : prev);
@@ -738,6 +745,7 @@ export default function Home() {
                         className="status-select"
                         value={selectedItem.status || 'reported'}
                         onChange={(e) => handleStatusChange(selectedItem.id, e.target.value)}
+                        disabled={!isAdmin}
                       >
                         <option value="reported">접수 (Reported)</option>
                         <option value="processing">조사중 (Processing)</option>
@@ -974,6 +982,7 @@ export default function Home() {
                       value={selectedItem.status || 'reported'}
                       onChange={(e) => handleStatusChange(selectedItem.id, e.target.value)}
                       style={{ padding: '4px 8px', fontSize: '11px' }}
+                      disabled={!isAdmin}
                     >
                       <option value="reported">접수</option>
                       <option value="processing">조사중</option>
