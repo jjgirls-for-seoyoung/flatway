@@ -13,9 +13,8 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Local switch toggles (mock interactive states matching user telemetry request)
-  const [telemetry, setTelemetry] = useState(true);
-  const [marketing, setMarketing] = useState(false);
+  // Local switch toggle for location tracking (simulating map preference in local storage)
+  const [locationTracking, setLocationTracking] = useState(true);
 
   // Sync state with open status
   useEffect(() => {
@@ -84,29 +83,30 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content glass-panel" style={{ width: '420px', maxWidth: '90vw', padding: '24px' }}>
+      <div className="modal-content glass-panel" style={{ width: '400px', maxWidth: '90vw', padding: '24px' }}>
         
         {/* Header */}
         <div className="modal-header" style={{ marginBottom: '16px' }}>
           <div style={{ textAlign: 'left' }}>
-            <h3 className="modal-title" style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <h3 className="modal-title" style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {view === 'login' ? (
                 <>
                   <button 
                     onClick={() => { setView('settings'); setErrorMsg(''); setMessage(''); }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                    aria-label="뒤로 가기"
                   >
                     <ArrowLeft size={16} />
                   </button>
                   {isSignUp ? '새로운 계정 만들기' : '데이터베이스 로그인'}
                 </>
               ) : (
-                'Account'
+                '계정 설정'
               )}
             </h3>
             {view === 'settings' && (
               <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>
-                Manage your plan, credentials, and general preferences.
+                일반 기본 환경설정 및 관리자 계정 권한을 관리합니다.
               </p>
             )}
           </div>
@@ -121,33 +121,33 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
             
             {/* General Settings Section */}
             <div className="settings-section">
-              <h4 className="settings-section-title">General</h4>
+              <h4 className="settings-section-title">일반 설정</h4>
               
-              {/* Telemetry Row */}
+              {/* Sync Row */}
               <div className="settings-row">
                 <div className="settings-row-info">
-                  <span className="settings-row-title">Enable Telemetry</span>
+                  <span className="settings-row-title">실시간 데이터 동기화</span>
                   <span className="settings-row-desc">
-                    When toggled on, FlatWay collects usage data to help analyze map diagnostics and performance.
+                    지도 데이터와 Supabase 데이터베이스를 실시간으로 양방향 동기화합니다.
                   </span>
                 </div>
-                <div className="switch-container" onClick={() => setTelemetry(!telemetry)}>
-                  <div className={`switch-track ${telemetry ? 'active' : ''}`}>
+                <div className="switch-container">
+                  <div className={`switch-track ${usingSupabase ? 'active' : ''}`}>
                     <div className="switch-thumb"></div>
                   </div>
                 </div>
               </div>
 
-              {/* Marketing Row */}
+              {/* Location Tracking Row */}
               <div className="settings-row">
                 <div className="settings-row-info">
-                  <span className="settings-row-title">Marketing Emails</span>
+                  <span className="settings-row-title">자동 현재 위치 추적</span>
                   <span className="settings-row-desc">
-                    Receive safety reports, product updates, and accessibility news via email.
+                    GPS 센서를 활용하여 실시간으로 사용자의 위치를 추적하고 지도 상에 반영합니다.
                   </span>
                 </div>
-                <div className="switch-container" onClick={() => setMarketing(!marketing)}>
-                  <div className={`switch-track ${marketing ? 'active' : ''}`}>
+                <div className="switch-container" onClick={() => setLocationTracking(!locationTracking)}>
+                  <div className={`switch-track ${locationTracking ? 'active' : ''}`}>
                     <div className="switch-thumb"></div>
                   </div>
                 </div>
@@ -156,35 +156,26 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
 
             {/* Account Info Section */}
             <div className="settings-section" style={{ marginTop: '4px' }}>
-              <h4 className="settings-section-title">Account</h4>
+              <h4 className="settings-section-title">계정 및 권한</h4>
               
               {/* Plan Row */}
               <div className="settings-row">
                 <div className="settings-row-info">
                   <span className="settings-row-title">
-                    Your Plan: {user ? 'FlatWay Administrator' : 'Guest Observer'}
+                    관제 권한 등급: {user ? '최고 관리자' : '게스트 관찰자'}
                   </span>
                   <span className="settings-row-desc">
-                    {user ? '실시간 위험 요소 데이터베이스 삭제 및 진행 상태 수정 권한이 부여되었습니다.' : '지도 조회 및 검색 전용 게스트 세션입니다. 관리 권한이 제한됩니다.'}
+                    {user ? '실시간 위험 요소 데이터베이스 삭제 및 유지보수 파이프라인 수정 권한이 활성화되었습니다.' : '지도 조회 및 위치 검색 전용 세션입니다. 제보 삭제 및 진행 상태 수정 권한이 제한됩니다.'}
                   </span>
                 </div>
-                {!user && (
-                  <button 
-                    className="btn btn-primary" 
-                    style={{ fontSize: '10.5px', padding: '6px 12px', height: 'auto', background: '#3b82f6', borderColor: '#3b82f6' }}
-                    onClick={() => { setView('login'); setIsSignUp(false); }}
-                  >
-                    Upgrade
-                  </button>
-                )}
               </div>
 
               {/* Email & Auth Actions Row */}
               <div className="settings-row">
                 <div className="settings-row-info">
-                  <span className="settings-row-title">Email</span>
+                  <span className="settings-row-title">로그인 이메일</span>
                   <span className="settings-row-desc" style={{ wordBreak: 'break-all', fontWeight: user ? '600' : 'normal' }}>
-                    {user ? user.email : 'wiiqp77@gmail.com (Default Local)'}
+                    {user ? user.email : '로그인 정보 없음'}
                   </span>
                 </div>
                 {user ? (
@@ -194,7 +185,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                     onClick={handleSignOut}
                     disabled={loading}
                   >
-                    Sign Out
+                    로그아웃
                   </button>
                 ) : (
                   <button 
@@ -202,15 +193,15 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
                     style={{ fontSize: '10.5px', padding: '6px 12px', height: 'auto', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
                     onClick={() => { setView('login'); setIsSignUp(false); }}
                   >
-                    Sign In
+                    로그인
                   </button>
                 )}
               </div>
 
             </div>
 
-            <p style={{ margin: '10px 0 0 0', fontSize: '9px', color: 'var(--text-muted)', textAlign: 'left' }}>
-              By using this app, you agree to its <span style={{ color: 'var(--color-accent)', cursor: 'pointer' }}>Terms of Service</span>
+            <p style={{ margin: '10px 0 0 0', fontSize: '9.5px', color: 'var(--text-muted)', textAlign: 'left' }}>
+              본 서비스를 이용함으로써 <span style={{ color: 'var(--color-accent)', cursor: 'pointer' }}>이용약관</span>에 동의하게 됩니다.
             </p>
 
           </div>
