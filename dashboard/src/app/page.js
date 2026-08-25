@@ -49,9 +49,17 @@ export default function Home() {
   // Right sidebar help and guide states
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState(0);
+  const [expandedDetails, setExpandedDetails] = useState({});
 
   const toggleAccordion = (idx) => {
     setExpandedSection(expandedSection === idx ? null : idx);
+  };
+
+  const toggleDetail = (idx) => {
+    setExpandedDetails(prev => ({
+      ...prev,
+      [idx]: !prev[idx]
+    }));
   };
 
   // Theme state ('dark' | 'light')
@@ -1152,6 +1160,24 @@ export default function Home() {
                     단차 1.5cm 미만의 완만한 턱이나 작은 흠집. 휠체어가 혼자서도 안전하게 통행할 수 있는 수준입니다.
                   </p>
                 </div>
+
+                {/* Detail Toggle */}
+                <button 
+                  type="button" 
+                  onClick={() => toggleDetail(0)} 
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {expandedDetails[0] ? '자세히 닫기' : '자세히'}
+                  {expandedDetails[0] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {expandedDetails[0] && (
+                  <div style={{ marginTop: '8px', padding: '10px', borderRadius: 'var(--ldsg-radius-200)', background: 'var(--bg-secondary)', border: '1px dashed var(--glass-border)', fontSize: '10.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <div>• <strong>단차 높이:</strong> 상(≥3.0cm), 중(1.5cm~2.9cm), 하(&lt;1.5cm)</div>
+                    <div>• <strong>도로 함몰/요철:</strong> 상(≥5.0cm 포트홀), 중(2.0cm~4.9cm)</div>
+                    <div>• <strong>종단 경사도:</strong> 상(&gt;12°), 중(8°~12°), 하(&lt;8°)</div>
+                    <div style={{ marginTop: '4px', fontSize: '9.5px', color: 'var(--text-muted)' }}>* 장애인 편의증진법 시행규칙 및 교통약자법 기준 준용</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1188,6 +1214,24 @@ export default function Home() {
                     공사가 완료되어 턱이 완만해지고 평탄하게 복구되어 누구나 안전하게 통행할 수 있는 상태입니다.
                   </p>
                 </div>
+
+                {/* Detail Toggle */}
+                <button 
+                  type="button" 
+                  onClick={() => toggleDetail(1)} 
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {expandedDetails[1] ? '자세히 닫기' : '자세히'}
+                  {expandedDetails[1] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {expandedDetails[1] && (
+                  <div style={{ marginTop: '8px', padding: '10px', borderRadius: 'var(--ldsg-radius-200)', background: 'var(--bg-secondary)', border: '1px dashed var(--glass-border)', fontSize: '10.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <div>• <strong>접수 처리:</strong> GPS 오차 ±5m 이내 기록, 실시간 DB 전송(&lt;0.5초)</div>
+                    <div>• <strong>현장 조사:</strong> 접수 후 24~48시간 이내 실사단 현장 방문 및 위험도 판정</div>
+                    <div>• <strong>보수 예정:</strong> 예산 편성 및 공사 발주 승인(평균 7~14일 소요 목표)</div>
+                    <div>• <strong>시공 완료:</strong> 단차 0.5cm 이하 완화 시공, 평탄성 검측 완료 및 마커 갱신</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1218,6 +1262,23 @@ export default function Home() {
                     경로 검색 후 상단 카드에서 다음 회전 방향과 남은 거리를 차례대로 확인하며 이동할 수 있습니다.
                   </p>
                 </div>
+
+                {/* Detail Toggle */}
+                <button 
+                  type="button" 
+                  onClick={() => toggleDetail(2)} 
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {expandedDetails[2] ? '자세히 닫기' : '자세히'}
+                  {expandedDetails[2] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {expandedDetails[2] && (
+                  <div style={{ marginTop: '8px', padding: '10px', borderRadius: 'var(--ldsg-radius-200)', background: 'var(--bg-secondary)', border: '1px dashed var(--glass-border)', fontSize: '10.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <div>• <strong>우회 가중치:</strong> 고위험(상) 반경 15m 내 통과 회피 계수 ×10.0, 중위험 ×3.0</div>
+                    <div>• <strong>경사도 제한:</strong> 휠체어 모드 탐색 시 법정 허용 경사도 4.76°(1/12) 이하 우선 배정</div>
+                    <div>• <strong>턴바이턴 계산:</strong> 교차로 진입 10m 전방 회전 및 잔여 거리 안내</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1254,6 +1315,23 @@ export default function Home() {
                     휠체어 회전 공간과 안전 손잡이가 갖춰진 전용 화장실 유무를 표시합니다.
                   </p>
                 </div>
+
+                {/* Detail Toggle */}
+                <button 
+                  type="button" 
+                  onClick={() => toggleDetail(3)} 
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {expandedDetails[3] ? '자세히 닫기' : '자세히'}
+                  {expandedDetails[3] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {expandedDetails[3] && (
+                  <div style={{ marginTop: '8px', padding: '10px', borderRadius: 'var(--ldsg-radius-200)', background: 'var(--bg-secondary)', border: '1px dashed var(--glass-border)', fontSize: '10.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <div>• <strong>경사로 규격:</strong> 유효폭 ≥1.2m, 기울기 ≤1/12(완화 시 1/8), 높이 0.75m마다 1.5m×1.5m 참 설치</div>
+                    <div>• <strong>승강기 규격:</strong> 출입문 유효폭 ≥0.9m, 내부 1.6m×1.35m 이상(휠체어 회전반경 1.4m)</div>
+                    <div>• <strong>출입문 규격:</strong> 통과 유효폭 ≥0.9m, 바닥 단차 ≤2.0cm</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1278,6 +1356,22 @@ export default function Home() {
                     지도 좌측 필터에서 [위험 밀집도 (히트맵)]을 켜면 피해야 할 위험 구역이나 우선 수리 지역을 한눈에 확인할 수 있습니다.
                   </p>
                 </div>
+
+                {/* Detail Toggle */}
+                <button 
+                  type="button" 
+                  onClick={() => toggleDetail(4)} 
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {expandedDetails[4] ? '자세히 닫기' : '자세히'}
+                  {expandedDetails[4] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {expandedDetails[4] && (
+                  <div style={{ marginTop: '8px', padding: '10px', borderRadius: 'var(--ldsg-radius-200)', background: 'var(--bg-secondary)', border: '1px dashed var(--glass-border)', fontSize: '10.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <div>• <strong>열원 규모:</strong> 상(반경 80px), 중(반경 60px), 하(반경 40px)</div>
+                    <div>• <strong>핫스팟 클러스터:</strong> 반경 50m 내 제보 3건 이상 누적 시 붉은색 고밀도 경고 클러스터 형성 (밀도 계수 ≥0.75)</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1302,9 +1396,32 @@ export default function Home() {
                     위험 유형과 간단한 설명을 적어 [등록]을 누르면 즉시 지도 마커와 안전 점수 통계에 반영됩니다.
                   </p>
                 </div>
+
+                {/* Detail Toggle */}
+                <button 
+                  type="button" 
+                  onClick={() => toggleDetail(5)} 
+                  style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--color-accent)', fontSize: '11px', fontWeight: '600', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {expandedDetails[5] ? '자세히 닫기' : '자세히'}
+                  {expandedDetails[5] ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {expandedDetails[5] && (
+                  <div style={{ marginTop: '8px', padding: '10px', borderRadius: 'var(--ldsg-radius-200)', background: 'var(--bg-secondary)', border: '1px dashed var(--glass-border)', fontSize: '10.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    <div>• <strong>좌표 정밀도:</strong> OpenStreetMap WGS84 좌표계 소수점 6자리 (약 0.11m 정밀도)</div>
+                    <div>• <strong>동기화 속도:</strong> Supabase PostGIS 지리 공간 인덱스 기반 실시간 동기화 (&lt;0.3초)</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
+        </div>
+
+        {/* Contact info at bottom */}
+        <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--glass-border)', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: '10.5px', color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
+            CONTACT: kbm92343025@gmail.com
+          </p>
         </div>
       </aside>
     </main>
