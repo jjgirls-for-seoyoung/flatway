@@ -738,6 +738,8 @@ textarea::placeholder {
     grid-template-columns: 1fr;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
+    min-height: -webkit-fill-available;
     position: relative;
     overflow: hidden;
   }
@@ -746,6 +748,7 @@ textarea::placeholder {
   .map-container {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     position: absolute;
     inset: 0;
   }
@@ -756,7 +759,7 @@ textarea::placeholder {
     align-items: center;
     justify-content: space-between;
     position: absolute;
-    top: 12px;
+    top: max(12px, env(safe-area-inset-top));
     left: 12px;
     right: 12px;
     z-index: 1000;
@@ -782,8 +785,9 @@ textarea::placeholder {
     background: var(--bg-secondary);
     border: 1px solid var(--glass-border);
     color: var(--text-primary);
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -791,10 +795,22 @@ textarea::placeholder {
     cursor: pointer;
     transition: background 0.2s;
     flex-shrink: 0;
+    touch-action: manipulation;
   }
 
   .mobile-menu-btn:active {
     background: var(--bg-tertiary);
+  }
+
+  .theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    touch-action: manipulation;
   }
 
   .mobile-brand {
@@ -838,6 +854,7 @@ textarea::placeholder {
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    touch-action: manipulation;
   }
 
   .mobile-route-pill:active {
@@ -878,16 +895,47 @@ textarea::placeholder {
     width: 320px;
     max-width: 85vw;
     height: 100vh;
+    height: 100dvh;
     z-index: 1200;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 0 16px 16px 0;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
     padding: 20px 16px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
     gap: 16px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Mobile Right Sidebar (Guide Drawer) */
+  .right-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1200;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px 0 0 16px;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
+    padding: 20px 16px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .right-sidebar.open {
     transform: translateX(0);
   }
 
@@ -902,6 +950,7 @@ textarea::placeholder {
     height: 34px;
     border-radius: var(--ldsg-radius-200); /* 5px */
     cursor: pointer;
+    touch-action: manipulation;
   }
 
   .mobile-sidebar-close:active {
@@ -914,7 +963,7 @@ textarea::placeholder {
     display: flex;
     flex-direction: column;
     position: absolute;
-    bottom: 24px;
+    bottom: max(16px, env(safe-area-inset-bottom));
     left: 12px;
     right: 12px;
     z-index: 1000;
@@ -922,6 +971,10 @@ textarea::placeholder {
     gap: 8px;
     border-radius: var(--ldsg-radius-400); /* 12px */
     box-shadow: var(--popup-shadow);
+    max-height: 52dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -937,13 +990,15 @@ textarea::placeholder {
     background: var(--card-bg);
     border: none;
     color: var(--text-secondary);
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
     border-radius: var(--ldsg-radius-circle); /* 50% */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    touch-action: manipulation;
   }
 
   .mobile-card-close-btn:active {
@@ -964,13 +1019,35 @@ textarea::placeholder {
 
   /* Reposition Leaflet Controls on Mobile to avoid top bar collision */
   .leaflet-top {
-    top: 68px !important;
+    top: calc(max(12px, env(safe-area-inset-top)) + 56px) !important;
+  }
+
+  .leaflet-control-zoom {
+    margin-left: 12px !important;
+  }
+
+  .leaflet-bar a {
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+  }
+
+  .leaflet-bottom.leaflet-right {
+    bottom: max(4px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 8.5px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: #888 !important;
+    padding: 2px 4px !important;
+    margin: 0 !important;
   }
 
   /* Overlay instructions for mobile */
   .map-overlay-instructions {
     top: auto;
-    bottom: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
     left: 12px;
     right: 12px;
     justify-content: center;
@@ -981,19 +1058,33 @@ textarea::placeholder {
 
   /* Modal Responsive Polish */
   .modal-content {
-    width: min(92vw, 440px);
-    padding: 18px 16px;
-    max-height: 90vh;
+    width: min(92vw, 420px);
+    padding: 20px 18px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    max-height: 85dvh;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 16px;
   }
 
   .modal-title {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  /* Prevent iOS input auto-zoom by keeping font size >= 16px */
+  .modal-content input,
+  .modal-content select,
+  .modal-content textarea,
+  .sidebar input,
+  .sidebar select,
+  .sidebar textarea {
+    font-size: 16px !important;
   }
 }
 

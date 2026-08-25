@@ -409,6 +409,7 @@ export default function Home() {
         const lat = parseFloat(firstResult.lat);
         const lon = parseFloat(firstResult.lon);
         setSearchLocation([lat, lon]);
+        setIsMobileSidebarOpen(false);
       } else {
         setSearchError('검색 결과를 찾을 수 없습니다.');
       }
@@ -469,8 +470,11 @@ export default function Home() {
     <main className="dashboard-container">
       {/* Mobile Backdrop Overlay */}
       <div 
-        className={`sidebar-backdrop ${isMobileSidebarOpen ? 'open' : ''}`}
-        onClick={() => setIsMobileSidebarOpen(false)}
+        className={`sidebar-backdrop ${isMobileSidebarOpen || isRightSidebarOpen ? 'open' : ''}`}
+        onClick={() => {
+          setIsMobileSidebarOpen(false);
+          setIsRightSidebarOpen(false);
+        }}
       />
 
       {/* Sidebar (Desktop left panel & Mobile slide drawer) */}
