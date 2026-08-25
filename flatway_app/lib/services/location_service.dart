@@ -52,7 +52,17 @@ class LocationService {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 5, // notify every 5 meters
+        distanceFilter: 3, // notify every 3 meters
+      ),
+    );
+  }
+
+  /// Get real-time heading stream for smooth compass map camera rotation
+  static Stream<Position> getHeadingStream() {
+    return Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0,
       ),
     );
   }

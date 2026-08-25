@@ -65,6 +65,40 @@ class _MapScreenState extends State<MapScreen> {
   int _bypassedHazardsCount = 0;
 
   bool _isHeadingUp = false;
+  StreamSubscription<Position>? _headingSubscription;
+
+  void _toggleCompassHeadingMode() {
+    setState(() {
+      _isHeadingUp = !_isHeadingUp;
+    });
+
+    if (_isHeadingUp) {
+      _headingSubscription?.cancel();
+      _headingSubscription = LocationService.getHeadingStream().listen((pos) {
+        if (_isHeadingUp && mounted) {
+          final heading = pos.heading;
+          if (heading >= 0) {
+            _mapController.rotate(-heading);
+          }
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🧭 실시간 주행 방향 3D 회전 모드가 켜졌습니다.'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    } else {
+      _headingSubscription?.cancel();
+      _mapController.rotate(0);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⬆️ 북쪽 정방향 지도 모드로 변경되었습니다.'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+  }
   
   // Voice Guidance (TTS)
   final FlutterTts _flutterTts = FlutterTts();
@@ -112,6 +146,7 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _positionStreamSub?.cancel();
     _accelStreamSub?.cancel();
+    _headingSubscription?.cancel();
     _searchController.dispose();
     _startSearchController.dispose();
     _destSearchController.dispose();
@@ -1614,20 +1649,7 @@ class _MapScreenState extends State<MapScreen> {
               heroTag: 'compass_toggle',
               backgroundColor: _isHeadingUp ? Colors.blue.shade800 : Colors.white,
               foregroundColor: _isHeadingUp ? Colors.white : Colors.black87,
-              onPressed: () {
-                setState(() {
-                  _isHeadingUp = !_isHeadingUp;
-                });
-                if (!_isHeadingUp) {
-                  _mapController.rotate(0);
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(_isHeadingUp ? '🧭 주행 방향 3D 회전 모드가 켜졌습니다.' : '⬆️ 북쪽 정방향 지도 모드로 변경되었습니다.'),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
-              },
+              onPressed: _toggleCompassHeadingMode,
               child: const Icon(Icons.explore),
             ),
           ),
