@@ -597,7 +597,13 @@ class _MapScreenState extends State<MapScreen> {
           );
         },
       ),
-    );
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          _selectedTappedLocation = null;
+        });
+      }
+    });
   }
 
   // Calculate real OSRM pedestrian road route following actual streets and crosswalks
@@ -1256,48 +1262,6 @@ class _MapScreenState extends State<MapScreen> {
           color: routeColor,
         ),
       );
-    } else {
-      if (_selectedRouteMode == 'electric') {
-        list.add(
-          Polyline(
-            points: const [
-              LatLng(37.5346, 126.7225),
-              LatLng(37.5350, 126.7230),
-              LatLng(37.5360, 126.7240),
-              LatLng(37.5375, 126.7248),
-              LatLng(37.5385, 126.7240),
-            ],
-            strokeWidth: 5.0,
-            color: Colors.blue.shade600,
-          ),
-        );
-      } else if (_selectedRouteMode == 'manual') {
-        list.add(
-          Polyline(
-            points: const [
-              LatLng(37.5346, 126.7225),
-              LatLng(37.5349, 126.7215),
-              LatLng(37.5360, 126.7218),
-              LatLng(37.5372, 126.7230),
-              LatLng(37.5385, 126.7240),
-            ],
-            strokeWidth: 5.0,
-            color: Colors.green.shade600,
-          ),
-        );
-      } else {
-        list.add(
-          Polyline(
-            points: const [
-              LatLng(37.5346, 126.7225),
-              LatLng(37.5360, 126.7235),
-              LatLng(37.5385, 126.7240),
-            ],
-            strokeWidth: 4.0,
-            color: Colors.orange.shade600,
-          ),
-        );
-      }
     }
 
     return list;
