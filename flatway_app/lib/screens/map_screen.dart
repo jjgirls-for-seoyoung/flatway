@@ -62,33 +62,41 @@ class _MapScreenState extends State<MapScreen> {
   int _bypassedHazardsCount = 0;
 
   bool _isHeadingUp = false;
-  StreamSubscription<CompassEvent>? _compassSubscription;
+  double _currentHeading = 0.0;
+  StreamSubscription<CompassEvent>? _alwaysCompassSub;
+
+  void _startCompassHeadingListener() {
+    _alwaysCompassSub?.cancel();
+    _alwaysCompassSub = FlutterCompass.events?.listen((CompassEvent event) {
+      final heading = event.heading;
+      if (heading != null && mounted) {
+        setState(() {
+          _currentHeading = heading;
+        });
+        if (_isHeadingUp) {
+          _mapController.rotate(-heading);
+        }
+      }
+    });
+  }
 
   void _toggleCompassHeadingMode() {
     setState(() {
       _isHeadingUp = !_isHeadingUp;
     });
 
-    if (_isHeadingUp) {
-      _compassSubscription?.cancel();
-      _compassSubscription = FlutterCompass.events?.listen((CompassEvent event) {
-        final heading = event.heading;
-        if (heading != null && _isHeadingUp && mounted) {
-          _mapController.rotate(-heading);
-        }
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('실시간 나침반 방향 회전 모드가 켜졌습니다.'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-    } else {
-      _compassSubscription?.cancel();
+    if (!_isHeadingUp) {
       _mapController.rotate(0);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('북쪽 정방향 지도 모드로 변경되었습니다.'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('실시간 나침반 방향 회전 모드가 켜졌습니다.'),
           duration: Duration(seconds: 1),
         ),
       );
@@ -135,13 +143,14 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _loadSupabaseData();
     _fetchCurrentLocation();
+    _startCompassHeadingListener();
   }
 
   @override
   void dispose() {
     _positionStreamSub?.cancel();
     _accelStreamSub?.cancel();
-    _compassSubscription?.cancel();
+    _alwaysCompassSub?.cancel();
     _searchController.dispose();
     _startSearchController.dispose();
     _destSearchController.dispose();
@@ -1186,33 +1195,44 @@ class _MapScreenState extends State<MapScreen> {
 
                     Marker(
                       point: _currentLocation,
-                      width: 58,
-                      height: 58,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: _isTrackingRoute
-                              ? Colors.purple.withValues(alpha: 0.3)
-                              : Colors.blue.withValues(alpha: 0.25),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: _isTrackingRoute ? Colors.purple : Colors.blue,
-                            width: 2.5,
-                          ),
-                        ),
-                        child: Center(
-                          child: Container(
-                            width: 24,
-                            height: 24,
+                      width: 54,
+                      height: 54,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
                             decoration: BoxDecoration(
-                              color: _isTrackingRoute ? Colors.purple.shade700 : Colors.blue.shade700,
+                              color: const Color(0xFF10B981).withValues(alpha: 0.2),
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3.5),
-                              boxShadow: const [
-                                BoxShadow(color: Colors.black38, blurRadius: 8),
-                              ],
+                              border: Border.all(
+                                color: const Color(0xFF10B981).withValues(alpha: 0.5),
+                                width: 1.5,
+                              ),
                             ),
                           ),
-                        ),
+                          Transform.rotate(
+                            angle: (_currentHeading * (pi / 180)),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E3A8A),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                                boxShadow: const [
+                                  BoxShadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 2)),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.navigation_rounded,
+                                color: Color(0xFF34D399),
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
