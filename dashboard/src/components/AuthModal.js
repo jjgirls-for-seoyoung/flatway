@@ -102,7 +102,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthSuccess, usingS
         {/* Header */}
         <div className="modal-header" style={{ marginBottom: '14px' }}>
           <div style={{ textAlign: 'left' }}>
-            <h3 className="modal-title" style={{ fontSize: view === 'settings' ? '23px' : '19px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <h3 className="modal-title" style={{ fontSize: view === 'settings' ? '26px' : '19px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               {view === 'login' ? (
                 <>
                   <button 

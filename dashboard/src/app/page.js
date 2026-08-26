@@ -910,71 +910,56 @@ export default function Home() {
 
       {/* Right / Main Map Section */}
       <section className="map-container" style={{ position: 'relative' }}>
-        {/* Mobile Top Navigation & Route Quick Selector */}
-        <div className="mobile-top-bar glass-panel">
-          <div className="mobile-top-left">
-            <button 
-              className="mobile-menu-btn" 
-              onClick={() => setIsMobileSidebarOpen(true)}
-              aria-label="메뉴 열기"
-            >
-              <Menu size={20} />
-            </button>
-            <div className="mobile-brand" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img 
-                  src="/logo.png" 
-                  alt="FlatWay Logo" 
-                  style={{ width: '22px', height: '22px', borderRadius: '5px', objectFit: 'cover' }}
-                />
-                <span 
-                  className={`db-status-dot ${usingSupabase ? 'online' : 'offline'}`} 
-                  title={usingSupabase ? 'Supabase 연동 완료' : '로컬 모크 데이터 모드'}
-                  style={{
-                    position: 'absolute',
-                    bottom: '-1px',
-                    right: '-1px',
-                    width: '7px',
-                    height: '7px',
-                    borderRadius: '50%',
-                    backgroundColor: usingSupabase ? '#10b981' : '#ef4444',
-                    border: '1.5px solid var(--bg-secondary)',
-                    boxShadow: usingSupabase ? '0 0 4px #10b981' : '0 0 4px #ef4444',
-                    zIndex: 10
-                  }}
-                />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span className="mobile-title">FlatWay</span>
-                <span className="mobile-score-badge">안전 {safetyScore}%</span>
-              </div>
-            </div>
-          </div>
-          <div className="mobile-top-right" style={{ display: 'flex', gap: '6px' }}>
-            <button 
-              className="theme-toggle-btn" 
-              onClick={() => setIsRightSidebarOpen(prev => !prev)}
-              title="도움말 및 기준서 보기"
-              aria-label="도움말 및 기준서 보기"
-            >
-              <BookOpen size={16} />
-            </button>
-            <button 
-              className="theme-toggle-btn" 
-              onClick={toggleTheme}
-              title={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
-              aria-label={theme === 'dark' ? '밝은 모드로 전환' : '어두운 모드로 전환'}
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-            <button 
-              className="theme-toggle-btn" 
-              onClick={() => setIsAuthModalOpen(true)}
-              title={user ? `${user.email} (로그아웃)` : '로그인 / 회원가입'}
-              aria-label="로그인 / 회원가입"
-            >
-              <User size={16} />
-            </button>
+        {/* Mobile Top Navigation (Compact Floating Control Widget) */}
+        <div className="mobile-top-bar glass-panel" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          right: 'auto',
+          width: 'auto',
+          padding: '6px 10px',
+          borderRadius: 'var(--ldsg-radius-200)',
+          boxShadow: 'var(--popup-shadow)',
+          background: 'var(--card-bg)',
+          border: '1px solid var(--glass-border)',
+          zIndex: 1000
+        }}>
+          <button 
+            className="mobile-menu-btn" 
+            onClick={() => setIsMobileSidebarOpen(true)}
+            aria-label="메뉴 열기"
+            style={{ width: '30px', height: '30px', margin: 0, padding: 0, border: 'none', background: 'transparent' }}
+          >
+            <Menu size={18} />
+          </button>
+          
+          <div style={{ width: '1px', height: '18px', background: 'var(--glass-border)', margin: '0 4px' }} />
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img 
+              src="/logo.png" 
+              alt="FlatWay Logo" 
+              style={{ width: '22px', height: '22px', borderRadius: '5px', objectFit: 'cover' }}
+            />
+            <span 
+              className={`db-status-dot ${usingSupabase ? 'online' : 'offline'}`} 
+              title={usingSupabase ? 'Supabase 연동 완료' : '로컬 모크 데이터 모드'}
+              style={{
+                position: 'absolute',
+                bottom: '-2px',
+                right: '-2px',
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: usingSupabase ? '#10b981' : '#ef4444',
+                border: '1.5px solid var(--bg-secondary)',
+                boxShadow: usingSupabase ? '0 0 4px #10b981' : '0 0 4px #ef4444',
+                zIndex: 10
+              }}
+            />
           </div>
         </div>
 
