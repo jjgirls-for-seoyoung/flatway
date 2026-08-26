@@ -172,6 +172,19 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
+  // Distance Formatting Helper (1,000m 이상은 km 단위로 자동 변환)
+  String _formatDistance(double meters) {
+    if (meters >= 1000) {
+      final km = meters / 1000.0;
+      if (km == km.toInt()) {
+        return '${km.toInt()}km';
+      }
+      return '${km.toStringAsFixed(1)}km';
+    } else {
+      return '${meters.round()}m';
+    }
+  }
+
   // Search History Helper
   void _addRecentSearch(String term) {
     final clean = term.trim();
@@ -841,7 +854,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '모드: $routeModeName | 총 ${(_navDistanceMeters).toStringAsFixed(0)}m (약 $_navEstMinutes분)',
+                      '모드: $routeModeName | 총 ${_formatDistance(_navDistanceMeters)} (약 $_navEstMinutes분)',
                       style: const TextStyle(fontSize: 12, color: Colors.blueAccent, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -863,7 +876,7 @@ class _MapScreenState extends State<MapScreen> {
                       iconColor: Colors.green,
                       title: '출발지: ${_startName ?? "미선택"} ➔ 도착지: $dest',
                       subtitle: '경로 데이터를 계산 중입니다.',
-                      distance: '${_navDistanceMeters.toStringAsFixed(0)}m',
+                      distance: _formatDistance(_navDistanceMeters),
                     );
                   }
 
@@ -894,7 +907,7 @@ class _MapScreenState extends State<MapScreen> {
                     iconColor: stepColor,
                     title: isFirst ? '출발지: ${_startName ?? "미선택"}' : isLast ? '도착지: $dest' : '보행 이동 구간 ${index + 1}',
                     subtitle: step.instruction,
-                    distance: '${step.distanceMeters.toStringAsFixed(0)}m',
+                    distance: _formatDistance(step.distanceMeters),
                   );
                 },
               ),
@@ -1235,7 +1248,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     if (nearestName != null && minDistance <= 300) {
-      return '$nearestName 인근 (${minDistance.toStringAsFixed(0)}m)';
+      return '$nearestName 인근 (${_formatDistance(minDistance)})';
     }
 
     return '지정 보행로 위치';
