@@ -10,6 +10,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import '../services/location_service.dart';
 import '../services/route_service.dart';
 import '../services/supabase_service.dart';
+import '../widgets/auth_modal.dart';
 import '../widgets/report_modal.dart';
 
 class MapScreen extends StatefulWidget {
@@ -1272,6 +1273,21 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  void _showAuthModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => AuthModal(
+        onAuthChanged: () {
+          setState(() {});
+        },
+      ),
+    );
+  }
+
   void _showHazardDetail(Map<String, dynamic> hazard) {
     showModalBottomSheet(
       context: context,
@@ -1802,6 +1818,19 @@ class _MapScreenState extends State<MapScreen> {
                                 _isRouteSearchExpanded = true;
                               });
                             },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              SupabaseService.client.auth.currentUser != null
+                                  ? Icons.account_circle_rounded
+                                  : Icons.account_circle_outlined,
+                              color: SupabaseService.client.auth.currentUser != null
+                                  ? const Color(0xFF047857)
+                                  : const Color(0xFF777777),
+                              size: 22,
+                            ),
+                            tooltip: SupabaseService.client.auth.currentUser != null ? '내 계정' : '로그인',
+                            onPressed: _showAuthModal,
                           ),
                         ],
                       ),
