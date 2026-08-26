@@ -64,6 +64,23 @@ class _MapScreenState extends State<MapScreen> {
   bool _isHeadingUp = false;
   double _currentHeading = 0.0;
   StreamSubscription<CompassEvent>? _alwaysCompassSub;
+  StreamSubscription<Position>? _realtimeLocationSub;
+
+  void _startRealtimeLocationTracking() {
+    _realtimeLocationSub?.cancel();
+    _realtimeLocationSub = LocationService.getPositionStream().listen((Position position) {
+      if (!mounted) return;
+      final newLoc = LatLng(position.latitude, position.longitude);
+      setState(() {
+        _currentLocation = newLoc;
+      });
+      if (_isHeadingUp) {
+        try {
+          _mapController.move(newLoc, _mapController.camera.zoom);
+        } catch (_) {}
+      }
+    });
+  }
 
   void _startCompassHeadingListener() {
     _alwaysCompassSub?.cancel();
@@ -94,6 +111,7 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
     } else {
+      _mapController.move(_currentLocation, 17.5);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('실시간 나침반 방향 회전 모드가 켜졌습니다.'),
@@ -143,11 +161,13 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _loadSupabaseData();
     _fetchCurrentLocation();
+    _startRealtimeLocationTracking();
     _startCompassHeadingListener();
   }
 
   @override
   void dispose() {
+    _realtimeLocationSub?.cancel();
     _positionStreamSub?.cancel();
     _accelStreamSub?.cancel();
     _alwaysCompassSub?.cancel();
@@ -224,7 +244,7 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     Icon(
                       isSettingStart ? Icons.my_location_rounded : Icons.location_on_rounded,
-                      color: isSettingStart ? const Color(0xFF06C755) : const Color(0xFFE8332E),
+                      color: isSettingStart ? const Color(0xFF047857) : const Color(0xFFE8332E),
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -249,10 +269,10 @@ class _MapScreenState extends State<MapScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF06C755).withValues(alpha: 0.12),
+                  color: const Color(0xFF047857).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: const Icon(Icons.my_location_rounded, color: Color(0xFF06C755), size: 18),
+                child: const Icon(Icons.my_location_rounded, color: Color(0xFF047857), size: 18),
               ),
               title: const Text('현재 위치', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
               subtitle: const Text('내 GPS 현재 위치에서 출발', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
@@ -332,7 +352,7 @@ class _MapScreenState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(5),
                     border: Border.all(color: const Color(0xFFEFEFEF)),
                   ),
-                  child: const Icon(Icons.place_rounded, color: Color(0xFF06C755), size: 18),
+                  child: const Icon(Icons.place_rounded, color: Color(0xFF047857), size: 18),
                 ),
                 title: Text(place['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
                 subtitle: Text(place['sub']!, style: const TextStyle(fontSize: 11, color: Color(0xFF949494))),
@@ -791,7 +811,6 @@ class _MapScreenState extends State<MapScreen> {
           final newLoc = LatLng(position.latitude, position.longitude);
           setState(() {
             _currentLocation = newLoc;
-            _startLocation = newLoc;
           });
           
           try {
@@ -1278,7 +1297,7 @@ class _MapScreenState extends State<MapScreen> {
                         child: CustomPaint(
                           size: const Size(28, 34),
                           painter: DirectionalPinPainter(
-                            fillColor: const Color(0xFF06C755),
+                            fillColor: const Color(0xFF047857),
                             borderColor: Colors.white,
                           ),
                         ),
@@ -1390,7 +1409,7 @@ class _MapScreenState extends State<MapScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                       child: Row(
                         children: [
-                          const Icon(Icons.search_rounded, color: Color(0xFF06C755), size: 20),
+                          const Icon(Icons.search_rounded, color: Color(0xFF047857), size: 20),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -1410,7 +1429,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.directions_rounded, color: Color(0xFF06C755)),
+                            icon: const Icon(Icons.directions_rounded, color: Color(0xFF047857)),
                             tooltip: '길찾기 출발/도착지 설정',
                             onPressed: () {
                               setState(() {
@@ -1439,7 +1458,7 @@ class _MapScreenState extends State<MapScreen> {
                           // Origin Row
                           Row(
                             children: [
-                              const Icon(Icons.my_location_rounded, color: Color(0xFF06C755), size: 18),
+                              const Icon(Icons.my_location_rounded, color: Color(0xFF047857), size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: TextField(
@@ -1482,16 +1501,16 @@ class _MapScreenState extends State<MapScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF06C755).withValues(alpha: 0.1),
+                                    color: const Color(0xFF047857).withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(color: const Color(0xFF06C755).withValues(alpha: 0.3)),
+                                    border: Border.all(color: const Color(0xFF047857).withValues(alpha: 0.3)),
                                   ),
-                                  child: const Text('현재 위치', style: TextStyle(fontSize: 11, color: Color(0xFF06C755), fontWeight: FontWeight.bold)),
+                                  child: const Text('현재 위치', style: TextStyle(fontSize: 11, color: Color(0xFF047857), fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 4),
                               IconButton(
-                                icon: const Icon(Icons.swap_vert_rounded, color: Color(0xFF06C755), size: 20),
+                                icon: const Icon(Icons.swap_vert_rounded, color: Color(0xFF047857), size: 20),
                                 tooltip: '출발지/도착지 위치 교환',
                                 onPressed: () {
                                   setState(() {
@@ -1577,7 +1596,7 @@ class _MapScreenState extends State<MapScreen> {
                                     fontSize: 11,
                                     fontWeight: (_startLocation != null && _destLocation != null) ? FontWeight.bold : FontWeight.normal,
                                     color: (_startLocation != null && _destLocation != null)
-                                        ? const Color(0xFF06C755)
+                                        ? const Color(0xFF047857)
                                         : const Color(0xFF777777),
                                   ),
                                 ),
@@ -1587,7 +1606,7 @@ class _MapScreenState extends State<MapScreen> {
                                     ? _calculateAccessibleRoute
                                     : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF06C755),
+                                  backgroundColor: const Color(0xFF047857),
                                   disabledBackgroundColor: const Color(0xFFE4E4E4),
                                   foregroundColor: Colors.white,
                                   disabledForegroundColor: const Color(0xFF949494),
@@ -1653,7 +1672,7 @@ class _MapScreenState extends State<MapScreen> {
                           if (_isTrackingRoute) ...[
                             Row(
                               children: [
-                                const Icon(Icons.route_rounded, color: Color(0xFF06C755), size: 18),
+                                const Icon(Icons.route_rounded, color: Color(0xFF047857), size: 18),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -1686,7 +1705,7 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: _toggleRouteTracking,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isTrackingRoute ? const Color(0xFFE8332E) : const Color(0xFF06C755),
+                                    backgroundColor: _isTrackingRoute ? const Color(0xFFE8332E) : const Color(0xFF047857),
                                     foregroundColor: Colors.white,
                                     elevation: 0,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1838,9 +1857,9 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
       selected: isSelected,
-      selectedColor: const Color(0xFF06C755),
+      selectedColor: const Color(0xFF047857),
       backgroundColor: const Color(0xFFF5F5F5),
-      side: BorderSide(color: isSelected ? const Color(0xFF06C755) : const Color(0xFFDFDFDF), width: 1),
+      side: BorderSide(color: isSelected ? const Color(0xFF047857) : const Color(0xFFDFDFDF), width: 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
       onSelected: (selected) {
@@ -1855,7 +1874,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildRouteModeButton(String modeKey, String label, Color color) {
     final isSelected = _selectedRouteMode == modeKey;
-    const accentColor = Color(0xFF06C755);
+    const accentColor = Color(0xFF047857);
     return InkWell(
       onTap: () {
         setState(() {
@@ -1894,7 +1913,7 @@ class DirectionalPinPainter extends CustomPainter {
   final Color borderColor;
 
   DirectionalPinPainter({
-    this.fillColor = const Color(0xFF06C755),
+    this.fillColor = const Color(0xFF047857),
     this.borderColor = Colors.white,
   });
 

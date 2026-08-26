@@ -19,8 +19,8 @@ class FlatWayApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF06C755),
-          primary: const Color(0xFF06C755),
+          seedColor: const Color(0xFF047857),
+          primary: const Color(0xFF047857),
           surface: Colors.white,
           brightness: Brightness.light,
         ),
