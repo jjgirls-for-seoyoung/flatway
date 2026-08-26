@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "FlatWay - 보행 및 휠체어 안전 지도 대시보드",
+  title: "FlatWay - 웹 대시보드",
   description: "실시간 단차 및 노면 파손 제보 정보를 기반으로 이동 약자에게 최적화된 우회 안전 경로를 안내합니다.",
   icons: {
     icon: "/logo.png",
