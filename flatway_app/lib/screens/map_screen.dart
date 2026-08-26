@@ -501,7 +501,7 @@ class _MapScreenState extends State<MapScreen> {
                           setModalState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('📍 출발지로 설정되었습니다. (도착지를 선택하면 탐색이 완료됩니다)'),
+                              content: Text('출발지로 설정되었습니다. (도착지를 선택하면 탐색이 완료됩니다)'),
                               duration: Duration(seconds: 2),
                             ),
                           );
@@ -530,7 +530,7 @@ class _MapScreenState extends State<MapScreen> {
                           setModalState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('🚩 도착지로 설정되었습니다. (출발지를 선택하면 탐색이 완료됩니다)'),
+                              content: Text('도착지로 설정되었습니다. (출발지를 선택하면 탐색이 완료됩니다)'),
                               duration: Duration(seconds: 2),
                             ),
                           );
@@ -588,7 +588,7 @@ class _MapScreenState extends State<MapScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       ),
                       icon: const Icon(Icons.check_circle_rounded, size: 20),
-                      label: const Text('✅ 위치 설정 완료 & 경로 탐색 시작', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      label: const Text('위치 설정 완료 & 경로 탐색 시작', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -658,7 +658,7 @@ class _MapScreenState extends State<MapScreen> {
   // Turn-by-turn Step Details Modal BottomSheet (진짜 길찾기 상세 리스트)
   void _showTurnByTurnStepsModal() {
     final dest = _destName ?? '목적지';
-    final routeModeName = (_selectedRouteMode == 'electric') ? '⚡ 전동휠체어' : (_selectedRouteMode == 'manual') ? '♿ 수동휠체어' : '🚶 보행자';
+    final routeModeName = (_selectedRouteMode == 'electric') ? '전동휠체어' : (_selectedRouteMode == 'manual') ? '수동휠체어' : '보행자';
 
     showModalBottomSheet(
       context: context,
@@ -679,7 +679,7 @@ class _MapScreenState extends State<MapScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '🧭 $dest 상세 턴바이턴 경로',
+                      '$dest 상세 턴바이턴 경로',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
@@ -756,31 +756,29 @@ class _MapScreenState extends State<MapScreen> {
     required String distance,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.15),
+              color: iconColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: iconColor, size: 22),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+                Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Text(distance, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+          Text(distance, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.blueGrey)),
         ],
       ),
     );
@@ -844,7 +842,7 @@ class _MapScreenState extends State<MapScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('🟢 이동 경로 및 노면 단차 자동 수집이 시작되었습니다.'),
+        content: Text('이동 경로 및 노면 단차 자동 수집이 시작되었습니다.'),
         backgroundColor: Colors.purple,
         duration: Duration(seconds: 2),
       ),
@@ -862,7 +860,7 @@ class _MapScreenState extends State<MapScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '🔴 수집 종료! 이동거리: ${(_totalDistanceMeters / 1000).toStringAsFixed(2)}km, 자동 감지: $_autoDetectedBumpsCount건',
+          '수집 종료! 이동거리: ${(_totalDistanceMeters / 1000).toStringAsFixed(2)}km, 자동 감지: $_autoDetectedBumpsCount건',
         ),
         backgroundColor: Colors.black87,
         duration: const Duration(seconds: 4),

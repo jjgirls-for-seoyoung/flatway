@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/map_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/supabase_service.dart';
 
 void main() async {
@@ -26,7 +26,7 @@ class FlatWayApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MapScreen(),
+      home: const SplashScreen(),
     );
   }
 }
