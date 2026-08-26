@@ -406,15 +406,20 @@ export default function Home() {
     // Update locally first
     if (type === 'hazard') {
       setHazards(prev => prev.filter(h => h.id !== id));
-      if (!usingSupabase) {
-        const stored = localStorage.getItem('flatway_hazards');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          localStorage.setItem('flatway_hazards', JSON.stringify(parsed.filter(h => h.id !== id)));
-        }
+      // Always sync cache with local storage
+      const stored = safeLocalStorage.getItem('flatway_hazards');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        safeLocalStorage.setItem('flatway_hazards', JSON.stringify(parsed.filter(h => h.id !== id)));
       }
     } else if (type === 'building') {
       setBuildings(prev => prev.filter(b => b.id !== id));
+      // Always sync cache with local storage
+      const stored = safeLocalStorage.getItem('flatway_buildings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        safeLocalStorage.setItem('flatway_buildings', JSON.stringify(parsed.filter(b => b.id !== id)));
+      }
     }
 
     // Clear selected item
@@ -424,14 +429,18 @@ export default function Home() {
     // Delete in Supabase if connected
     if (usingSupabase && supabase) {
       try {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from(type === 'hazard' ? 'hazards' : 'buildings')
           .delete()
-          .eq('id', id);
+          .eq('id', id)
+          .select();
 
         if (error) {
           console.error(`Failed to delete ${type} from Supabase:`, error.message || error);
           alert(`서버에서 삭제에 실패했습니다: ${error.message}`);
+        } else if (!data || data.length === 0) {
+          console.warn("Delete request returned no data. Check Supabase RLS policies!");
+          alert("서버 권한(RLS 정책) 문제로 인해 데이터베이스에서 실제 삭제되지 않았습니다. Supabase RLS 정책을 확인해 주세요.");
         } else {
           alert('데이터베이스에서 성공적으로 삭제되었습니다!');
         }
