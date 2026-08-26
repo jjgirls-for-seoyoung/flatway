@@ -714,7 +714,7 @@ textarea::placeholder {
 
 /* Desktop-only defaults for mobile elements */
 .mobile-top-bar {
-  display: none !important;
+  display: none;
 }
 
 .sidebar-backdrop {
@@ -759,7 +759,7 @@ textarea::placeholder {
 
   /* Mobile Top Navigation & Route Quick Selector */
   .mobile-top-bar {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: space-between;
     position: absolute;
