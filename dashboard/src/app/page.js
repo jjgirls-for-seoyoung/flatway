@@ -930,7 +930,6 @@ export default function Home() {
           onTouchStart={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
           style={{
-            display: 'flex',
             alignItems: 'center',
             gap: '8px',
             position: 'absolute',
