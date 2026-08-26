@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               ),
               const SizedBox(height: 8),
               const Text(
-                '장애 없는 세상을 위한 교통복지 지도',
+                '이동 약자 전용 안전 경로 지도 서비스',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
