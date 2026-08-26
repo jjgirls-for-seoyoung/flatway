@@ -1208,7 +1208,41 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  String _findNearestPlaceName(LatLng loc) {
+    const distanceCalc = Distance();
+    String? nearestName;
+    double minDistance = double.infinity;
+
+    for (final entry in _knownLandmarks.entries) {
+      final d = distanceCalc.as(LengthUnit.Meter, loc, entry.value);
+      if (d < minDistance) {
+        minDistance = d;
+        nearestName = entry.key;
+      }
+    }
+
+    for (final b in _buildings) {
+      final name = b['name'] as String?;
+      final lat = (b['latitude'] as num?)?.toDouble();
+      final lng = (b['longitude'] as num?)?.toDouble();
+      if (name != null && lat != null && lng != null) {
+        final d = distanceCalc.as(LengthUnit.Meter, loc, LatLng(lat, lng));
+        if (d < minDistance) {
+          minDistance = d;
+          nearestName = name;
+        }
+      }
+    }
+
+    if (nearestName != null && minDistance <= 300) {
+      return '$nearestName 인근 (${minDistance.toStringAsFixed(0)}m)';
+    }
+
+    return '지정 보행로 위치';
+  }
+
   void _openReportModal(LatLng loc) {
+    final placeName = _findNearestPlaceName(loc);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1217,6 +1251,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       builder: (context) => ReportModal(
         initialLocation: loc,
+        placeName: placeName,
         onReportSubmitted: () {
           _loadSupabaseData();
         },

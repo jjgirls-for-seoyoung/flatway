@@ -1,16 +1,21 @@
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/supabase_service.dart';
 
 class ReportModal extends StatefulWidget {
   final LatLng initialLocation;
+  final String? placeName;
   final VoidCallback onReportSubmitted;
 
   const ReportModal({
     super.key,
     required this.initialLocation,
+    this.placeName,
     required this.onReportSubmitted,
   });
 
@@ -26,6 +31,75 @@ class _ReportModalState extends State<ReportModal> {
   double _stepHeight = 4.0;
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
+
+  // Address & Reverse Geocoding State
+  String _resolvedAddress = '주소 정보 확인 중...';
+  bool _isLoadingAddress = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReverseGeocode();
+  }
+
+  Future<void> _fetchReverseGeocode() async {
+    try {
+      final lat = widget.initialLocation.latitude;
+      final lng = widget.initialLocation.longitude;
+
+      // Try VWorld reverse geocoding API
+      final vworldUrl = Uri.parse(
+        'https://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=$lng,$lat&type=BOTH&zipcode=true&simple=false&key=CEB52025-E0A2-3031-893C-E05F83216892',
+      );
+      final response = await http.get(vworldUrl).timeout(const Duration(seconds: 3));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['response'] != null && data['response']['status'] == 'OK') {
+          final result = data['response']['result'][0];
+          final text = result['text'];
+          if (text != null && text.toString().isNotEmpty) {
+            if (mounted) {
+              setState(() {
+                _resolvedAddress = text.toString();
+                _isLoadingAddress = false;
+              });
+            }
+            return;
+          }
+        }
+      }
+    } catch (_) {}
+
+    // Fallback to OSM Nominatim
+    try {
+      final lat = widget.initialLocation.latitude;
+      final lng = widget.initialLocation.longitude;
+      final osmUrl = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&accept-language=ko');
+      final response = await http.get(osmUrl, headers: {'User-Agent': 'FlatWayApp/1.0'}).timeout(const Duration(seconds: 3));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final displayName = data['display_name'];
+        if (displayName != null && displayName.toString().isNotEmpty) {
+          final parts = displayName.toString().split(',');
+          final shortAddr = parts.take(min(3, parts.length)).join(' ').trim();
+          if (mounted) {
+            setState(() {
+              _resolvedAddress = shortAddr;
+              _isLoadingAddress = false;
+            });
+          }
+          return;
+        }
+      }
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() {
+        _resolvedAddress = '인천광역시 계양구 보행로';
+        _isLoadingAddress = false;
+      });
+    }
+  }
 
   // Photo Attachment State
   XFile? _selectedImage;
@@ -157,22 +231,57 @@ class _ReportModalState extends State<ReportModal> {
               ),
               const Divider(height: 20),
               
-              // Location Info
+              // Location Info (Show Nearby Landmark/Building Name & Street Address)
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFDFDFDF)),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.pin_drop, size: 18, color: Colors.red),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '제보 좌표: ${widget.initialLocation.latitude.toStringAsFixed(5)}, ${widget.initialLocation.longitude.toStringAsFixed(5)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.place_rounded, size: 20, color: Color(0xFF047857)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            widget.placeName ?? '지도 선택 제보 위치',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF111111),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.map_rounded, size: 16, color: Color(0xFF777777)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: _isLoadingAddress
+                              ? const Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 12,
+                                      height: 12,
+                                      child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF047857)),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text('주소 정보를 변환하는 중...', style: TextStyle(fontSize: 12, color: Color(0xFF949494))),
+                                  ],
+                                )
+                              : Text(
+                                  _resolvedAddress,
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF555555), fontWeight: FontWeight.w500),
+                                ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
