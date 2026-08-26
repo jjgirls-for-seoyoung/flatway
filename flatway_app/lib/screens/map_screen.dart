@@ -1017,14 +1017,6 @@ class _MapScreenState extends State<MapScreen> {
         maxZoom: 22,
         userAgentPackageName: 'com.example.flatway_app',
       );
-    } else if (_selectedMapTileStyle == 'carto') {
-      return TileLayer(
-        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        subdomains: const ['a', 'b', 'c', 'd'],
-        maxNativeZoom: 19,
-        maxZoom: 22,
-        userAgentPackageName: 'com.example.flatway_app',
-      );
     } else {
       return TileLayer(
         urlTemplate: 'https://xdworld.vworld.kr/2d/Base/service/{z}/{x}/{y}.png',
@@ -1097,10 +1089,6 @@ class _MapScreenState extends State<MapScreen> {
               const PopupMenuItem(
                 value: 'esri_sat',
                 child: Text('위성지도'),
-              ),
-              const PopupMenuItem(
-                value: 'carto',
-                child: Text('모던 지도'),
               ),
             ],
           ),
