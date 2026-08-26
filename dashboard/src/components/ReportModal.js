@@ -14,6 +14,7 @@ export default function ReportModal({
   const [stepHeight, setStepHeight] = useState('3.0');
   const [severity, setSeverity] = useState('high');
   const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   if (!isOpen) return null;
 
@@ -31,6 +32,7 @@ export default function ReportModal({
       step_height_cm: type === 'step' ? parseFloat(stepHeight) : null,
       severity,
       description,
+      image_url: imageUrl.trim() || null,
       reported_at: new Date().toISOString(),
       is_verified: false // Simulated reports are unverified by default
     };
@@ -38,6 +40,7 @@ export default function ReportModal({
     onSubmit(report);
     // Reset form
     setDescription('');
+    setImageUrl('');
     onClose();
   };
 
@@ -134,6 +137,18 @@ export default function ReportModal({
               onChange={(e) => setDescription(e.target.value)}
               required
               style={{ resize: 'none' }}
+            />
+          </div>
+
+          {/* Image URL (Optional) */}
+          <div className="form-group">
+            <label>현장 사진 이미지 URL (선택)</label>
+            <input 
+              type="url" 
+              className="form-control" 
+              placeholder="예: https://example.com/photo.jpg"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
             />
           </div>
 

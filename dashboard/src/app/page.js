@@ -835,6 +835,16 @@ export default function Home() {
                       <strong>측정된 단차 높이:</strong> {selectedItem.step_height_cm} cm
                     </p>
                   )}
+                  {selectedItem.image_url && (
+                    <div style={{ marginTop: '8px', borderRadius: 'var(--ldsg-radius-200)', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                      <img 
+                        src={selectedItem.image_url} 
+                        alt="현장 단차/파손 사진" 
+                        style={{ width: '100%', maxHeight: '160px', objectFit: 'cover' }} 
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                  )}
                   <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
                     제보일시: {new Date(selectedItem.reported_at).toLocaleString('ko-KR')}
                   </p>
@@ -914,6 +924,16 @@ export default function Home() {
                       <strong>장애인 화장실:</strong> {selectedItem.disabled_toilet ? '있음' : '없음'}
                     </li>
                   </ul>
+                  {selectedItem.image_url && (
+                    <div style={{ marginTop: '8px', borderRadius: 'var(--ldsg-radius-200)', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                      <img 
+                        src={selectedItem.image_url} 
+                        alt="건물 사진" 
+                        style={{ width: '100%', maxHeight: '160px', objectFit: 'cover' }} 
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                  )}
                   {/* Delete Button */}
                   {isAdmin && (
                     <button
@@ -1096,6 +1116,16 @@ export default function Home() {
                       <strong>단차 높이:</strong> {selectedItem.step_height_cm} cm
                     </p>
                   )}
+                  {selectedItem.image_url && (
+                    <div style={{ marginTop: '6px', borderRadius: 'var(--ldsg-radius-200)', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                      <img 
+                        src={selectedItem.image_url} 
+                        alt="현장 단차/파손 사진" 
+                        style={{ width: '100%', maxHeight: '120px', objectFit: 'cover' }} 
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                  )}
                   {/* Mobile status selector */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
                     <span className={`status-badge ${selectedItem.status || 'reported'}`}>
@@ -1152,6 +1182,16 @@ export default function Home() {
                     <div><strong>출입문:</strong> {selectedItem.main_entrance_type === 'automatic' ? '자동문' : selectedItem.main_entrance_type === 'revolving' ? '회전문' : '여닫이문'}</div>
                     <div><strong>화장실:</strong> {selectedItem.disabled_toilet ? '장애인용' : '일반'}</div>
                   </div>
+                  {selectedItem.image_url && (
+                    <div style={{ marginTop: '6px', borderRadius: 'var(--ldsg-radius-200)', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                      <img 
+                        src={selectedItem.image_url} 
+                        alt="건물 편의시설 사진" 
+                        style={{ width: '100%', maxHeight: '120px', objectFit: 'cover' }} 
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                  )}
                   {/* Mobile Delete Button */}
                   {isAdmin && (
                     <button

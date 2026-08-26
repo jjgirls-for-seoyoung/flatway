@@ -9,6 +9,7 @@ export const initialHazards = [
     step_height_cm: 4.5,
     severity: "high",
     description: "작전역 4번 출구 앞 보도 경계석 단차가 높아 휠체어 진입 불가",
+    image_url: "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=600&q=80",
     is_verified: true,
     reported_at: new Date(Date.now() - 3600000 * 24).toISOString(),
     status: "scheduled"
@@ -21,6 +22,7 @@ export const initialHazards = [
     step_height_cm: null,
     severity: "medium",
     description: "작전여고 통학로 보도블록 파손 및 요철 심함",
+    image_url: "https://images.unsplash.com/photo-1599740831144-53c2522af50e?auto=format&fit=crop&w=600&q=80",
     is_verified: true,
     reported_at: new Date(Date.now() - 3600000 * 48).toISOString(),
     status: "resolved"
@@ -33,6 +35,7 @@ export const initialHazards = [
     step_height_cm: null,
     severity: "high",
     description: "횡단보도 앞 불법 주차 차량 및 자전거 적치물로 시야 확보 불가 및 통행 방해",
+    image_url: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80",
     is_verified: false,
     reported_at: new Date(Date.now() - 3600000 * 2).toISOString(),
     status: "reported"
@@ -45,6 +48,7 @@ export const initialHazards = [
     step_height_cm: null,
     severity: "low",
     description: "주택가 이면도로 경사 다소 급함 (수동 휠체어 이용 시 주의 요함)",
+    image_url: "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=600&q=80",
     is_verified: true,
     reported_at: new Date(Date.now() - 3600000 * 12).toISOString(),
     status: "processing"
