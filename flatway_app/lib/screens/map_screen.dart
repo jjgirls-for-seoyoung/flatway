@@ -269,28 +269,49 @@ class _MapScreenState extends State<MapScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF047857).withValues(alpha: 0.12),
+                  color: isSettingStart ? const Color(0xFF047857).withValues(alpha: 0.12) : const Color(0xFFE8332E).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: const Icon(Icons.my_location_rounded, color: Color(0xFF047857), size: 18),
+                child: Icon(
+                  isSettingStart ? Icons.my_location_rounded : Icons.location_on_rounded,
+                  color: isSettingStart ? const Color(0xFF047857) : const Color(0xFFE8332E),
+                  size: 18,
+                ),
               ),
-              title: const Text('현재 위치', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
-              subtitle: const Text('내 GPS 현재 위치에서 출발', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
+              title: Text(
+                isSettingStart ? '현재 위치를 출발지로 설정' : '현재 위치를 도착지로 설정',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111)),
+              ),
+              subtitle: Text(
+                isSettingStart ? '내 GPS 현재 위치에서 출발합니다' : '내 GPS 현재 위치로 목적지를 설정합니다',
+                style: const TextStyle(fontSize: 11, color: Color(0xFF949494)),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 setState(() {
-                  _startName = '현재 위치';
-                  _startLocation = _currentLocation;
-                  _startSearchController.text = '현재 위치';
+                  if (isSettingStart) {
+                    _startName = '현재 위치';
+                    _startLocation = _currentLocation;
+                    _startSearchController.text = '현재 위치';
+                  } else {
+                    _destName = '현재 위치';
+                    _destLocation = _currentLocation;
+                    _destSearchController.text = '현재 위치';
+                  }
                   _isRouteSearchExpanded = true;
                 });
-                if (_destLocation != null) {
-                  _calculateAccessibleRoute();
-                } else {
+                if (_startLocation != null && _destLocation != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('도착지를 선택하면 경로가 탐색됩니다.'),
+                      content: Text('출발지와 도착지가 모두 설정되었습니다. [길찾기] 버튼을 누르면 탐색됩니다.'),
                       duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isSettingStart ? '도착지를 선택해 주세요.' : '출발지를 선택해 주세요.'),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 }
@@ -390,6 +411,186 @@ class _MapScreenState extends State<MapScreen> {
             }),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showMapTapLocationActionModal(LatLng point) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final isStartSet = _startLocation != null;
+          final isDestSet = _destLocation != null;
+          final isBothSet = isStartSet && isDestSet;
+
+          return Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDFDFDF),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF047857).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Icon(Icons.touch_app_rounded, color: Color(0xFF047857), size: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '지도 선택 위치 지정',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                            ),
+                            Text(
+                              '터치한 장소를 출발지/도착지로 선택하세요',
+                              style: TextStyle(fontSize: 11, color: Color(0xFF949494)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20, color: Color(0xFF777777)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(height: 16, color: Color(0xFFEFEFEF)),
+                
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _startName = '지도 선택 위치';
+                            _startLocation = point;
+                            _startSearchController.text = '지도 선택 위치';
+                            _isRouteSearchExpanded = true;
+                          });
+                          setModalState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('📍 출발지로 설정되었습니다. (도착지를 선택하면 탐색이 완료됩니다)'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF047857),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        ),
+                        icon: const Icon(Icons.my_location_rounded, size: 16),
+                        label: const Text('출발지로 설정', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _destName = '지도 선택 위치';
+                            _destLocation = point;
+                            _destSearchController.text = '지도 선택 위치';
+                            _isRouteSearchExpanded = true;
+                          });
+                          setModalState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🚩 도착지로 설정되었습니다. (출발지를 선택하면 탐색이 완료됩니다)'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE8332E),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        ),
+                        icon: const Icon(Icons.location_on_rounded, size: 16),
+                        label: const Text('도착지로 설정', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _openReportModal(point);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF1E2742),
+                          side: const BorderSide(color: Color(0xFFDFDFDF)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        ),
+                        icon: const Icon(Icons.report_problem_rounded, size: 16),
+                        label: const Text('이 위치 위험 요인 제보', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                ),
+
+                if (isBothSet) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _calculateAccessibleRoute();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF047857),
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      ),
+                      icon: const Icon(Icons.check_circle_rounded, size: 20),
+                      label: const Text('✅ 위치 설정 완료 & 경로 탐색 시작', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -1223,12 +1424,8 @@ class _MapScreenState extends State<MapScreen> {
                 onTap: (tapPosition, point) {
                   setState(() {
                     _selectedTappedLocation = point;
-                    if (_isRouteSearchExpanded) {
-                      _destLocation = point;
-                      _destName = '지도 선택 위치';
-                      _calculateAccessibleRoute();
-                    }
                   });
+                  _showMapTapLocationActionModal(point);
                 },
               ),
               children: [
@@ -1478,6 +1675,17 @@ class _MapScreenState extends State<MapScreen> {
                                   ),
                                 ),
                               ),
+                              if (_startLocation != null)
+                                IconButton(
+                                  icon: const Icon(Icons.clear_rounded, color: Color(0xFF777777), size: 16),
+                                  onPressed: () {
+                                    setState(() {
+                                      _startName = null;
+                                      _startLocation = null;
+                                      _startSearchController.clear();
+                                    });
+                                  },
+                                ),
                               // Quick "현재 위치" pick button
                               InkWell(
                                 onTap: () {
@@ -1486,12 +1694,10 @@ class _MapScreenState extends State<MapScreen> {
                                     _startLocation = _currentLocation;
                                     _startSearchController.text = '현재 위치';
                                   });
-                                  if (_destLocation != null) {
-                                    _calculateAccessibleRoute();
-                                  } else {
+                                  if (_destLocation == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('도착지를 선택하면 경로가 탐색됩니다.'),
+                                        content: Text('도착지를 선택해 주세요.'),
                                         duration: Duration(seconds: 2),
                                       ),
                                     );
