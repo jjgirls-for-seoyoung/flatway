@@ -5,7 +5,7 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 import 'package:sensors_plus/sensors_plus.dart';
 import '../services/location_service.dart';
 import '../services/route_service.dart';
@@ -1195,44 +1195,17 @@ class _MapScreenState extends State<MapScreen> {
 
                     Marker(
                       point: _currentLocation,
-                      width: 54,
-                      height: 54,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFF10B981).withValues(alpha: 0.5),
-                                width: 1.5,
-                              ),
-                            ),
+                      width: 28,
+                      height: 34,
+                      child: Transform.rotate(
+                        angle: (_currentHeading * (pi / 180)),
+                        child: CustomPaint(
+                          size: const Size(28, 34),
+                          painter: DirectionalPinPainter(
+                            fillColor: const Color(0xFF047857),
+                            borderColor: Colors.white,
                           ),
-                          Transform.rotate(
-                            angle: (_currentHeading * (pi / 180)),
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E3A8A),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                                boxShadow: const [
-                                  BoxShadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 2)),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.navigation_rounded,
-                                color: Color(0xFF34D399),
-                                size: 18,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
 
@@ -1775,4 +1748,47 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+}
+
+class DirectionalPinPainter extends CustomPainter {
+  final Color fillColor;
+  final Color borderColor;
+
+  DirectionalPinPainter({
+    this.fillColor = const Color(0xFF047857),
+    this.borderColor = Colors.white,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    // Sleek Sharp Navigation Triangle Needle Pointer Path (pointing UP)
+    final path = Path();
+    path.moveTo(w / 2, 0); // Top sharp tip
+    path.lineTo(w, h); // Bottom right corner
+    path.quadraticBezierTo(w / 2, h * 0.78, 0, h); // Concave bottom notch
+    path.close();
+
+    // Drop Shadow
+    canvas.drawShadow(path, Colors.black54, 4.0, true);
+
+    // Fill Color
+    final fillPaint = Paint()
+      ..color = fillColor
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, fillPaint);
+
+    // Crisp White Outer Border
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
