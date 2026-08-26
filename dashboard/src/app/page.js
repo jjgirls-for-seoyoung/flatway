@@ -190,7 +190,17 @@ export default function Home() {
           const { data: bData, error: bErr } = bRes;
 
           if (!hErr && !bErr) {
-            supabaseHazards = hData;
+            // Auto-patch fetched Supabase records with mock image_urls if they are null
+            const patchedHazards = hData.map(h => {
+              if (!h.image_url) {
+                const match = initialHazards.find(ih => ih.type === h.type || ih.description === h.description);
+                if (match) {
+                  return { ...h, image_url: match.image_url };
+                }
+              }
+              return h;
+            });
+            supabaseHazards = patchedHazards;
             supabaseBuildings = bData;
           } else {
             console.warn("Supabase fetch returned errors, falling back:", hErr, bErr);
@@ -210,7 +220,18 @@ export default function Home() {
         const localBuildings = safeLocalStorage.getItem('flatway_buildings');
 
         if (localHazards && localBuildings) {
-          setHazards(JSON.parse(localHazards));
+          const parsedHazards = JSON.parse(localHazards);
+          // Auto-patch localStorage cached elements with mock image_urls if they are missing
+          const patchedLocalHazards = parsedHazards.map(lh => {
+            if (!lh.image_url) {
+              const match = initialHazards.find(ih => ih.id === lh.id || ih.type === lh.type || ih.description === lh.description);
+              if (match) {
+                return { ...lh, image_url: match.image_url };
+              }
+            }
+            return lh;
+          });
+          setHazards(patchedLocalHazards);
           setBuildings(JSON.parse(localBuildings));
         } else {
           // First-time seed
