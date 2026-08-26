@@ -102,8 +102,31 @@ export default function Home() {
     damage: true,
     obstacle: true,
     slope: true,
+    other: true,
     building: true
   });
+
+  // Helper to normalize hazard types into 5 consistent categories
+  const normalizeHazardType = (type) => {
+    if (!type) return 'other';
+    const t = String(type).toLowerCase().trim();
+    if (['step', '단차'].includes(t)) return 'step';
+    if (['damage', '파손', '요철'].includes(t)) return 'damage';
+    if (['obstacle', '적치물', '주차'].includes(t)) return 'obstacle';
+    if (['slope', '경사'].includes(t)) return 'slope';
+    return 'other';
+  };
+
+  // Helper to normalize maintenance status into 4 pipeline steps
+  const normalizeStatus = (status) => {
+    if (!status) return 'reported';
+    const s = String(status).toLowerCase().trim();
+    if (['reported', '접수', '접수됨'].includes(s)) return 'reported';
+    if (['processing', '조사중', '조사 중', 'in_progress'].includes(s)) return 'processing';
+    if (['scheduled', '보수예정', '보수 예정'].includes(s)) return 'scheduled';
+    if (['resolved', '보수완료', '보수 완료', 'completed', 'done'].includes(s)) return 'resolved';
+    return 'reported';
+  };
 
   // Selected item detail state
   const [selectedItem, setSelectedItem] = useState(null);
@@ -257,14 +280,14 @@ export default function Home() {
             if (payload.eventType === 'INSERT') {
               setHazards(prev => {
                 // Prevent duplicates if already added locally
-                if (prev.some(h => h.id === payload.new.id)) return prev;
+                if (prev.some(h => String(h.id) === String(payload.new.id))) return prev;
                 return [payload.new, ...prev];
               });
             } else if (payload.eventType === 'UPDATE') {
-              setHazards(prev => prev.map(h => h.id === payload.new.id ? payload.new : h));
-              setSelectedItem(prev => (prev && prev.id === payload.new.id) ? { ...prev, ...payload.new } : prev);
+              setHazards(prev => prev.map(h => String(h.id) === String(payload.new.id) ? payload.new : h));
+              setSelectedItem(prev => (prev && String(prev.id) === String(payload.new.id)) ? { ...prev, ...payload.new } : prev);
             } else if (payload.eventType === 'DELETE') {
-              setHazards(prev => prev.filter(h => h.id !== payload.old.id));
+              setHazards(prev => prev.filter(h => String(h.id) !== String(payload.old.id)));
             }
           }
         )
@@ -275,13 +298,13 @@ export default function Home() {
             if (payload.eventType === 'INSERT') {
               setBuildings(prev => {
                 // Prevent duplicates if already added locally
-                if (prev.some(b => b.id === payload.new.id)) return prev;
+                if (prev.some(b => String(b.id) === String(payload.new.id))) return prev;
                 return [payload.new, ...prev];
               });
             } else if (payload.eventType === 'UPDATE') {
-              setBuildings(prev => prev.map(b => b.id === payload.new.id ? payload.new : b));
+              setBuildings(prev => prev.map(b => String(b.id) === String(payload.new.id) ? payload.new : b));
             } else if (payload.eventType === 'DELETE') {
-              setBuildings(prev => prev.filter(b => b.id !== payload.old.id));
+              setBuildings(prev => prev.filter(b => String(b.id) !== String(payload.old.id)));
             }
           }
         )
@@ -340,7 +363,8 @@ export default function Home() {
 
   // Helper to get pin color matching hazard type
   const getHazardColor = (type) => {
-    switch (type) {
+    const norm = normalizeHazardType(type);
+    switch (norm) {
       case 'step':
         return 'var(--color-danger)'; // Red for step (단차)
       case 'damage':
@@ -350,7 +374,7 @@ export default function Home() {
       case 'slope':
         return '#06b6d4'; // Cyan for slope (급경사)
       default:
-        return 'var(--color-warn)';
+        return '#64748b'; // Slate gray for other (기타)
     }
   };
 
@@ -371,9 +395,11 @@ export default function Home() {
       return;
     }
 
+    const targetIdStr = String(id);
+
     // Update locally first
-    setHazards(prev => prev.map(h => h.id === id ? { ...h, status: newStatus } : h));
-    setSelectedItem(prev => (prev && prev.id === id) ? { ...prev, status: newStatus } : prev);
+    setHazards(prev => prev.map(h => String(h.id) === targetIdStr ? { ...h, status: newStatus } : h));
+    setSelectedItem(prev => (prev && String(prev.id) === targetIdStr) ? { ...prev, status: newStatus } : prev);
 
     // Update in Supabase if connected
     if (usingSupabase && supabase) {
@@ -403,30 +429,9 @@ export default function Home() {
 
     if (!confirm('정말로 이 정보를 데이터베이스에서 삭제하시겠습니까?')) return;
 
-    // Update locally first
-    if (type === 'hazard') {
-      setHazards(prev => prev.filter(h => h.id !== id));
-      // Always sync cache with local storage
-      const stored = safeLocalStorage.getItem('flatway_hazards');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        safeLocalStorage.setItem('flatway_hazards', JSON.stringify(parsed.filter(h => h.id !== id)));
-      }
-    } else if (type === 'building') {
-      setBuildings(prev => prev.filter(b => b.id !== id));
-      // Always sync cache with local storage
-      const stored = safeLocalStorage.getItem('flatway_buildings');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        safeLocalStorage.setItem('flatway_buildings', JSON.stringify(parsed.filter(b => b.id !== id)));
-      }
-    }
+    const targetIdStr = String(id);
 
-    // Clear selected item
-    setSelectedItem(null);
-    setSelectedItemType(null);
-
-    // Delete in Supabase if connected
+    // Delete in Supabase FIRST if connected
     if (usingSupabase && supabase) {
       try {
         const { data, error } = await supabase
@@ -438,18 +443,42 @@ export default function Home() {
         if (error) {
           console.error(`Failed to delete ${type} from Supabase:`, error.message || error);
           alert(`서버에서 삭제에 실패했습니다: ${error.message}`);
+          return; // Do NOT modify local state if DB deletion failed!
         } else if (!data || data.length === 0) {
           console.warn("Delete request returned no data. Check Supabase RLS policies!");
           alert("서버 권한(RLS 정책) 문제로 인해 데이터베이스에서 실제 삭제되지 않았습니다. Supabase RLS 정책을 확인해 주세요.");
-        } else {
-          alert('데이터베이스에서 성공적으로 삭제되었습니다!');
+          return; // Do NOT modify local state if 0 rows deleted!
         }
       } catch (err) {
         console.error("Supabase delete error:", err);
+        alert("서버 통신 중 오류가 발생하여 삭제에 실패했습니다.");
+        return;
       }
-    } else {
-      alert('로컬 상태에서 성공적으로 삭제되었습니다!');
     }
+
+    // Now update local state after server delete succeeds (or in local fallback mode)
+    if (type === 'hazard') {
+      setHazards(prev => prev.filter(h => String(h.id) !== targetIdStr));
+      const stored = safeLocalStorage.getItem('flatway_hazards');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        safeLocalStorage.setItem('flatway_hazards', JSON.stringify(parsed.filter(h => String(h.id) !== targetIdStr)));
+      }
+    } else if (type === 'building') {
+      setBuildings(prev => prev.filter(b => String(b.id) !== targetIdStr));
+      const stored = safeLocalStorage.getItem('flatway_buildings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        safeLocalStorage.setItem('flatway_buildings', JSON.stringify(parsed.filter(b => String(b.id) !== targetIdStr)));
+      }
+    }
+
+    // Clear selected item & close mobile detail
+    setSelectedItem(null);
+    setSelectedItemType(null);
+    setShowMobileDetail(false);
+
+    alert('성공적으로 삭제되었습니다!');
   };
 
   // 5. Handle item selection (Marker click)
@@ -500,16 +529,17 @@ export default function Home() {
 
   // Calculations for stats & gauges
   const totalHazards = hazards.length;
-  const activeStepsCount = hazards.filter(h => h.type === 'step').length;
-  const activeDamageCount = hazards.filter(h => h.type === 'damage').length;
-  const activeObstacleCount = hazards.filter(h => h.type === 'obstacle').length;
-  const activeSlopeCount = hazards.filter(h => h.type === 'slope').length;
+  const activeStepsCount = hazards.filter(h => normalizeHazardType(h.type) === 'step').length;
+  const activeDamageCount = hazards.filter(h => normalizeHazardType(h.type) === 'damage').length;
+  const activeObstacleCount = hazards.filter(h => normalizeHazardType(h.type) === 'obstacle').length;
+  const activeSlopeCount = hazards.filter(h => normalizeHazardType(h.type) === 'slope').length;
+  const activeOtherCount = hazards.filter(h => normalizeHazardType(h.type) === 'other').length;
   const totalBuildings = buildings.length;
   const buildingsWithRamp = buildings.filter(b => b.has_ramp).length;
   const rampPercentage = totalBuildings > 0 ? Math.round((buildingsWithRamp / totalBuildings) * 100) : 0;
 
   // Maintenance pipeline stats
-  const countByStatus = (statusName) => hazards.filter(h => (h.status || 'reported') === statusName).length;
+  const countByStatus = (statusName) => hazards.filter(h => normalizeStatus(h.status) === statusName).length;
   const reportedCount = countByStatus('reported');
   const processingCount = countByStatus('processing');
   const scheduledCount = countByStatus('scheduled');
@@ -754,7 +784,7 @@ export default function Home() {
         {/* Filter Panel */}
         <div className="control-panel">
           <h4 className="section-title">
-            <Layers size={12} /> 필터
+            <Layers size={12} /> 노면 위험 필터 ({totalHazards}개)
           </h4>
           <div className="filter-group">
             {/* 1. 단차 */}
@@ -821,6 +851,29 @@ export default function Home() {
               </label>
             </div>
 
+            {/* 4.5. 기타/미분류 (Only if > 0) */}
+            {activeOtherCount > 0 && (
+              <div className="filter-item" onClick={() => toggleFilter('other')}>
+                <div className="filter-label-group">
+                  <span className="filter-dot other" style={{ background: '#64748b' }} />
+                  <span>기타 위험 요소 노출 ({activeOtherCount}개)</span>
+                </div>
+                <label className="switch" onClick={(e) => e.stopPropagation()}>
+                  <input 
+                    type="checkbox" 
+                    checked={filters.other ?? true} 
+                    onChange={() => toggleFilter('other')} 
+                  />
+                  <span className="slider" />
+                </label>
+              </div>
+            )}
+          </div>
+
+          <h4 className="section-title" style={{ marginTop: '14px' }}>
+            <Building2 size={12} color="var(--color-safe)" /> 건물 접근성 필터 ({totalBuildings}개)
+          </h4>
+          <div className="filter-group">
             {/* 5. 접근성 건물 */}
             <div className="filter-item" onClick={() => toggleFilter('building')}>
               <div className="filter-label-group">
@@ -851,9 +904,10 @@ export default function Home() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="detail-header" style={{ color: getHazardColor(selectedItem.type), display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <AlertTriangle size={14} />
-                      {selectedItem.type === 'step' ? '보행 단차 장애물' : 
-                       selectedItem.type === 'damage' ? '보행 노면 파손' :
-                       selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
+                      {normalizeHazardType(selectedItem.type) === 'step' ? '보행 단차 장애물' : 
+                       normalizeHazardType(selectedItem.type) === 'damage' ? '보행 노면 파손' :
+                       normalizeHazardType(selectedItem.type) === 'obstacle' ? '보행 적치물' :
+                       normalizeHazardType(selectedItem.type) === 'slope' ? '보도 급경사' : '기타 위험 요소'}
                     </span>
                     <span className={`detail-badge ${selectedItem.severity}`}>
                       위험도 {selectedItem.severity === 'high' ? '상' : selectedItem.severity === 'medium' ? '중' : '하'}
@@ -1115,9 +1169,10 @@ export default function Home() {
                   <>
                     <span className="detail-header" style={{ color: getHazardColor(selectedItem.type), fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <AlertTriangle size={14} />
-                      {selectedItem.type === 'step' ? '보행 단차' : 
-                       selectedItem.type === 'damage' ? '노면 파손' :
-                       selectedItem.type === 'obstacle' ? '보행 적치물' : '보도 급경사'}
+                      {normalizeHazardType(selectedItem.type) === 'step' ? '보행 단차' : 
+                       normalizeHazardType(selectedItem.type) === 'damage' ? '노면 파손' :
+                       normalizeHazardType(selectedItem.type) === 'obstacle' ? '보행 적치물' :
+                       normalizeHazardType(selectedItem.type) === 'slope' ? '보도 급경사' : '기타 위험'}
                     </span>
                     <span className={`detail-badge ${selectedItem.severity}`}>
                       위험도 {selectedItem.severity === 'high' ? '상' : selectedItem.severity === 'medium' ? '중' : '하'}

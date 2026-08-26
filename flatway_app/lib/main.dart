@@ -17,8 +17,11 @@ class FlatWayApp extends StatelessWidget {
       title: 'FlatWay',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2563EB),
+          seedColor: const Color(0xFF06C755),
+          primary: const Color(0xFF06C755),
+          surface: Colors.white,
           brightness: Brightness.light,
         ),
         useMaterial3: true,

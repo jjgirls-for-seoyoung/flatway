@@ -49,9 +49,9 @@ class _MapScreenState extends State<MapScreen> {
   String _selectedMapTileStyle = 'vworld';
   final bool _isDarkMode = false;
 
-  // Navigation Origin & Destination
-  String _startName = '현재 위치';
-  LatLng _startLocation = LocationService.defaultLocation;
+  // Navigation Origin & Destination (Initially null so BOTH must be explicitly chosen)
+  String? _startName;
+  LatLng? _startLocation;
   String? _destName;
   LatLng? _destLocation;
   bool _isNavigating = false;
@@ -193,54 +193,126 @@ class _MapScreenState extends State<MapScreen> {
     _showSearchSnackBar('검색 결과가 없습니다. (예: 작전역, 작전여고)');
   }
 
-  void _showSearchRecommendationModal() {
+  void _showSearchRecommendationModal({bool isSettingStart = false}) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
+      backgroundColor: Colors.white,
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDFDFDF),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.stars_rounded, color: Color(0xFF10B981), size: 22),
-                    SizedBox(width: 8),
-                    Text('추천 장소 & 최근 검색', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Icon(
+                      isSettingStart ? Icons.my_location_rounded : Icons.location_on_rounded,
+                      color: isSettingStart ? const Color(0xFF06C755) : const Color(0xFFE8332E),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isSettingStart ? '출발지 선택 및 추천 장소' : '도착지 선택 및 추천 장소',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                    ),
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, size: 20),
+                  icon: const Icon(Icons.close, size: 20, color: Color(0xFF777777)),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
-            const Divider(height: 16),
-            const Text('🕒 최근 검색 기록', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+            const Divider(height: 16, color: Color(0xFFEFEFEF)),
+            
+            // Quick Current Location Option for Origin Selection
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF06C755).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: const Icon(Icons.my_location_rounded, color: Color(0xFF06C755), size: 18),
+              ),
+              title: const Text('현재 위치', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
+              subtitle: const Text('내 GPS 현재 위치에서 출발', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _startName = '현재 위치';
+                  _startLocation = _currentLocation;
+                  _startSearchController.text = '현재 위치';
+                  _isRouteSearchExpanded = true;
+                });
+                if (_destLocation != null) {
+                  _calculateAccessibleRoute();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('도착지를 선택하면 경로가 탐색됩니다.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            const Text('최근 검색 및 추천 장소', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF777777))),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               children: _recentSearches.map((term) {
                 return ActionChip(
-                  avatar: const Icon(Icons.history, size: 14, color: Colors.grey),
-                  label: Text(term, style: const TextStyle(fontSize: 12)),
-                  backgroundColor: Colors.grey.shade100,
+                  avatar: const Icon(Icons.history, size: 14, color: Color(0xFF777777)),
+                  label: Text(term, style: const TextStyle(fontSize: 12, color: Color(0xFF111111))),
+                  backgroundColor: const Color(0xFFF5F5F5),
+                  side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   onPressed: () {
                     Navigator.pop(context);
-                    _destSearchController.text = term;
                     if (_knownLandmarks.containsKey(term)) {
                       setState(() {
-                        _destName = term;
-                        _destLocation = _knownLandmarks[term];
+                        if (isSettingStart) {
+                          _startName = term;
+                          _startLocation = _knownLandmarks[term];
+                          _startSearchController.text = term;
+                        } else {
+                          _destName = term;
+                          _destLocation = _knownLandmarks[term];
+                          _destSearchController.text = term;
+                        }
                         _isRouteSearchExpanded = true;
                       });
-                      _calculateAccessibleRoute();
+                      if (_startLocation != null && _destLocation != null) {
+                        _calculateAccessibleRoute();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(isSettingStart ? '도착지를 추가로 선택해주세요.' : '출발지를 추가로 선택해주세요.'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     } else {
                       _performSearch(term);
                     }
@@ -248,9 +320,7 @@ class _MapScreenState extends State<MapScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
-            const Text('💡 현위치 근처 추천 장소', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ..._recommendedPlaces.map((place) {
               return ListTile(
                 dense: true,
@@ -258,24 +328,40 @@ class _MapScreenState extends State<MapScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: const Color(0xFFEFEFEF)),
                   ),
-                  child: const Icon(Icons.place, color: Color(0xFF10B981), size: 18),
+                  child: const Icon(Icons.place_rounded, color: Color(0xFF06C755), size: 18),
                 ),
-                title: Text(place['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                subtitle: Text(place['sub']!, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                title: Text(place['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
+                subtitle: Text(place['sub']!, style: const TextStyle(fontSize: 11, color: Color(0xFF949494))),
                 onTap: () {
                   Navigator.pop(context);
                   final nameKey = place['name']!.split(' ')[0];
-                  _destSearchController.text = place['name']!;
                   if (_knownLandmarks.containsKey(nameKey)) {
                     setState(() {
-                      _destName = place['name'];
-                      _destLocation = _knownLandmarks[nameKey];
+                      if (isSettingStart) {
+                        _startName = place['name'];
+                        _startLocation = _knownLandmarks[nameKey];
+                        _startSearchController.text = place['name']!;
+                      } else {
+                        _destName = place['name'];
+                        _destLocation = _knownLandmarks[nameKey];
+                        _destSearchController.text = place['name']!;
+                      }
                       _isRouteSearchExpanded = true;
                     });
-                    _calculateAccessibleRoute();
+                    if (_startLocation != null && _destLocation != null) {
+                      _calculateAccessibleRoute();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isSettingStart ? '도착지를 추가로 선택해주세요.' : '출발지를 추가로 선택해주세요.'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
                   } else {
                     _performSearch(nameKey);
                   }
@@ -291,9 +377,8 @@ class _MapScreenState extends State<MapScreen> {
   // Calculate real OSRM pedestrian road route following actual streets and crosswalks
   Future<void> _calculateAccessibleRoute() async {
     final dest = _destLocation;
-    if (dest == null) return;
-
     final start = _startLocation;
+    if (start == null || dest == null) return;
 
     // Calculate dangerous hazards near route
     final dangerousHazards = _hazards.where((h) {
@@ -334,9 +419,12 @@ class _MapScreenState extends State<MapScreen> {
   void _clearNavigation() {
     setState(() {
       _isNavigating = false;
+      _startName = null;
+      _startLocation = null;
       _destName = null;
       _destLocation = null;
       _navRoutePoints.clear();
+      _startSearchController.clear();
       _destSearchController.clear();
     });
   }
@@ -390,7 +478,7 @@ class _MapScreenState extends State<MapScreen> {
                     return _buildNavStepItem(
                       icon: Icons.my_location,
                       iconColor: Colors.green,
-                      title: '출발지: $_startName ➔ 도착지: $dest',
+                      title: '출발지: ${_startName ?? "미선택"} ➔ 도착지: $dest',
                       subtitle: '경로 데이터를 계산 중입니다.',
                       distance: '${_navDistanceMeters.toStringAsFixed(0)}m',
                     );
@@ -421,7 +509,7 @@ class _MapScreenState extends State<MapScreen> {
                   return _buildNavStepItem(
                     icon: stepIcon,
                     iconColor: stepColor,
-                    title: isFirst ? '출발지: $_startName' : isLast ? '도착지: $dest' : '보행 이동 구간 ${index + 1}',
+                    title: isFirst ? '출발지: ${_startName ?? "미선택"}' : isLast ? '도착지: $dest' : '보행 이동 구간 ${index + 1}',
                     subtitle: step.instruction,
                     distance: '${step.distanceMeters.toStringAsFixed(0)}m',
                   );
@@ -873,7 +961,7 @@ class _MapScreenState extends State<MapScreen> {
                         setState(() {
                           _startName = building['name'] ?? '선택 건물';
                           _startLocation = LatLng(lat, lng);
-                          _startSearchController.text = _startName;
+                          _startSearchController.text = _startName!;
                           _isRouteSearchExpanded = true;
                         });
                         if (_destLocation != null) _calculateAccessibleRoute();
@@ -1190,7 +1278,7 @@ class _MapScreenState extends State<MapScreen> {
                         child: CustomPaint(
                           size: const Size(28, 34),
                           painter: DirectionalPinPainter(
-                            fillColor: const Color(0xFF047857),
+                            fillColor: const Color(0xFF06C755),
                             borderColor: Colors.white,
                           ),
                         ),
@@ -1290,39 +1378,39 @@ class _MapScreenState extends State<MapScreen> {
               child: Column(
                 children: [
                 if (!_isRouteSearchExpanded) ...[
-                  // Collapsed Single Search Bar (White/Light Emerald)
+                  // Collapsed Single Search Bar (LDSG Style: White surface, 7px radius, gray-300 border)
                   Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      side: BorderSide(color: const Color(0xFF047857).withValues(alpha: 0.3), width: 1.5),
+                      borderRadius: BorderRadius.circular(7),
+                      side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
                     ),
-                    elevation: 5,
-                    color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+                    elevation: 1,
+                    color: Colors.white,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Color(0xFF047857), size: 22),
+                          const Icon(Icons.search_rounded, color: Color(0xFF06C755), size: 20),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
                               controller: _searchController,
                               readOnly: false,
-                              onTap: _showSearchRecommendationModal,
+                              onTap: () => _showSearchRecommendationModal(isSettingStart: false),
                               onSubmitted: (val) {
                                 _performSearch(val);
                               },
                               decoration: const InputDecoration(
                                 hintText: '지도 검색 (장소, 건물 입력)...',
-                                hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                                hintStyle: TextStyle(fontSize: 13, color: Color(0xFF949494)),
                                 border: InputBorder.none,
                                 isDense: true,
                               ),
-                              style: TextStyle(fontSize: 13, color: _isDarkMode ? Colors.white : Colors.black87),
+                              style: const TextStyle(fontSize: 13, color: Color(0xFF111111)),
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.directions, color: Color(0xFF047857)),
+                            icon: const Icon(Icons.directions_rounded, color: Color(0xFF06C755)),
                             tooltip: '길찾기 출발/도착지 설정',
                             onPressed: () {
                               setState(() {
@@ -1335,64 +1423,94 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ] else ...[
-                  // Expanded Dual Route Search Card (White / Dark Glass)
+                  // Expanded Dual Route Search Card (LDSG Style: 12px radius, gray-300 border)
                   Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      side: BorderSide(color: const Color(0xFF10B981).withValues(alpha: 0.4), width: 1.5),
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
                     ),
-                    elevation: 8,
-                    color: _isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+                    elevation: 2,
+                    color: Colors.white,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Origin Row
                           Row(
                             children: [
-                              const Icon(Icons.my_location, color: Color(0xFF10B981), size: 18),
+                              const Icon(Icons.my_location_rounded, color: Color(0xFF06C755), size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: TextField(
                                   controller: _startSearchController,
-                                  style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black87, fontSize: 13),
-                                  onSubmitted: (val) {
-                                    if (_knownLandmarks.containsKey(val)) {
-                                      setState(() {
-                                        _startName = val;
-                                        _startLocation = _knownLandmarks[val]!;
-                                      });
-                                      if (_destLocation != null) _calculateAccessibleRoute();
-                                    } else {
-                                      _performSearch(val);
-                                    }
-                                  },
+                                  readOnly: true,
+                                  onTap: () => _showSearchRecommendationModal(isSettingStart: true),
+                                  style: const TextStyle(color: Color(0xFF111111), fontSize: 13, fontWeight: FontWeight.bold),
                                   decoration: InputDecoration(
-                                    hintText: '출발: $_startName',
-                                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    hintText: _startName ?? '출발지 선택 (터치)',
+                                    hintStyle: TextStyle(
+                                      color: _startName != null ? const Color(0xFF111111) : const Color(0xFF949494),
+                                      fontSize: 13,
+                                      fontWeight: _startName != null ? FontWeight.bold : FontWeight.normal,
+                                    ),
                                     border: InputBorder.none,
                                     isDense: true,
                                   ),
                                 ),
                               ),
+                              // Quick "현재 위치" pick button
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _startName = '현재 위치';
+                                    _startLocation = _currentLocation;
+                                    _startSearchController.text = '현재 위치';
+                                  });
+                                  if (_destLocation != null) {
+                                    _calculateAccessibleRoute();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('도착지를 선택하면 경로가 탐색됩니다.'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(5),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF06C755).withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(color: const Color(0xFF06C755).withValues(alpha: 0.3)),
+                                  ),
+                                  child: const Text('현재 위치', style: TextStyle(fontSize: 11, color: Color(0xFF06C755), fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
                               IconButton(
-                                icon: const Icon(Icons.swap_vert, color: Color(0xFF10B981), size: 20),
+                                icon: const Icon(Icons.swap_vert_rounded, color: Color(0xFF06C755), size: 20),
                                 tooltip: '출발지/도착지 위치 교환',
                                 onPressed: () {
                                   setState(() {
                                     final tempName = _startName;
                                     final tempLoc = _startLocation;
-                                    _startName = _destName ?? '현재 위치';
-                                    _startLocation = _destLocation ?? _currentLocation;
+                                    _startName = _destName;
+                                    _startLocation = _destLocation;
                                     _destName = tempName;
                                     _destLocation = tempLoc;
-                                    _startSearchController.text = _startName;
+                                    _startSearchController.text = _startName ?? '';
                                     _destSearchController.text = _destName ?? '';
                                   });
-                                  if (_destLocation != null) _calculateAccessibleRoute();
+                                  if (_startLocation != null && _destLocation != null) {
+                                    _calculateAccessibleRoute();
+                                  }
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                                icon: const Icon(Icons.close_rounded, color: Color(0xFF777777), size: 20),
                                 tooltip: '접기',
                                 onPressed: () {
                                   setState(() {
@@ -1402,53 +1520,80 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                             ],
                           ),
-                          const Divider(height: 10),
+                          const Divider(height: 10, color: Color(0xFFEFEFEF)),
+                          
+                          // Destination Row
                           Row(
                             children: [
-                              const Icon(Icons.location_on, color: Colors.redAccent, size: 18),
+                              const Icon(Icons.location_on_rounded, color: Color(0xFFE8332E), size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: TextField(
                                   controller: _destSearchController,
-                                  onTap: _showSearchRecommendationModal,
-                                  style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black87, fontSize: 13),
-                                  onSubmitted: (val) {
-                                    if (_knownLandmarks.containsKey(val)) {
-                                      setState(() {
-                                        _destName = val;
-                                        _destLocation = _knownLandmarks[val];
-                                      });
-                                      _calculateAccessibleRoute();
-                                    } else {
-                                      _performSearch(val);
-                                    }
-                                  },
+                                  readOnly: true,
+                                  onTap: () => _showSearchRecommendationModal(isSettingStart: false),
+                                  style: const TextStyle(color: Color(0xFF111111), fontSize: 13, fontWeight: FontWeight.bold),
                                   decoration: InputDecoration(
-                                    hintText: _destName ?? '도착지 검색 또는 추천 터치',
-                                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    hintText: _destName ?? '도착지 선택 (터치)',
+                                    hintStyle: TextStyle(
+                                      color: _destName != null ? const Color(0xFF111111) : const Color(0xFF949494),
+                                      fontSize: 13,
+                                      fontWeight: _destName != null ? FontWeight.bold : FontWeight.normal,
+                                    ),
                                     border: InputBorder.none,
                                     isDense: true,
                                   ),
                                 ),
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  final val = _destSearchController.text.trim();
-                                  if (_knownLandmarks.containsKey(val)) {
+                              if (_destLocation != null)
+                                IconButton(
+                                  icon: const Icon(Icons.clear_rounded, color: Color(0xFF777777), size: 16),
+                                  onPressed: () {
                                     setState(() {
-                                      _destName = val;
-                                      _destLocation = _knownLandmarks[val];
+                                      _destName = null;
+                                      _destLocation = null;
+                                      _destSearchController.clear();
                                     });
-                                    _calculateAccessibleRoute();
-                                  } else {
-                                    _performSearch(val);
-                                  }
-                                },
+                                  },
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          
+                          // Status & Action Guidance Row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  (_startLocation == null && _destLocation == null)
+                                      ? '출발지와 도착지를 모두 선택해 주세요.'
+                                      : (_startLocation == null)
+                                          ? '출발지를 선택해 주세요.'
+                                          : (_destLocation == null)
+                                              ? '도착지를 선택해 주세요.'
+                                              : '출발지와 도착지가 모두 선택되었습니다.',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: (_startLocation != null && _destLocation != null) ? FontWeight.bold : FontWeight.normal,
+                                    color: (_startLocation != null && _destLocation != null)
+                                        ? const Color(0xFF06C755)
+                                        : const Color(0xFF777777),
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: (_startLocation != null && _destLocation != null)
+                                    ? _calculateAccessibleRoute
+                                    : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF10B981),
+                                  backgroundColor: const Color(0xFF06C755),
+                                  disabledBackgroundColor: const Color(0xFFE4E4E4),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  disabledForegroundColor: const Color(0xFF949494),
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
                                 child: const Text('길찾기', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                               ),
@@ -1494,9 +1639,12 @@ class _MapScreenState extends State<MapScreen> {
                 if (!_isNavigating) ...[
                   // Normal Idle State: Reporting Choice Panel (현위치 제보 vs 이동 수집)
                   Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 8,
-                    color: Colors.white.withValues(alpha: 0.95),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
+                    ),
+                    elevation: 2,
+                    color: Colors.white,
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
@@ -1505,17 +1653,17 @@ class _MapScreenState extends State<MapScreen> {
                           if (_isTrackingRoute) ...[
                             Row(
                               children: [
-                                const Icon(Icons.route, color: Colors.purpleAccent, size: 18),
+                                const Icon(Icons.route_rounded, color: Color(0xFF06C755), size: 18),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     '실시간 이동 수집 중 (${(_totalDistanceMeters / 1000).toStringAsFixed(2)}km, 충격: $_autoDetectedBumpsCount건)',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple.shade900),
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
                                   ),
                                 ),
                               ],
                             ),
-                            const Divider(height: 12),
+                            const Divider(height: 12, color: Color(0xFFEFEFEF)),
                           ],
                           Row(
                             children: [
@@ -1523,11 +1671,11 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: () => _openReportModal(_currentLocation),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1E3A8A),
+                                    backgroundColor: const Color(0xFF1E2742),
                                     foregroundColor: Colors.white,
-                                    elevation: 2,
+                                    elevation: 0,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                   ),
                                   icon: const Icon(Icons.report_problem_rounded, size: 18),
                                   label: const Text('현위치 제보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
@@ -1538,11 +1686,11 @@ class _MapScreenState extends State<MapScreen> {
                                 child: ElevatedButton.icon(
                                   onPressed: _toggleRouteTracking,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isTrackingRoute ? const Color(0xFFB91C1C) : const Color(0xFF047857),
+                                    backgroundColor: _isTrackingRoute ? const Color(0xFFE8332E) : const Color(0xFF06C755),
                                     foregroundColor: Colors.white,
-                                    elevation: 2,
+                                    elevation: 0,
                                     padding: const EdgeInsets.symmetric(vertical: 12),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                   ),
                                   icon: Icon(_isTrackingRoute ? Icons.stop_circle_rounded : Icons.directions_walk_rounded, size: 18),
                                   label: Text(
@@ -1686,13 +1834,15 @@ class _MapScreenState extends State<MapScreen> {
         style: TextStyle(
           fontSize: 11,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : Colors.black87,
+          color: isSelected ? Colors.white : const Color(0xFF111111),
         ),
       ),
       selected: isSelected,
-      selectedColor: Colors.blue.shade700,
-      backgroundColor: Colors.white.withValues(alpha: 0.95),
-      elevation: 2,
+      selectedColor: const Color(0xFF06C755),
+      backgroundColor: const Color(0xFFF5F5F5),
+      side: BorderSide(color: isSelected ? const Color(0xFF06C755) : const Color(0xFFDFDFDF), width: 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 0,
       onSelected: (selected) {
         if (selected) {
           setState(() {
@@ -1705,6 +1855,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildRouteModeButton(String modeKey, String label, Color color) {
     final isSelected = _selectedRouteMode == modeKey;
+    const accentColor = Color(0xFF06C755);
     return InkWell(
       onTap: () {
         setState(() {
@@ -1714,15 +1865,15 @@ class _MapScreenState extends State<MapScreen> {
           }
         });
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(5),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.15) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? accentColor.withValues(alpha: 0.12) : const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(5),
           border: Border.all(
-            color: isSelected ? color : Colors.transparent,
-            width: 1.5,
+            color: isSelected ? accentColor : const Color(0xFFDFDFDF),
+            width: 1,
           ),
         ),
         child: Text(
@@ -1730,7 +1881,7 @@ class _MapScreenState extends State<MapScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? color : Colors.black87,
+            color: isSelected ? accentColor : const Color(0xFF111111),
           ),
         ),
       ),
@@ -1743,7 +1894,7 @@ class DirectionalPinPainter extends CustomPainter {
   final Color borderColor;
 
   DirectionalPinPainter({
-    this.fillColor = const Color(0xFF047857),
+    this.fillColor = const Color(0xFF06C755),
     this.borderColor = Colors.white,
   });
 

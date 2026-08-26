@@ -52,3 +52,15 @@ begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime for table hazards, buildings;
 commit;
+
+-- 5. Row Level Security (RLS) Policies (보안 및 데이터 관리 권한)
+-- RLS 활성화 후 기본 CRUD 권한을 부여합니다.
+ALTER TABLE public.hazards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.buildings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public all on hazards" ON public.hazards;
+CREATE POLICY "Allow public all on hazards" ON public.hazards FOR ALL TO public USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public all on buildings" ON public.buildings;
+CREATE POLICY "Allow public all on buildings" ON public.buildings FOR ALL TO public USING (true) WITH CHECK (true);
+

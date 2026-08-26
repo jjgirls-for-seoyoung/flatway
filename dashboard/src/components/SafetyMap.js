@@ -5,10 +5,22 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents, useMap 
 import L from 'leaflet';
 import { mockRoutes } from '../data/mockData';
 
+// Helper to normalize hazard types into 5 consistent categories
+const normalizeHazardType = (type) => {
+  if (!type) return 'other';
+  const t = String(type).toLowerCase().trim();
+  if (['step', '단차'].includes(t)) return 'step';
+  if (['damage', '파손', '요철'].includes(t)) return 'damage';
+  if (['obstacle', '적치물', '주차'].includes(t)) return 'obstacle';
+  if (['slope', '경사'].includes(t)) return 'slope';
+  return 'other';
+};
+
 // Fix Leaflet marker icons using DivIcon for custom styling and reliability
-const createCustomIcon = (type, severity) => {
+const createCustomIcon = (rawType, severity) => {
   let size = 28;
   let svgSize = 13;
+  const type = rawType === 'building' ? 'building' : normalizeHazardType(rawType);
   
   if (type !== 'building' && severity) {
     if (severity === 'high') {
@@ -38,6 +50,9 @@ const createCustomIcon = (type, severity) => {
   } else if (type === 'slope') {
     // Incline slope triangle
     innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 13-10 5 10H3z"/></svg>`;
+  } else {
+    // Other / unclassified hazard icon
+    innerHtml = `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
   }
 
   const radius = size / 2;
@@ -166,13 +181,16 @@ export default function SafetyMap({
   const showDamage = filters.damage;
   const showObstacle = filters.obstacle;
   const showSlope = filters.slope;
+  const showOther = filters.other ?? true;
   const showBuilding = filters.building;
 
   const filteredHazards = hazards.filter(h => {
-    if (h.type === 'step' && showStep) return true;
-    if (h.type === 'damage' && showDamage) return true;
-    if (h.type === 'obstacle' && showObstacle) return true;
-    if (h.type === 'slope' && showSlope) return true;
+    const norm = normalizeHazardType(h.type);
+    if (norm === 'step' && showStep) return true;
+    if (norm === 'damage' && showDamage) return true;
+    if (norm === 'obstacle' && showObstacle) return true;
+    if (norm === 'slope' && showSlope) return true;
+    if (norm === 'other' && showOther) return true;
     return false;
   });
 
@@ -206,9 +224,10 @@ export default function SafetyMap({
                 <div style={{ minWidth: '160px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', gap: '6px' }}>
                     <span className={`detail-badge ${hazard.severity}`}>
-                      {hazard.type === 'step' ? '단차' : 
-                       hazard.type === 'damage' ? '노면 파손' :
-                       hazard.type === 'obstacle' ? '적치물' : '급경사'} ({hazard.severity === 'high' ? '상' : hazard.severity === 'medium' ? '중' : '하'})
+                      {normalizeHazardType(hazard.type) === 'step' ? '단차' : 
+                       normalizeHazardType(hazard.type) === 'damage' ? '노면 파손' :
+                       normalizeHazardType(hazard.type) === 'obstacle' ? '적치물' :
+                       normalizeHazardType(hazard.type) === 'slope' ? '급경사' : '기타 위험'} ({hazard.severity === 'high' ? '상' : hazard.severity === 'medium' ? '중' : '하'})
                     </span>
                     <span className={`status-badge ${hazard.status || 'reported'}`} style={{ transform: 'scale(0.85)', transformOrigin: 'right' }}>
                       {(hazard.status || 'reported') === 'reported' ? '접수' :
