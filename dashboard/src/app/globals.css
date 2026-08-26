@@ -911,6 +911,8 @@ textarea::placeholder {
     gap: 16px;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
 
   .sidebar.open {
@@ -937,10 +939,22 @@ textarea::placeholder {
     padding-bottom: max(24px, env(safe-area-inset-bottom));
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
 
   .right-sidebar.open {
     transform: translateX(0);
+  }
+
+  .logo-section {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .logo-brand-group {
+    flex-shrink: 1;
+    min-width: 0;
   }
 
   .mobile-sidebar-close {
