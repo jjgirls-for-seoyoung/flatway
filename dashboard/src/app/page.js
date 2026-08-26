@@ -31,6 +31,29 @@ import AuthModal from '../components/AuthModal';
 import { supabase } from '../lib/supabaseClient';
 import { initialHazards, initialBuildings, mockRoutes } from '../data/mockData';
 
+// Safe localStorage wrapper to prevent crashes in private mode or webviews
+const safeLocalStorage = {
+  getItem: (key) => {
+    try {
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem(key);
+      }
+    } catch (e) {
+      console.warn("localStorage.getItem failed:", e);
+    }
+    return null;
+  },
+  setItem: (key, value) => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(key, value);
+      }
+    } catch (e) {
+      console.warn("localStorage.setItem failed:", e);
+    }
+  }
+};
+
 export default function Home() {
   const [hazards, setHazards] = useState([]);
   const [buildings, setBuildings] = useState([]);
@@ -92,7 +115,7 @@ export default function Home() {
 
   // 1. Theme Initialization & Sync
   useEffect(() => {
-    const savedTheme = localStorage.getItem('flatway_theme');
+    const savedTheme = safeLocalStorage.getItem('flatway_theme');
     if (savedTheme === 'light' || savedTheme === 'dark') {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -108,7 +131,7 @@ export default function Home() {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
-    localStorage.setItem('flatway_theme', nextTheme);
+    safeLocalStorage.setItem('flatway_theme', nextTheme);
   };
 
   // 1-2. Supabase Auth Session Listener
@@ -150,11 +173,27 @@ export default function Home() {
 
       if (supabase) {
         try {
-          const { data: hData, error: hErr } = await supabase.from('hazards').select('*').order('reported_at', { ascending: false });
-          const { data: bData, error: bErr } = await supabase.from('buildings').select('*');
+          // Wrap Supabase promise with a 2.5-second timeout to prevent infinite loading on slow mobile networks/Adblockers
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Database request timeout')), 2500)
+          );
+
+          const selectHazards = supabase.from('hazards').select('*').order('reported_at', { ascending: false });
+          const selectBuildings = supabase.from('buildings').select('*');
+
+          const [hRes, bRes] = await Promise.race([
+            Promise.all([selectHazards, selectBuildings]),
+            timeoutPromise
+          ]);
+
+          const { data: hData, error: hErr } = hRes;
+          const { data: bData, error: bErr } = bRes;
+
           if (!hErr && !bErr) {
             supabaseHazards = hData;
             supabaseBuildings = bData;
+          } else {
+            console.warn("Supabase fetch returned errors, falling back:", hErr, bErr);
           }
         } catch (err) {
           console.error("Failed to connect to Supabase database. Falling back.", err);
@@ -167,16 +206,16 @@ export default function Home() {
         setUsingSupabase(true);
       } else {
         // Fallback to localStorage
-        const localHazards = localStorage.getItem('flatway_hazards');
-        const localBuildings = localStorage.getItem('flatway_buildings');
+        const localHazards = safeLocalStorage.getItem('flatway_hazards');
+        const localBuildings = safeLocalStorage.getItem('flatway_buildings');
 
         if (localHazards && localBuildings) {
           setHazards(JSON.parse(localHazards));
           setBuildings(JSON.parse(localBuildings));
         } else {
           // First-time seed
-          localStorage.setItem('flatway_hazards', JSON.stringify(initialHazards));
-          localStorage.setItem('flatway_buildings', JSON.stringify(initialBuildings));
+          safeLocalStorage.setItem('flatway_hazards', JSON.stringify(initialHazards));
+          safeLocalStorage.setItem('flatway_buildings', JSON.stringify(initialBuildings));
           setHazards(initialHazards);
           setBuildings(initialBuildings);
         }
@@ -271,7 +310,7 @@ export default function Home() {
     };
     const updatedHazards = [reportWithId, ...hazards];
     setHazards(updatedHazards);
-    localStorage.setItem('flatway_hazards', JSON.stringify(updatedHazards));
+    safeLocalStorage.setItem('flatway_hazards', JSON.stringify(updatedHazards));
     setSelectedItem(reportWithId);
     setSelectedItemType('hazard');
     setShowMobileDetail(true);
