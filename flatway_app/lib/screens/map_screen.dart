@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
@@ -61,7 +62,7 @@ class _MapScreenState extends State<MapScreen> {
   int _bypassedHazardsCount = 0;
 
   bool _isHeadingUp = false;
-  StreamSubscription<Position>? _headingSubscription;
+  StreamSubscription<CompassEvent>? _compassSubscription;
 
   void _toggleCompassHeadingMode() {
     setState(() {
@@ -69,27 +70,25 @@ class _MapScreenState extends State<MapScreen> {
     });
 
     if (_isHeadingUp) {
-      _headingSubscription?.cancel();
-      _headingSubscription = LocationService.getHeadingStream().listen((pos) {
-        if (_isHeadingUp && mounted) {
-          final heading = pos.heading;
-          if (heading >= 0) {
-            _mapController.rotate(-heading);
-          }
+      _compassSubscription?.cancel();
+      _compassSubscription = FlutterCompass.events?.listen((CompassEvent event) {
+        final heading = event.heading;
+        if (heading != null && _isHeadingUp && mounted) {
+          _mapController.rotate(-heading);
         }
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🧭 실시간 주행 방향 3D 회전 모드가 켜졌습니다.'),
+          content: Text('실시간 나침반 방향 회전 모드가 켜졌습니다.'),
           duration: Duration(seconds: 1),
         ),
       );
     } else {
-      _headingSubscription?.cancel();
+      _compassSubscription?.cancel();
       _mapController.rotate(0);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('⬆️ 북쪽 정방향 지도 모드로 변경되었습니다.'),
+          content: Text('북쪽 정방향 지도 모드로 변경되었습니다.'),
           duration: Duration(seconds: 1),
         ),
       );
@@ -142,7 +141,7 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _positionStreamSub?.cancel();
     _accelStreamSub?.cancel();
-    _headingSubscription?.cancel();
+    _compassSubscription?.cancel();
     _searchController.dispose();
     _startSearchController.dispose();
     _destSearchController.dispose();
