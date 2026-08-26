@@ -1713,20 +1713,23 @@ class _MapScreenState extends State<MapScreen> {
               left: 12,
               right: 12,
               child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 8,
-                color: const Color(0xFF1E3A8A),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFF047857), width: 1.8),
+                ),
+                elevation: 4,
+                color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF047857),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF047857).withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.turn_right, color: Colors.white, size: 24),
+                        child: const Icon(Icons.turn_right, color: Color(0xFF047857), size: 24),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -1735,12 +1738,12 @@ class _MapScreenState extends State<MapScreen> {
                           children: [
                             const Text(
                               '90m 앞 우회전 (단차 우회 구간)',
-                              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Color(0xFF111111), fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               '다음: 계양대로 보행약자 안전길 진입 ➔ ${_destName ?? "목적지"}',
-                              style: const TextStyle(color: Colors.white70, fontSize: 11),
+                              style: const TextStyle(color: Color(0xFF777777), fontSize: 11),
                             ),
                           ],
                         ),
@@ -2116,13 +2119,16 @@ class _MapScreenState extends State<MapScreen> {
 
                   const SizedBox(height: 8),
 
-                  // Route Summary Dashboard
+                  // Route Summary Dashboard (Light LDSG Style with White Background)
                   Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                    elevation: 10,
-                    color: Colors.black.withValues(alpha: 0.92),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      side: const BorderSide(color: Color(0xFF047857), width: 1.5),
+                    ),
+                    elevation: 4,
+                    color: Colors.white,
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(14.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -2131,33 +2137,33 @@ class _MapScreenState extends State<MapScreen> {
                             children: [
                               Column(
                                 children: [
-                                  const Text('소요 시간', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                                  const SizedBox(height: 2),
-                                  Text('약 $_navEstMinutes 분', style: const TextStyle(color: Colors.amberAccent, fontSize: 22, fontWeight: FontWeight.bold)),
+                                  const Text('소요 시간', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 3),
+                                  Text('약 $_navEstMinutes분', style: const TextStyle(color: Color(0xFF047857), fontSize: 18, fontWeight: FontWeight.bold)),
                                 ],
                               ),
-                              Container(width: 1, height: 32, color: Colors.white24),
+                              Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
                               Column(
                                 children: [
-                                  const Text('남은 거리', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                                  const SizedBox(height: 2),
-                                  Text('${(_navDistanceMeters).toStringAsFixed(0)} m', style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                                  const Text('남은 거리', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 3),
+                                  Text(_formatDistance(_navDistanceMeters), style: const TextStyle(color: Color(0xFF111111), fontSize: 17, fontWeight: FontWeight.bold)),
                                 ],
                               ),
-                              Container(width: 1, height: 32, color: Colors.white24),
+                              Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
                               Column(
                                 children: [
-                                  const Text('보행 안전 지수', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                                  const SizedBox(height: 2),
-                                  Text('${max(80, 100 - _bypassedHazardsCount * 2)}점', style: const TextStyle(color: Colors.cyanAccent, fontSize: 19, fontWeight: FontWeight.bold)),
+                                  const Text('보행 안전 지수', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 3),
+                                  Text('${max(80, 100 - _bypassedHazardsCount * 2)}점', style: const TextStyle(color: Color(0xFF047857), fontSize: 17, fontWeight: FontWeight.bold)),
                                 ],
                               ),
-                              Container(width: 1, height: 32, color: Colors.white24),
+                              Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
                               Column(
                                 children: [
-                                  const Text('위험 회피', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                                  const SizedBox(height: 2),
-                                  Text('$_bypassedHazardsCount 건', style: const TextStyle(color: Colors.lightGreenAccent, fontSize: 19, fontWeight: FontWeight.bold)),
+                                  const Text('위험 회피', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 3),
+                                  Text('$_bypassedHazardsCount건', style: const TextStyle(color: Color(0xFFD97706), fontSize: 17, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ],
@@ -2166,28 +2172,30 @@ class _MapScreenState extends State<MapScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: ElevatedButton.icon(
+                                child: OutlinedButton.icon(
                                   onPressed: _showTurnByTurnStepsModal,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue.shade700,
-                                    foregroundColor: Colors.white,
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: const Color(0xFF111111),
+                                    backgroundColor: const Color(0xFFF5F5F5),
+                                    side: const BorderSide(color: Color(0xFFDFDFDF)),
                                     padding: const EdgeInsets.symmetric(vertical: 10),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   ),
-                                  icon: const Icon(Icons.format_list_bulleted, size: 18),
-                                  label: const Text('상세 경로 목록'),
+                                  icon: const Icon(Icons.format_list_bulleted, size: 18, color: Color(0xFF047857)),
+                                  label: const Text('상세 경로 목록', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               ElevatedButton(
                                 onPressed: _clearNavigation,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red.shade900,
+                                  backgroundColor: const Color(0xFFE8332E),
                                   foregroundColor: Colors.white,
+                                  elevation: 0,
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
-                                child: const Text('안내 종료'),
+                                child: const Text('안내 종료', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ),
