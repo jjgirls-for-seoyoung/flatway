@@ -478,7 +478,16 @@ export default function Home() {
       />
 
       {/* Sidebar (Desktop left panel & Mobile slide drawer) */}
-      <aside className={`sidebar glass-panel ${isMobileSidebarOpen ? 'open' : ''}`}>
+      <aside 
+        className={`sidebar glass-panel ${isMobileSidebarOpen ? 'open' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+        onDoubleClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         {/* Header/Logo with Theme Toggle */}
         <div className="logo-section">
           <div className="logo-brand-group">
@@ -911,32 +920,57 @@ export default function Home() {
       {/* Right / Main Map Section */}
       <section className="map-container" style={{ position: 'relative' }}>
         {/* Mobile Top Navigation (Compact Floating Control Widget) */}
-        <div className="mobile-top-bar glass-panel" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          position: 'absolute',
-          top: '12px',
-          left: '12px',
-          right: 'auto',
-          width: 'auto',
-          padding: '6px 10px',
-          borderRadius: 'var(--ldsg-radius-200)',
-          boxShadow: 'var(--popup-shadow)',
-          background: 'var(--card-bg)',
-          border: '1px solid var(--glass-border)',
-          zIndex: 1000
-        }}>
+        <div 
+          className="mobile-top-bar glass-panel" 
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            right: 'auto',
+            width: 'auto',
+            padding: '6px 14px',
+            borderRadius: '9999px',
+            boxShadow: 'var(--popup-shadow)',
+            background: 'var(--glass-bg)',
+            border: '1px solid var(--glass-border)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 1000
+          }}
+        >
           <button 
             className="mobile-menu-btn" 
             onClick={() => setIsMobileSidebarOpen(true)}
             aria-label="메뉴 열기"
-            style={{ width: '30px', height: '30px', margin: 0, padding: 0, border: 'none', background: 'transparent' }}
+            style={{ 
+              width: '32px', 
+              height: '32px', 
+              margin: 0, 
+              padding: 0, 
+              border: 'none', 
+              background: 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              color: 'var(--text-primary)',
+              transition: 'background 0.2s, color 0.2s'
+            }}
           >
             <Menu size={18} />
           </button>
           
-          <div style={{ width: '1px', height: '18px', background: 'var(--glass-border)', margin: '0 4px' }} />
+          <div style={{ width: '1px', height: '16px', background: 'var(--glass-border)', margin: '0 4px' }} />
 
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img 
@@ -951,12 +985,12 @@ export default function Home() {
                 position: 'absolute',
                 bottom: '-2px',
                 right: '-2px',
-                width: '7px',
-                height: '7px',
+                width: '8px',
+                height: '8px',
                 borderRadius: '50%',
-                backgroundColor: usingSupabase ? '#10b981' : '#ef4444',
+                backgroundColor: usingSupabase ? '#00ed64' : '#ff4d4d',
                 border: '1.5px solid var(--bg-secondary)',
-                boxShadow: usingSupabase ? '0 0 4px #10b981' : '0 0 4px #ef4444',
+                boxShadow: usingSupabase ? '0 0 6px #00ed64' : '0 0 6px #ff4d4d',
                 zIndex: 10
               }}
             />
@@ -977,7 +1011,16 @@ export default function Home() {
 
         {/* Mobile Floating Bottom Detail Card */}
         {selectedItem && showMobileDetail && (
-          <div className="mobile-detail-card glass-panel">
+          <div 
+            className="mobile-detail-card glass-panel"
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
             <div className="mobile-detail-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 {selectedItemType === 'hazard' ? (
@@ -1123,7 +1166,16 @@ export default function Home() {
         onToggleSync={setUsingSupabase}
       />
       {/* Right Sidebar (Help & Guidelines) */}
-      <aside className={`right-sidebar glass-panel ${isRightSidebarOpen ? 'open' : ''}`}>
+      <aside 
+        className={`right-sidebar glass-panel ${isRightSidebarOpen ? 'open' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+        onDoubleClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         <div className="right-sidebar-header">
           <span className="right-sidebar-title">
             <BookOpen size={16} color="var(--color-accent)" /> 이용 가이드 및 기준서

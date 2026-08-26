@@ -1428,3 +1428,52 @@ button:active,
   opacity: 0.6;
 }
 
+/* ==========================================================================
+   Sleek Premium Glassmorphic Zoom Control Customization (Leaflet)
+   ========================================================================== */
+.leaflet-control-zoom {
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--popup-shadow) !important;
+  border-radius: var(--ldsg-radius-300) !important;
+  overflow: hidden;
+  margin-bottom: 24px !important;
+  margin-right: 24px !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: var(--glass-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: var(--card-hover-bg) !important;
+  color: var(--color-accent) !important;
+}
+
+.leaflet-control-zoom a:active {
+  background-color: var(--bg-tertiary) !important;
+  transform: scale(0.92) !important;
+}
+
+.leaflet-control-zoom a.leaflet-disabled {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-placeholder) !important;
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
