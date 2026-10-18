@@ -13,11 +13,29 @@ class SupabaseService {
       url: supabaseUrl,
       publishableKey: supabaseAnonKey,
     );
+    await ensureGuestSession();
     // Sync offline queued hazards when app starts
     syncPendingHazards();
   }
 
   static SupabaseClient get client => Supabase.instance.client;
+
+  /// 이메일로 정식 로그인한 사용자인지 (익명 게스트는 false)
+  static bool get isSignedInWithEmail {
+    final user = client.auth.currentUser;
+    return user != null && !user.isAnonymous;
+  }
+
+  /// 세션이 없으면 익명(게스트) 세션을 만든다. 실패해도 앱 사용에는 영향 없음.
+  /// (Supabase 대시보드에서 Anonymous sign-ins 활성화 필요)
+  static Future<void> ensureGuestSession() async {
+    try {
+      if (client.auth.currentSession != null) return;
+      await client.auth.signInAnonymously().timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('Guest session unavailable (continuing without): $e');
+    }
+  }
 
   // Fetch all hazard reports from Supabase
   static Future<List<Map<String, dynamic>>> fetchHazards() async {

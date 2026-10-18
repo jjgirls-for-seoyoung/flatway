@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -10,7 +11,10 @@ import 'package:sensors_plus/sensors_plus.dart';
 import '../services/location_service.dart';
 import '../services/route_service.dart';
 import '../services/supabase_service.dart';
+import '../services/web_compass_stub.dart'
+    if (dart.library.js_interop) '../services/web_compass_web.dart';
 import '../widgets/auth_modal.dart';
+import '../widgets/onboarding_tour.dart';
 import '../widgets/report_modal.dart';
 
 class MapScreen extends StatefulWidget {
@@ -60,6 +64,7 @@ class _MapScreenState extends State<MapScreen> {
   bool _isHeadingUp = false;
   double _currentHeading = 0.0;
   StreamSubscription<CompassEvent>? _alwaysCompassSub;
+  StreamSubscription<double>? _webCompassSub;
   StreamSubscription<Position>? _realtimeLocationSub;
 
   void _startRealtimeLocationTracking() {
@@ -79,6 +84,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _startCompassHeadingListener() {
+    // 웹은 권한 요청이 사용자 터치 이후에만 가능하므로 토글 버튼에서 시작
+    if (kIsWeb) return;
     _alwaysCompassSub?.cancel();
     _alwaysCompassSub = FlutterCompass.events?.listen((CompassEvent event) {
       final heading = event.heading;
@@ -93,7 +100,33 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  void _toggleCompassHeadingMode() {
+  void _onHeadingChanged(double heading) {
+    if (!mounted) return;
+    setState(() {
+      _currentHeading = heading;
+    });
+    if (_isHeadingUp) {
+      _mapController.rotate(-heading);
+    }
+  }
+
+  Future<void> _toggleCompassHeadingMode() async {
+    // 웹: 처음 켤 때 브라우저 나침반 권한 요청 (iOS Safari는 터치 필수)
+    if (kIsWeb && !_isHeadingUp && _webCompassSub == null) {
+      final granted = await WebCompass.requestPermission();
+      if (!mounted) return;
+      if (!granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('이 기기/브라우저에서는 나침반을 사용할 수 없습니다.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      _webCompassSub = WebCompass.headings.listen(_onHeadingChanged);
+    }
+
     setState(() {
       _isHeadingUp = !_isHeadingUp;
     });
@@ -152,6 +185,17 @@ class _MapScreenState extends State<MapScreen> {
     '계양구청': const LatLng(37.5375, 126.7378),
   };
 
+  // 첫 실행 튜토리얼 대상 위젯 키
+  final GlobalKey _tourSearchKey = GlobalKey();
+  final GlobalKey _tourDirectionsKey = GlobalKey();
+  final GlobalKey _tourAccountKey = GlobalKey();
+  final GlobalKey _tourChipsKey = GlobalKey();
+  final GlobalKey _tourReportKey = GlobalKey();
+  final GlobalKey _tourTrackKey = GlobalKey();
+  final GlobalKey _tourCompassKey = GlobalKey();
+  final GlobalKey _tourLayersKey = GlobalKey();
+  final GlobalKey _tourRefreshKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -159,6 +203,49 @@ class _MapScreenState extends State<MapScreen> {
     _fetchCurrentLocation();
     _startRealtimeLocationTracking();
     _startCompassHeadingListener();
+    _maybeStartTour();
+  }
+
+  Future<void> _maybeStartTour() async {
+    if (!await OnboardingTour.shouldAutoShow()) return;
+    // 첫 프레임 이후(대상 위젯 배치 완료)에 시작
+    await Future.delayed(const Duration(milliseconds: 1200));
+    // 위치 권한 팝업이 떠 있는 동안에는 닫힐 때까지 대기
+    while (mounted && _isGpsRequiredModalOpen) {
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+    if (mounted) _startTour();
+  }
+
+  void _startTour() {
+    if (_isNavigating) {
+      _clearNavigation();
+    }
+    setState(() => _isRouteSearchExpanded = false);
+    // 접힌 검색창이 다시 그려진 뒤에 시작
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      OnboardingTour.show(context, [
+        const TourStep(
+          icon: Icons.accessible_forward_rounded,
+          title: 'FlatWay에 오신 것을 환영해요',
+          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요.
+단차, 파손, 적치물 같은 위험 구간을 피해서 길을 안내해 드려요. 두 가지 핵심 기능을 소개할게요!',
+        ),
+        TourStep(
+          targetKey: _tourDirectionsKey,
+          icon: Icons.directions_rounded,
+          title: '길찾기',
+          description: '출발지와 도착지를 정하면 단차·파손·적치물 같은 위험 구간을 피한 안전 경로를 안내해요. 이동 수단(보행자/전동·수동 휠체어)도 고를 수 있어요.',
+        ),
+        TourStep(
+          targetKey: _tourReportKey,
+          icon: Icons.report_problem_rounded,
+          title: '현위치 제보',
+          description: '길에서 불편한 곳을 발견하면 사진과 함께 제보해 주세요. 지도를 눌러 원하는 위치를 제보할 수도 있어요. 모두의 안전한 길이 됩니다.',
+        ),
+      ]);
+    });
   }
 
   @override
@@ -167,6 +254,7 @@ class _MapScreenState extends State<MapScreen> {
     _positionStreamSub?.cancel();
     _accelStreamSub?.cancel();
     _alwaysCompassSub?.cancel();
+    _webCompassSub?.cancel();
     _searchController.dispose();
     _startSearchController.dispose();
     _destSearchController.dispose();
@@ -1075,6 +1163,9 @@ class _MapScreenState extends State<MapScreen> {
   bool _isGpsRequiredModalOpen = false;
 
   void _checkGpsAndPermissions() async {
+    // 웹은 기기 설정 화면을 열 수 없어 팝업이 의미 없고 지도를 가리므로 생략
+    // (위치를 못 가져오면 기본 위치로 계속 사용)
+    if (kIsWeb) return;
     bool serviceEnabled = await LocationService.isLocationServiceEnabled();
     LocationPermission permission = await LocationService.checkPermission();
 
@@ -1559,7 +1650,13 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: Colors.white,
         elevation: 1,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded, color: Color(0xFF047857)),
+            tooltip: '사용 방법 안내',
+            onPressed: _startTour,
+          ),
           PopupMenuButton<String>(
+            key: _tourLayersKey,
             icon: const Icon(Icons.layers, color: Colors.blue),
             tooltip: '지도 스타일 변경',
             onSelected: (style) {
@@ -1583,6 +1680,7 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
           IconButton(
+            key: _tourRefreshKey,
             icon: const Icon(Icons.refresh),
             tooltip: '데이터 새로고침',
             onPressed: () {
@@ -1781,6 +1879,7 @@ class _MapScreenState extends State<MapScreen> {
                 if (!_isRouteSearchExpanded) ...[
                   // Collapsed Single Search Bar (LDSG Style: White surface, 7px radius, gray-300 border)
                   Card(
+                    key: _tourSearchKey,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(7),
                       side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
@@ -1811,6 +1910,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           ),
                           IconButton(
+                            key: _tourDirectionsKey,
                             icon: const Icon(Icons.directions_rounded, color: Color(0xFF047857)),
                             tooltip: '길찾기 출발/도착지 설정',
                             onPressed: () {
@@ -1820,16 +1920,17 @@ class _MapScreenState extends State<MapScreen> {
                             },
                           ),
                           IconButton(
+                            key: _tourAccountKey,
                             icon: Icon(
-                              SupabaseService.client.auth.currentUser != null
+                              SupabaseService.isSignedInWithEmail
                                   ? Icons.account_circle_rounded
                                   : Icons.account_circle_outlined,
-                              color: SupabaseService.client.auth.currentUser != null
+                              color: SupabaseService.isSignedInWithEmail
                                   ? const Color(0xFF047857)
                                   : const Color(0xFF777777),
                               size: 22,
                             ),
-                            tooltip: SupabaseService.client.auth.currentUser != null ? '내 계정' : '로그인',
+                            tooltip: SupabaseService.isSignedInWithEmail ? '내 계정' : '로그인',
                             onPressed: _showAuthModal,
                           ),
                         ],
@@ -2032,6 +2133,7 @@ class _MapScreenState extends State<MapScreen> {
 
                 // Category Chips Row
                 SingleChildScrollView(
+                  key: _tourChipsKey,
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
@@ -2092,6 +2194,7 @@ class _MapScreenState extends State<MapScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton.icon(
+                                  key: _tourReportKey,
                                   onPressed: () => _openReportModal(_currentLocation),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF1E2742),
@@ -2104,9 +2207,12 @@ class _MapScreenState extends State<MapScreen> {
                                   label: const Text('현위치 제보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              // 이동 수집은 가속도 센서 기반이라 웹에서는 숨김
+                              if (!kIsWeb) const SizedBox(width: 8),
+                              if (!kIsWeb)
                               Expanded(
                                 child: ElevatedButton.icon(
+                                  key: _tourTrackKey,
                                   onPressed: _toggleRouteTracking,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _isTrackingRoute ? const Color(0xFFE8332E) : const Color(0xFF047857),
@@ -2242,6 +2348,7 @@ class _MapScreenState extends State<MapScreen> {
             bottom: _isNavigating ? 210 : 105,
             right: 16,
             child: FloatingActionButton.small(
+              key: _tourCompassKey,
               heroTag: 'compass_toggle',
               backgroundColor: _isHeadingUp ? Colors.blue.shade800 : Colors.white,
               foregroundColor: _isHeadingUp ? Colors.white : Colors.black87,
