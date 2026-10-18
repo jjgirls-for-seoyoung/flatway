@@ -8,6 +8,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:sensors_plus/sensors_plus.dart';
+import '../models/hazard_types.dart';
 import '../services/location_service.dart';
 import '../services/route_service.dart';
 import '../services/supabase_service.dart';
@@ -33,9 +34,8 @@ class _MapScreenState extends State<MapScreen> {
   LatLng _currentLocation = LocationService.defaultLocation;
 
   List<Map<String, dynamic>> _hazards = [];
-  List<Map<String, dynamic>> _buildings = [];
 
-  // Selected Category Filter: 'all' | 'step' | 'damage' | 'obstacle' | 'building'
+  // Selected Category Filter: 'all' | 'step' | 'damage' | 'obstacle' | 'slope'
   String _selectedCategoryFilter = 'all';
 
   // Route Mode: 'pedestrian' | 'electric' | 'manual'
@@ -286,7 +286,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  // Handle Location & Building Search
+  // Handle Location Search
   void _performSearch(String query) {
     final cleanQuery = query.trim().toLowerCase();
     if (cleanQuery.isEmpty) return;
@@ -297,16 +297,6 @@ class _MapScreenState extends State<MapScreen> {
       if (entry.key.toLowerCase().contains(cleanQuery)) {
         _mapController.move(entry.value, 17.5);
         _showSearchSnackBar('${entry.key} (으)로 지도가 이동되었습니다.');
-        return;
-      }
-    }
-
-    for (final b in _buildings) {
-      final name = (b['name'] ?? '').toString().toLowerCase();
-      if (name.contains(cleanQuery) && b['latitude'] != null && b['longitude'] != null) {
-        final loc = LatLng((b['latitude'] as num).toDouble(), (b['longitude'] as num).toDouble());
-        _mapController.move(loc, 17.5);
-        _showSearchSnackBar('건물 "${b['name']}" 위치로 이동했습니다.');
         return;
       }
     }
@@ -330,16 +320,6 @@ class _MapScreenState extends State<MapScreen> {
     LatLng? loc = explicitLocation;
     if (loc == null && _knownLandmarks.containsKey(term)) {
       loc = _knownLandmarks[term];
-    }
-
-    if (loc == null) {
-      for (final b in _buildings) {
-        final name = (b['name'] ?? '').toString().toLowerCase();
-        if (name.contains(term.toLowerCase()) && b['latitude'] != null && b['longitude'] != null) {
-          loc = LatLng((b['latitude'] as num).toDouble(), (b['longitude'] as num).toDouble());
-          break;
-        }
-      }
     }
 
     loc ??= _currentLocation;
@@ -393,11 +373,6 @@ class _MapScreenState extends State<MapScreen> {
 
           final matchingLandmarks = _knownLandmarks.entries.where((e) {
             return cleanQuery.isEmpty || e.key.toLowerCase().contains(cleanQuery);
-          }).toList();
-
-          final matchingBuildings = _buildings.where((b) {
-            final name = (b['name'] ?? '').toString().toLowerCase();
-            return cleanQuery.isNotEmpty && name.contains(cleanQuery);
           }).toList();
 
           return SafeArea(
@@ -553,7 +528,7 @@ class _MapScreenState extends State<MapScreen> {
                     if (cleanQuery.isNotEmpty) ...[
                       const Text('검색 결과', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF777777))),
                       const SizedBox(height: 6),
-                      if (matchingLandmarks.isEmpty && matchingBuildings.isEmpty)
+                      if (matchingLandmarks.isEmpty)
                         ListTile(
                           dense: true,
                           contentPadding: EdgeInsets.zero,
@@ -583,30 +558,6 @@ class _MapScreenState extends State<MapScreen> {
                             onTap: () {
                               Navigator.pop(context);
                               _selectSearchTerm(entry.key, isSettingStart: isSettingStart, explicitLocation: entry.value);
-                            },
-                          );
-                        }),
-                        ...matchingBuildings.map((b) {
-                          final bName = (b['name'] ?? '건물').toString();
-                          final bLat = (b['latitude'] as num?)?.toDouble();
-                          final bLng = (b['longitude'] as num?)?.toDouble();
-                          final bLoc = (bLat != null && bLng != null) ? LatLng(bLat, bLng) : null;
-                          return ListTile(
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                            leading: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Icon(Icons.business_rounded, color: Colors.blue, size: 16),
-                            ),
-                            title: Text(bName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
-                            subtitle: const Text('등록 건물 장소', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _selectSearchTerm(bName, isSettingStart: isSettingStart, explicitLocation: bLoc);
                             },
                           );
                         }),
@@ -1299,12 +1250,10 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       final hazards = await SupabaseService.fetchHazards();
-      final buildings = await SupabaseService.fetchBuildings();
 
       if (mounted) {
         setState(() {
           _hazards = hazards;
-          _buildings = buildings;
         });
       }
     } catch (e) {
@@ -1322,19 +1271,6 @@ class _MapScreenState extends State<MapScreen> {
       if (d < minDistance) {
         minDistance = d;
         nearestName = entry.key;
-      }
-    }
-
-    for (final b in _buildings) {
-      final name = b['name'] as String?;
-      final lat = (b['latitude'] as num?)?.toDouble();
-      final lng = (b['longitude'] as num?)?.toDouble();
-      if (name != null && lat != null && lng != null) {
-        final d = distanceCalc.as(LengthUnit.Meter, loc, LatLng(lat, lng));
-        if (d < minDistance) {
-          minDistance = d;
-          nearestName = name;
-        }
       }
     }
 
@@ -1395,7 +1331,7 @@ class _MapScreenState extends State<MapScreen> {
                 const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
                 const SizedBox(width: 8),
                 Text(
-                  '보행 위험 정보 (${hazard['type'] ?? '단차/파손'})',
+                  '보행 위험 정보 (${HazardType.of(hazard['type'])?.label ?? '위험 요소'})',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -1443,95 +1379,6 @@ class _MapScreenState extends State<MapScreen> {
                     child: const Text('닫기'),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showBuildingDetail(Map<String, dynamic> building) {
-    final lat = (building['latitude'] as num?)?.toDouble();
-    final lng = (building['longitude'] as num?)?.toDouble();
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.business, color: Colors.blue, size: 28),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    building['name'] ?? '건물 정보',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 24),
-            Text('• 경사로(Ramp): ${building['has_ramp'] == true ? '있음' : '없음'}'),
-            Text('• 승강기(Elevator): ${building['has_elevator'] == true ? '있음' : '없음'}'),
-            Text('• 장애인 화장실: ${building['disabled_toilet'] == true ? '있음' : '없음'}'),
-            Text('• 주출입문 유형: ${building['main_entrance_type'] ?? '정보 없음'}'),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                if (lat != null && lng != null) ...[
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _startName = building['name'] ?? '선택 건물';
-                          _startLocation = LatLng(lat, lng);
-                          _startSearchController.text = _startName!;
-                          _isRouteSearchExpanded = true;
-                        });
-                        if (_destLocation != null) _calculateAccessibleRoute();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade700,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                      ),
-                      icon: const Icon(Icons.my_location, size: 16),
-                      label: const Text('출발지로 지정', style: TextStyle(fontSize: 12)),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _destName = building['name'] ?? '도착 건물';
-                          _destLocation = LatLng(lat, lng);
-                          _destSearchController.text = _destName!;
-                          _isRouteSearchExpanded = true;
-                        });
-                        _calculateAccessibleRoute();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade700,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                      ),
-                      icon: const Icon(Icons.location_on, size: 16),
-                      label: const Text('도착지로 지정', style: TextStyle(fontSize: 12)),
-                    ),
-                  ),
-                ],
               ],
             ),
           ],
@@ -1610,18 +1457,9 @@ class _MapScreenState extends State<MapScreen> {
   List<Map<String, dynamic>> get _filteredHazards {
     if (_selectedCategoryFilter == 'all') {
       return _hazards;
-    } else if (_selectedCategoryFilter == 'building') {
-      return [];
     } else {
       return _hazards.where((h) => h['type'] == _selectedCategoryFilter).toList();
     }
-  }
-
-  List<Map<String, dynamic>> get _filteredBuildings {
-    if (_selectedCategoryFilter == 'all' || _selectedCategoryFilter == 'building') {
-      return _buildings;
-    }
-    return [];
   }
 
   @override
@@ -1719,6 +1557,7 @@ class _MapScreenState extends State<MapScreen> {
                     ..._filteredHazards.where((h) => h['latitude'] != null && h['longitude'] != null).map((h) {
                       final lat = (h['latitude'] as num).toDouble();
                       final lng = (h['longitude'] as num).toDouble();
+                      final type = HazardType.of(h['type']);
                       return Marker(
                         point: LatLng(lat, lng),
                         width: 28,
@@ -1727,38 +1566,14 @@ class _MapScreenState extends State<MapScreen> {
                           onTap: () => _showHazardDetail(h),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.orange.shade800,
+                              color: type?.color ?? Colors.orange.shade800,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white, width: 1.5),
                               boxShadow: const [
                                 BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(0, 2)),
                               ],
                             ),
-                            child: const Icon(Icons.warning_rounded, color: Colors.white, size: 15),
-                          ),
-                        ),
-                      );
-                    }),
-
-                    ..._filteredBuildings.where((b) => b['latitude'] != null && b['longitude'] != null).map((b) {
-                      final lat = (b['latitude'] as num).toDouble();
-                      final lng = (b['longitude'] as num).toDouble();
-                      return Marker(
-                        point: LatLng(lat, lng),
-                        width: 28,
-                        height: 28,
-                        child: GestureDetector(
-                          onTap: () => _showBuildingDetail(b),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade700,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 1.5),
-                              boxShadow: const [
-                                BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(0, 2)),
-                              ],
-                            ),
-                            child: const Icon(Icons.business, color: Colors.white, size: 15),
+                            child: Icon(type?.icon ?? Icons.warning_rounded, color: Colors.white, size: 15),
                           ),
                         ),
                       );
@@ -2136,15 +1951,15 @@ class _MapScreenState extends State<MapScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildCategoryChip('all', '전체 (${_hazards.length + _buildings.length})'),
-                      const SizedBox(width: 6),
-                      _buildCategoryChip('step', '단차 (${_hazards.where((h) => h['type'] == 'step').length})'),
-                      const SizedBox(width: 6),
-                      _buildCategoryChip('damage', '파손 (${_hazards.where((h) => h['type'] == 'damage').length})'),
-                      const SizedBox(width: 6),
-                      _buildCategoryChip('obstacle', '적치물 (${_hazards.where((h) => h['type'] == 'obstacle').length})'),
-                      const SizedBox(width: 6),
-                      _buildCategoryChip('building', '건물 (${_buildings.length})'),
+                      _buildCategoryChip('all', '전체 (${_hazards.length})'),
+                      for (final t in HazardType.all) ...[
+                        const SizedBox(width: 6),
+                        _buildCategoryChip(
+                          t.key,
+                          '${t.label} (${_hazards.where((h) => h['type'] == t.key).length})',
+                          type: t,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -2360,9 +2175,14 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildCategoryChip(String categoryKey, String label) {
+  Widget _buildCategoryChip(String categoryKey, String label, {HazardType? type}) {
     final isSelected = _selectedCategoryFilter == categoryKey;
+    final accent = type?.color ?? const Color(0xFF047857);
     return ChoiceChip(
+      avatar: type == null
+          ? null
+          : Icon(type.icon, size: 14, color: isSelected ? Colors.white : type.color),
+      showCheckmark: type == null,
       label: Text(
         label,
         style: TextStyle(
@@ -2372,9 +2192,9 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
       selected: isSelected,
-      selectedColor: const Color(0xFF047857),
+      selectedColor: accent,
       backgroundColor: const Color(0xFFF5F5F5),
-      side: BorderSide(color: isSelected ? const Color(0xFF047857) : const Color(0xFFDFDFDF), width: 1),
+      side: BorderSide(color: isSelected ? accent : const Color(0xFFDFDFDF), width: 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
       onSelected: (selected) {

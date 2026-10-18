@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../models/hazard_types.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -104,13 +105,6 @@ class _ReportModalState extends State<ReportModal> {
   // Photo Attachment State
   XFile? _selectedImage;
   final ImagePicker _picker = ImagePicker();
-
-  final Map<String, String> _typeLabels = {
-    'step': '보행 단차 (턱)',
-    'damage': '노면 파손 및 요철',
-    'obstacle': '불법 주차/적치물',
-    'slope': '보도 급경사',
-  };
 
   final Map<String, String> _severityLabels = {
     'high': '상 (휠체어 통행 불가)',
@@ -297,10 +291,16 @@ class _ReportModalState extends State<ReportModal> {
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                items: _typeLabels.entries.map((e) {
+                items: HazardType.all.map((t) {
                   return DropdownMenuItem(
-                    value: e.key,
-                    child: Text(e.value),
+                    value: t.key,
+                    child: Row(
+                      children: [
+                        Icon(t.icon, size: 18, color: t.color),
+                        const SizedBox(width: 8),
+                        Text(t.label),
+                      ],
+                    ),
                   );
                 }).toList(),
                 onChanged: (val) {
