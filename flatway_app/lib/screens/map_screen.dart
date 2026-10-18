@@ -229,8 +229,7 @@ class _MapScreenState extends State<MapScreen> {
         const TourStep(
           icon: Icons.accessible_forward_rounded,
           title: 'FlatWay에 오신 것을 환영해요',
-          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요.
-단차, 파손, 적치물 같은 위험 구간을 피해서 길을 안내해 드려요. 두 가지 핵심 기능을 소개할게요!',
+          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요.\n단차, 파손, 적치물 같은 위험 구간을 피해서 길을 안내해 드려요. 두 가지 핵심 기능을 소개할게요!',
         ),
         TourStep(
           targetKey: _tourDirectionsKey,
