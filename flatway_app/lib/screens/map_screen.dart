@@ -11,6 +11,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import '../models/hazard_types.dart';
 import '../services/location_service.dart';
 import '../services/route_service.dart';
+import '../services/safe_route_planner.dart';
 import '../services/supabase_service.dart';
 import '../services/web_compass_stub.dart'
     if (dart.library.js_interop) '../services/web_compass_web.dart';
@@ -809,45 +810,48 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  // Calculate real OSRM pedestrian road route following actual streets and crosswalks
+  // 위험 요소(단차·파손·적치물·경사)를 피하는 안전 보행 경로 계산
   Future<void> _calculateAccessibleRoute() async {
     final dest = _destLocation;
     final start = _startLocation;
     if (start == null || dest == null) return;
 
-    // Calculate dangerous hazards near route
-    final dangerousHazards = _hazards.where((h) {
-      final lat = (h['latitude'] as num?)?.toDouble();
-      final lng = (h['longitude'] as num?)?.toDouble();
-      if (lat == null || lng == null) return false;
-      final severity = h['severity'] ?? '';
-      final height = (h['step_height_cm'] as num?)?.toDouble() ?? 0;
-      return severity == 'high' || height > 8.0;
-    }).toList();
-
-    _bypassedHazardsCount = dangerousHazards.length;
-
-    // Fetch real OSRM pedestrian walking route following actual streets and sidewalks
-    final result = await RouteService.fetchPedestrianRoute(origin: start, destination: dest);
+    final hazards = _hazards.map(RouteHazard.fromMap).whereType<RouteHazard>().toList();
+    final result = await SafeRoutePlanner.plan(
+      origin: start,
+      destination: dest,
+      hazards: hazards,
+      mode: _selectedRouteMode,
+    );
+    _bypassedHazardsCount = result.avoidedCount;
+    final route = result.route;
 
     final speedKmh = (_selectedRouteMode == 'electric') ? 6.0 : (_selectedRouteMode == 'manual') ? 3.2 : 4.0;
-    final minutes = (result.distanceMeters / (speedKmh * 1000 / 60)).round();
+    final minutes = (route.distanceMeters / (speedKmh * 1000 / 60)).round();
 
     if (mounted) {
       setState(() {
-        _navRoutePoints = result.points;
-        _navRouteSteps = result.steps;
-        _navDistanceMeters = result.distanceMeters;
+        _navRoutePoints = route.points;
+        _navRouteSteps = route.steps;
+        _navDistanceMeters = route.distanceMeters;
         _navEstMinutes = max(1, minutes);
         _isNavigating = true;
       });
 
-      if (result.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints(result.points);
+      if (route.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints(route.points);
         _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)));
       }
 
-      _speakGuidance('${_destName ?? "목적지"}까지 보행자 도로망 실시간 경로 안내를 시작합니다.');
+      final summary = result.avoidedCount > 0
+          ? '위험 요소 ${result.avoidedCount}건을 피해 ${_formatDistance(result.detourMeters)} 우회하는 경로예요.'
+          : result.hazardsOnRoute.isEmpty
+              ? '경로 위에 제보된 위험 요소가 없어요.'
+              : '피할 수 없는 위험 요소 ${result.hazardsOnRoute.length}건이 경로에 있어요. 주의하세요.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(summary), duration: const Duration(seconds: 4)),
+      );
+      _speakGuidance('${_destName ?? "목적지"}까지 안내를 시작합니다. $summary');
     }
   }
 
