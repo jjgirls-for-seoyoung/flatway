@@ -88,13 +88,11 @@ class _TourOverlayState extends State<_TourOverlay> {
 
   void _next() {
     if (_isLast) {
-      widget.onClose(true);
+      widget.onClose(false);
     } else {
       setState(() => _index++);
     }
   }
-
-  void _restart() => setState(() => _index = 0);
 
   void _prev() {
     if (_index > 0) setState(() => _index--);
@@ -195,19 +193,6 @@ class _TourOverlayState extends State<_TourOverlay> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 4),
-                InkWell(
-                  onTap: () => widget.onClose(false),
-                  borderRadius: BorderRadius.circular(12),
-                  child: const Padding(
-                    padding: EdgeInsets.all(2),
-                    child: Icon(
-                      Icons.close_rounded,
-                      size: 18,
-                      color: Color(0xFF777777),
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -222,30 +207,19 @@ class _TourOverlayState extends State<_TourOverlay> {
             const SizedBox(height: 12),
             Row(
               children: [
-                TextButton(
-                  onPressed: () => widget.onClose(true),
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF777777),
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                  ),
-                  child: const Text('다시 보지 않기', style: TextStyle(fontSize: 12)),
-                ),
-                const Spacer(),
                 if (_isLast)
                   TextButton(
-                    onPressed: _restart,
+                    onPressed: () => widget.onClose(true),
                     style: TextButton.styleFrom(
-                      foregroundColor: OnboardingTour._green,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      foregroundColor: const Color(0xFF777777),
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
                     ),
                     child: const Text(
-                      '다시 보기',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      '다시 보지 않기',
+                      style: TextStyle(fontSize: 12),
                     ),
                   ),
+                const Spacer(),
                 if (_index > 0 && !_isLast)
                   TextButton(
                     onPressed: _prev,
