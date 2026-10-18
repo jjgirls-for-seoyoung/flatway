@@ -702,8 +702,9 @@ class _MapScreenState extends State<MapScreen> {
                             _startSearchController.text = '지도 선택 위치';
                             _isRouteSearchExpanded = true;
                           });
-                          setModalState(() {});
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          // 팝업을 먼저 닫아야 안내 문구가 가려지지 않는다
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
                             const SnackBar(
                               content: Text('출발지로 설정되었습니다. (도착지를 선택하면 탐색이 완료됩니다)'),
                               duration: Duration(seconds: 2),
@@ -731,8 +732,9 @@ class _MapScreenState extends State<MapScreen> {
                             _destSearchController.text = '지도 선택 위치';
                             _isRouteSearchExpanded = true;
                           });
-                          setModalState(() {});
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          // 팝업을 먼저 닫아야 안내 문구가 가려지지 않는다
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
                             const SnackBar(
                               content: Text('도착지로 설정되었습니다. (출발지를 선택하면 탐색이 완료됩니다)'),
                               duration: Duration(seconds: 2),
