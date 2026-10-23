@@ -43,11 +43,15 @@ class SafeRouteResult {
   /// 최단 경로 대비 늘어난 거리(m)
   final double detourMeters;
 
+  /// 경로에 남은 위험 중, 이 이동 수단이 절대 지나면 안 되는데 피하지 못한 것의 수
+  final int unavoidableHardCount;
+
   const SafeRouteResult({
     required this.route,
     required this.hazardsOnRoute,
     required this.avoidedCount,
     required this.detourMeters,
+    this.unavoidableHardCount = 0,
   });
 }
 
@@ -58,13 +62,33 @@ class SafeRouteResult {
 /// 3. 가장 비싼 위험 요소의 좌우 80m·160m·260m 지점을 경유하는 우회 후보를 추가하고
 ///    다시 평가하는 과정을 몇 차례 반복한다.
 /// 4. 비용이 가장 낮은 경로를 고른다. (우회가 위험 페널티보다 비싸면 우회하지 않는다)
+///
+/// 이동 수단별로 위험을 피하는 정도가 다르다.
+/// - 보행자: 위험 요소를 거의 신경 쓰지 않는다(심각한 것만 약하게 피함).
+/// - 전동휠체어: 단차는 절대 지나지 않는다(수동휠체어와 같은 엄격 회피). 파손·적치물은
+///   잘 피하고, 경사는 덜 피한다.
+/// - 수동휠체어: 위험 요소를 지나지 않는 경로를 우선한다. 아무리 멀리 돌아가더라도
+///   위험이 없는 경로가 있으면 그것을 고르고, 우회로 자체가 없을 때만 위험이 남는다.
 class SafeRoutePlanner {
   /// 경로와 이 거리 이내면 위험 요소를 "지나간다"고 본다.
   static const double hazardFullRadius = 15; // m, 이 안에서는 페널티 100%
   static const double hazardMaxRadius = 35; // m, 이 밖에서는 0%, 사이는 선형 감소
   // 우회 경유점의 옆 거리(m). 가까운 곳이 같은 도로로 붙어버리면 더 먼 곳을 시도한다.
   static const _detourOffsets = [80.0, 160.0, 260.0];
-  static const int _maxRounds = 3;
+
+  // 이동 수단별 우회 탐색 횟수
+  static const _maxRoundsByMode = {'pedestrian': 1, 'electric': 8, 'manual': 8};
+
+  // 위험이 이 값(m 환산)보다 작으면 우회로 얻는 이득이 없어 우회 탐색을 건너뛴다(엄격 회피 제외)
+  static const double _negligiblePenalty = 60;
+
+  // 수동휠체어: 경로에 위험 요소 1건이 있을 때마다 붙는 사실상 통과 불가 페널티(m 환산)
+  static const double _hardBlockPenalty = 1000000;
+
+  /// 이 이동 수단이 [type] 위험을 절대 지나면 안 되는지.
+  /// 수동휠체어는 모든 위험, 전동휠체어는 단차만 해당한다.
+  static bool isHardAvoid(String mode, String type) =>
+      mode == 'manual' || (mode == 'electric' && type == 'step');
 
   // 출발/도착지에 이만큼 가까운 위험 요소는 우회로 피할 수 없으므로 우회 대상에서 제외
   static const double _unavoidableRadius = 40;
@@ -79,8 +103,8 @@ class SafeRoutePlanner {
 
   // 이동 수단별 종류 가중치. 휠체어일수록 단차·경사에 민감하다.
   static const _modeWeight = {
-    'pedestrian': {'step': 0.8, 'damage': 0.8, 'obstacle': 1.0, 'slope': 0.6},
-    'electric': {'step': 2.0, 'damage': 1.3, 'obstacle': 1.3, 'slope': 1.3},
+    'pedestrian': {'step': 0.1, 'damage': 0.1, 'obstacle': 0.15, 'slope': 0.05},
+    'electric': {'step': 2.0, 'damage': 1.3, 'obstacle': 1.3, 'slope': 0.4},
     'manual': {'step': 3.0, 'damage': 1.6, 'obstacle': 1.3, 'slope': 2.5},
   };
 
@@ -95,20 +119,25 @@ class SafeRoutePlanner {
     return base * modeW * sevW;
   }
 
-  static double _proximityWeight(double distanceMeters) {
+  // 수동휠체어는 위험 요소 25m 안을 지나면 "통과"로 본다. (옆 도로에 있는 위험까지 막으면
+  // 우회로가 없어지는 경우가 많다. 제보 위치 오차를 감안해 경로 위로 볼 수 있는 거리.)
+  static const double _strictMaxRadius = 25;
+
+  static double _proximityWeight(double distanceMeters, double maxRadius) {
     if (distanceMeters <= hazardFullRadius) return 1;
-    if (distanceMeters >= hazardMaxRadius) return 0;
-    return (hazardMaxRadius - distanceMeters) / (hazardMaxRadius - hazardFullRadius);
+    if (distanceMeters >= maxRadius) return 0;
+    return (maxRadius - distanceMeters) / (maxRadius - hazardFullRadius);
   }
 
   /// 경로가 지나는 위험 요소별 (근접도를 반영한 페널티, 가장 가까운 선분)
   static List<_Exposure> _exposures(List<LatLng> path, List<RouteHazard> hazards, String mode) {
     final result = <_Exposure>[];
     for (final h in hazards) {
+      final hard = isHardAvoid(mode, h.type);
       final d = _distanceToPolyline(h.point, path);
-      final w = _proximityWeight(d.distance);
+      final w = _proximityWeight(d.distance, hard ? _strictMaxRadius : hazardMaxRadius);
       if (w > 0) {
-        result.add(_Exposure(h, w * hazardPenalty(h, mode), d.segmentIndex));
+        result.add(_Exposure(h, w * hazardPenalty(h, mode), d.segmentIndex, hard));
       }
     }
     return result;
@@ -136,21 +165,22 @@ class SafeRoutePlanner {
         dist.as(LengthUnit.Meter, p, destination) < _unavoidableRadius;
 
     final candidates = <_Candidate>[];
-    void addAll(List<PedestrianRouteResult> routes) {
+    void addAll(List<PedestrianRouteResult> routes, List<LatLng> vias) {
       for (final r in routes) {
         if (r.points.length < 2) continue;
         final exposures = _exposures(r.points, hazards, mode);
-        final cost = r.distanceMeters + exposures.fold<double>(0, (a, e) => a + e.penalty);
+        var cost = r.distanceMeters + exposures.fold<double>(0, (a, e) => a + e.penalty);
+        cost += _hardBlockPenalty * exposures.where((e) => e.hard).length;
         // 거리 차 5m 미만이고 지나는 위험 요소 수가 같으면 같은 경로로 본다.
         final dup = candidates.any((c) =>
             (c.route.distanceMeters - r.distanceMeters).abs() < 5 &&
             c.exposures.length == exposures.length);
-        if (!dup) candidates.add(_Candidate(r, exposures, cost));
+        if (!dup) candidates.add(_Candidate(r, exposures, cost, vias));
       }
     }
 
     // 1) 최단 + 대안 경로
-    addAll(await fetch(const [], true));
+    addAll(await fetch(const [], true), const []);
     if (candidates.isEmpty) {
       return SafeRouteResult(
         route: RouteService.fallbackRoute(origin, destination),
@@ -163,22 +193,32 @@ class SafeRoutePlanner {
 
     // 2) 가장 비싼 위험 요소를 좌우로 비켜 가는 우회 후보 추가 반복
     final triedVia = <String>{};
-    for (var round = 0; round < _maxRounds; round++) {
+    final maxRounds = _maxRoundsByMode[mode] ?? 3;
+    for (var round = 0; round < maxRounds; round++) {
       final current = _best(candidates);
       if (current.exposures.isEmpty) break;
+      final totalPenalty = current.exposures.fold<double>(0, (a, e) => a + e.penalty);
+      if (!current.exposures.any((e) => e.hard) && totalPenalty < _negligiblePenalty) break;
 
       final avoidable = current.exposures.where((e) => !nearEndpoint(e.hazard.point)).toList();
       if (avoidable.isEmpty) break;
-      final worst = avoidable.reduce((a, b) => a.penalty >= b.penalty ? a : b);
-      final fresh = _detourPoints(current.route.points, worst)
-          .where((v) => triedVia.add('${v.latitude.toStringAsFixed(5)},${v.longitude.toStringAsFixed(5)}'))
-          .toList();
+      // 절대 지나면 안 되는 위험이 있으면 그것부터 처리한다.
+      final hardOnes = avoidable.where((e) => e.hard).toList();
+      final targets = hardOnes.isNotEmpty ? hardOnes : avoidable;
+      final worst = targets.reduce((a, b) => a.penalty >= b.penalty ? a : b);
+      // 기존 경유지를 유지한 채 새 우회 경유점을 진행 순서에 맞게 끼워 넣는다.
+      final fresh = <List<LatLng>>[];
+      for (final v in _detourPoints(current.route.points, worst)) {
+        final combined = _insertInOrder(current.vias, v, current.route.points);
+        final key = combined.map((p) => '${p.latitude.toStringAsFixed(5)},${p.longitude.toStringAsFixed(5)}').join('|');
+        if (triedVia.add(key)) fresh.add(combined);
+      }
       if (fresh.isEmpty) break;
 
       final before = candidates.length;
-      final responses = await Future.wait(fresh.map((v) => fetch([v], false)));
-      for (final r in responses) {
-        addAll(r);
+      final responses = await Future.wait(fresh.map((vias) => fetch(vias, false)));
+      for (var i = 0; i < responses.length; i++) {
+        addAll(responses[i], fresh[i]);
       }
       if (candidates.length == before) break;
     }
@@ -192,11 +232,27 @@ class SafeRoutePlanner {
       hazardsOnRoute: bestSet.toList(),
       avoidedCount: baselineSet.difference(bestSet).length,
       detourMeters: max(0, best.route.distanceMeters - baseline.route.distanceMeters),
+      unavoidableHardCount: best.exposures.where((e) => e.hard).length,
     );
   }
 
   static _Candidate _best(List<_Candidate> list) =>
       list.reduce((a, b) => a.cost <= b.cost ? a : b);
+
+  /// [vias]에 [v]를 [path] 진행 방향 순서대로 끼워 넣은 새 리스트.
+  static List<LatLng> _insertInOrder(List<LatLng> vias, LatLng v, List<LatLng> path) {
+    final idx = _distanceToPolyline(v, path).segmentIndex;
+    final result = [...vias];
+    var pos = result.length;
+    for (var i = 0; i < result.length; i++) {
+      if (_distanceToPolyline(result[i], path).segmentIndex > idx) {
+        pos = i;
+        break;
+      }
+    }
+    result.insert(pos, v);
+    return result;
+  }
 
   /// 위험 요소가 놓인 구간의 진행 방향에 수직으로 좌/우 [_detourOffsets]m 떨어진 지점들.
   static List<LatLng> _detourPoints(List<LatLng> path, _Exposure e) {
@@ -251,14 +307,16 @@ class _Candidate {
   final PedestrianRouteResult route;
   final List<_Exposure> exposures;
   final double cost;
-  _Candidate(this.route, this.exposures, this.cost);
+  final List<LatLng> vias; // 이 경로가 거치는 우회 경유지
+  _Candidate(this.route, this.exposures, this.cost, this.vias);
 }
 
 class _Exposure {
   final RouteHazard hazard;
   final double penalty;
   final int segmentIndex;
-  _Exposure(this.hazard, this.penalty, this.segmentIndex);
+  final bool hard; // 이 이동 수단이 절대 지나면 안 되는 위험인지
+  _Exposure(this.hazard, this.penalty, this.segmentIndex, this.hard);
 }
 
 class _PolyDistance {

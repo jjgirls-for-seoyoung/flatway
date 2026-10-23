@@ -198,9 +198,19 @@ class _MapScreenState extends State<MapScreen> {
   final GlobalKey _tourRefreshKey = GlobalKey();
   final GlobalKey _tourHelpKey = GlobalKey();
 
+  // 첫 위치 확인이 끝날 때까지 지도를 가리는 로딩 / 경로 계산 중 로딩
+  bool _isLocating = true;
+  bool _isRouteLoading = false;
+
+  void _finishLocating() {
+    if (mounted && _isLocating) setState(() => _isLocating = false);
+  }
+
   @override
   void initState() {
     super.initState();
+    // 위치를 끝내 못 받아도 로딩 화면이 계속 남지 않도록 안전장치
+    Future.delayed(const Duration(seconds: 12), _finishLocating);
     _loadSupabaseData();
     _fetchCurrentLocation();
     _startRealtimeLocationTracking();
@@ -213,7 +223,7 @@ class _MapScreenState extends State<MapScreen> {
     // 첫 프레임 이후(대상 위젯 배치 완료)에 시작
     await Future.delayed(const Duration(milliseconds: 1200));
     // 위치 권한 팝업이 떠 있는 동안에는 닫힐 때까지 대기
-    while (mounted && _isGpsRequiredModalOpen) {
+    while (mounted && (_isGpsRequiredModalOpen || _isLocating)) {
       await Future.delayed(const Duration(milliseconds: 500));
     }
     if (mounted) _startTour();
@@ -892,15 +902,21 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _calculateAccessibleRoute() async {
     final dest = _destLocation;
     final start = _startLocation;
-    if (start == null || dest == null) return;
+    if (start == null || dest == null || _isRouteLoading) return;
 
-    final hazards = _hazards.map(RouteHazard.fromMap).whereType<RouteHazard>().toList();
-    final result = await SafeRoutePlanner.plan(
-      origin: start,
-      destination: dest,
-      hazards: hazards,
-      mode: _selectedRouteMode,
-    );
+    setState(() => _isRouteLoading = true);
+    final SafeRouteResult result;
+    try {
+      final hazards = _hazards.map(RouteHazard.fromMap).whereType<RouteHazard>().toList();
+      result = await SafeRoutePlanner.plan(
+        origin: start,
+        destination: dest,
+        hazards: hazards,
+        mode: _selectedRouteMode,
+      );
+    } finally {
+      if (mounted) setState(() => _isRouteLoading = false);
+    }
     _bypassedHazardsCount = result.avoidedCount;
     final route = result.route;
 
@@ -925,7 +941,9 @@ class _MapScreenState extends State<MapScreen> {
           ? '위험 요소 ${result.avoidedCount}건을 피해 ${_formatDistance(result.detourMeters)} 우회하는 경로예요.'
           : result.hazardsOnRoute.isEmpty
               ? '경로 위에 제보된 위험 요소가 없어요.'
-              : '피할 수 없는 위험 요소 ${result.hazardsOnRoute.length}건이 경로에 있어요. 주의하세요.';
+              : result.unavoidableHardCount > 0
+                  ? '${_selectedRouteMode == 'manual' ? '수동휠체어' : '전동휠체어'}로 피할 수 있는 길이 없어 통과하기 어려운 위험 요소 ${result.unavoidableHardCount}건이 경로에 남아 있어요. 출발지나 도착지를 바꿔 보세요.'
+                  : '피할 수 없는 위험 요소 ${result.hazardsOnRoute.length}건이 경로에 있어요. 주의하세요.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(summary), duration: const Duration(seconds: 4)),
       );
@@ -1316,12 +1334,16 @@ class _MapScreenState extends State<MapScreen> {
           } catch (e) {
             debugPrint('MapController move deferred: $e');
           }
+          // 지도가 내 위치로 이동한 뒤에 로딩 화면을 걷는다
+          _finishLocating();
         } else {
+          _finishLocating();
           _checkGpsAndPermissions();
         }
       }
     } catch (e) {
       if (mounted) {
+        _finishLocating();
         _checkGpsAndPermissions();
       }
     }
@@ -2270,6 +2292,67 @@ class _MapScreenState extends State<MapScreen> {
               child: const Icon(Icons.explore),
             ),
           ),
+
+          // 경로 계산 중 로딩 (뒤의 화면 터치는 막는다)
+          if (_isRouteLoading)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black38,
+                child: Center(
+                  child: Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 22),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: CircularProgressIndicator(color: Color(0xFF047857), strokeWidth: 3),
+                          ),
+                          SizedBox(height: 14),
+                          Text(
+                            '안전한 경로를 찾는 중이에요',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            '위험 요소를 피하는 길을 계산하고 있어요',
+                            style: TextStyle(fontSize: 11, color: Color(0xFF777777)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // 첫 실행 시 내 위치를 찾는 동안 지도를 가려, 엉뚱한 위치가 보이지 않게 한다
+          if (_isLocating)
+            Positioned.fill(
+              child: Container(
+                color: Colors.white,
+                child: const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: CircularProgressIndicator(color: Color(0xFF047857), strokeWidth: 3),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        '내 위치를 찾는 중이에요',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
