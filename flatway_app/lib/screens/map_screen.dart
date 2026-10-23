@@ -1601,6 +1601,23 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
 
+                    // 출발지 마커 (도착지 빨강과 구분되는 파랑). 현재 위치가 출발지면 내 위치 핀과 겹치므로 생략
+                    if (_startLocation != null && _startName != '현재 위치')
+                      Marker(
+                        point: _startLocation!,
+                        width: 30,
+                        height: 30,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2563EB),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 4)],
+                          ),
+                          child: const Icon(Icons.trip_origin_rounded, color: Colors.white, size: 18),
+                        ),
+                      ),
+
                     if (_destLocation != null)
                       Marker(
                         point: _destLocation!,
