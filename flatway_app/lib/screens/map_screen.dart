@@ -196,6 +196,7 @@ class _MapScreenState extends State<MapScreen> {
   final GlobalKey _tourCompassKey = GlobalKey();
   final GlobalKey _tourLayersKey = GlobalKey();
   final GlobalKey _tourRefreshKey = GlobalKey();
+  final GlobalKey _tourHelpKey = GlobalKey();
 
   @override
   void initState() {
@@ -218,7 +219,8 @@ class _MapScreenState extends State<MapScreen> {
     if (mounted) _startTour();
   }
 
-  void _startTour() {
+  /// [detailed]가 true면 `?` 버튼용 전체 안내(8단계), 아니면 첫 실행용 핵심 안내(3단계).
+  void _startTour({bool detailed = false}) {
     if (_isNavigating) {
       _clearNavigation();
     }
@@ -226,7 +228,7 @@ class _MapScreenState extends State<MapScreen> {
     // 접힌 검색창이 다시 그려진 뒤에 시작
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      OnboardingTour.show(context, [
+      final basicSteps = <TourStep>[
         const TourStep(
           icon: Icons.accessible_forward_rounded,
           title: 'FlatWay에 오신 것을 환영해요',
@@ -244,7 +246,81 @@ class _MapScreenState extends State<MapScreen> {
           title: '현위치 제보',
           description: '길에서 불편한 곳을 발견하면 사진과 함께 제보해 주세요. 지도를 눌러 원하는 위치를 제보할 수도 있어요. 모두의 안전한 길이 됩니다.',
         ),
-      ]);
+        TourStep(
+          targetKey: _tourHelpKey,
+          icon: Icons.help_outline_rounded,
+          title: '더 자세히 알고 싶다면',
+          description: '? 버튼을 누르면 검색, 지도 스타일, 계정 등 모든 기능을 단계별로 자세히 안내해 드려요. 언제든 다시 볼 수 있어요.',
+        ),
+      ];
+
+      final detailedSteps = <TourStep>[
+        const TourStep(
+          icon: Icons.accessible_forward_rounded,
+          title: 'FlatWay에 오신 것을 환영해요',
+          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요. 단차, 파손, 적치물, 경사 같은 위험 구간을 피해서 길을 안내해 드려요. 주요 기능을 차례로 소개할게요!',
+        ),
+        TourStep(
+          targetKey: _tourSearchKey,
+          icon: Icons.search_rounded,
+          title: '1. 장소 검색',
+          description: '가고 싶은 장소 이름을 입력하면 지도가 그 위치로 이동해요. 검색창을 누르면 최근 검색 기록과 주요 장소도 볼 수 있어요.',
+        ),
+        TourStep(
+          targetKey: _tourDirectionsKey,
+          icon: Icons.directions_rounded,
+          title: '2. 길찾기',
+          description: '출발지와 도착지를 정하면 위험 구간을 피한 안전 경로를 안내해요. 지도를 눌러 출발지·도착지로 지정할 수도 있어요. 출발지는 파란 마커, 도착지는 빨간 마커로 표시돼요.',
+        ),
+        TourStep(
+          targetKey: _tourChipsKey,
+          icon: Icons.filter_list_rounded,
+          title: '3. 위험 정보 필터',
+          description: '단차, 파손, 적치물, 경사는 각각 다른 아이콘과 색으로 지도에 표시돼요. 칩을 눌러 보고 싶은 종류만 골라볼 수 있어요.',
+        ),
+        TourStep(
+          targetKey: _tourReportKey,
+          icon: Icons.report_problem_rounded,
+          title: '4. 현위치 제보',
+          description: '길에서 불편한 곳을 발견하면 위험 유형과 심각도를 고르고 사진과 함께 제보해 주세요. 지도를 눌러 원하는 위치를 제보할 수도 있어요.',
+        ),
+        TourStep(
+          targetKey: _tourCompassKey,
+          icon: Icons.explore,
+          title: '5. 나침반 모드',
+          description: '켜면 내가 바라보는 방향으로 지도가 회전해서 길을 찾기 쉬워져요. 다시 누르면 북쪽이 위인 기본 지도로 돌아가요.',
+        ),
+        TourStep(
+          targetKey: _tourLayersKey,
+          icon: Icons.layers,
+          title: '6. 지도 스타일',
+          description: '한글 정밀지도, 위성 하이브리드, 위성지도 중에서 보기 편한 지도로 바꿀 수 있어요.',
+        ),
+        TourStep(
+          targetKey: _tourRefreshKey,
+          icon: Icons.refresh,
+          title: '7. 데이터 새로고침',
+          description: '내 위치와 다른 사용자가 새로 제보한 최신 위험 정보를 다시 불러와요.',
+        ),
+        TourStep(
+          targetKey: _tourAccountKey,
+          icon: Icons.account_circle_outlined,
+          title: '8. 내 계정',
+          description: '로그인하면 내 제보 기록을 관리할 수 있어요.',
+        ),
+        TourStep(
+          targetKey: _tourHelpKey,
+          icon: Icons.help_outline_rounded,
+          title: '9. 사용 방법 안내',
+          description: '이 안내는 ? 버튼을 눌러 언제든 다시 볼 수 있어요. 이제 FlatWay와 함께 안전한 길을 찾아보세요!',
+        ),
+      ];
+
+      OnboardingTour.show(
+        context,
+        detailed ? detailedSteps : basicSteps,
+        allowDontShowAgain: !detailed,
+      );
     });
   }
 
@@ -1494,9 +1570,10 @@ class _MapScreenState extends State<MapScreen> {
         elevation: 1,
         actions: [
           IconButton(
+            key: _tourHelpKey,
             icon: const Icon(Icons.help_outline_rounded, color: Color(0xFF047857)),
             tooltip: '사용 방법 안내',
-            onPressed: _startTour,
+            onPressed: () => _startTour(detailed: true),
           ),
           PopupMenuButton<String>(
             key: _tourLayersKey,

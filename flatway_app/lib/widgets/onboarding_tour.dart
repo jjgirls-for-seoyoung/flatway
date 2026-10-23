@@ -38,7 +38,8 @@ class OnboardingTour {
   }
 
   /// 화면에 없는 대상(예: 웹에서 숨겨진 버튼)은 건너뛰고 튜토리얼을 시작한다.
-  static void show(BuildContext context, List<TourStep> allSteps) {
+  /// [allowDontShowAgain]이 false면 마지막 단계에 `다시 보지 않기` 버튼을 숨긴다.
+  static void show(BuildContext context, List<TourStep> allSteps, {bool allowDontShowAgain = true}) {
     final steps = allSteps
         .where(
           (s) => s.targetKey == null || s.targetKey!.currentContext != null,
@@ -51,6 +52,7 @@ class OnboardingTour {
     entry = OverlayEntry(
       builder: (_) => _TourOverlay(
         steps: steps,
+        allowDontShowAgain: allowDontShowAgain,
         // dontShowAgain=false(X 버튼)면 다음 접속 때 다시 안내한다.
         onClose: (dontShowAgain) {
           entry.remove();
@@ -65,8 +67,9 @@ class OnboardingTour {
 class _TourOverlay extends StatefulWidget {
   final List<TourStep> steps;
   final void Function(bool dontShowAgain) onClose;
+  final bool allowDontShowAgain;
 
-  const _TourOverlay({required this.steps, required this.onClose});
+  const _TourOverlay({required this.steps, required this.onClose, required this.allowDontShowAgain});
 
   @override
   State<_TourOverlay> createState() => _TourOverlayState();
@@ -207,7 +210,7 @@ class _TourOverlayState extends State<_TourOverlay> {
             const SizedBox(height: 12),
             Row(
               children: [
-                if (_isLast)
+                if (_isLast && widget.allowDontShowAgain)
                   TextButton(
                     onPressed: () => widget.onClose(true),
                     style: TextButton.styleFrom(
