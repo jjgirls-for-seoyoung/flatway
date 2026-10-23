@@ -64,6 +64,7 @@ class _MapScreenState extends State<MapScreen> {
   double _navDistanceMeters = 0.0;
   int _navEstMinutes = 0;
   int _bypassedHazardsCount = 0;
+  int _routeHazardCount = 0; // 현재 경로가 지나는 위험 요소 수
 
   bool _isHeadingUp = false;
   double _currentHeading = 0.0;
@@ -948,6 +949,7 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted) setState(() => _isRouteLoading = false);
     }
     _bypassedHazardsCount = result.avoidedCount;
+    _routeHazardCount = result.hazardsOnRoute.length;
     final route = result.route;
 
     final speedKmh = (_selectedRouteMode == 'electric') ? 6.0 : (_selectedRouteMode == 'manual') ? 3.2 : 4.0;
@@ -2248,9 +2250,9 @@ class _MapScreenState extends State<MapScreen> {
                               Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
                               Column(
                                 children: [
-                                  const Text('위험 회피', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
+                                  const Text('경로상 위험', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 3),
-                                  Text('$_bypassedHazardsCount건', style: const TextStyle(color: Color(0xFFD97706), fontSize: 17, fontWeight: FontWeight.bold)),
+                                  Text('$_routeHazardCount건', style: TextStyle(color: _routeHazardCount == 0 ? const Color(0xFF047857) : const Color(0xFFD97706), fontSize: 17, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ],
