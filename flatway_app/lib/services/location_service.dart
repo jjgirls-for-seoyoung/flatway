@@ -44,15 +44,23 @@ class LocationService {
       return null;
     }
 
-    try {
-      // 1. Try last known position first for instant speed on startup
-      Position? lastPos = await Geolocator.getLastKnownPosition();
-      if (lastPos != null) return lastPos;
+    // 1. 마지막으로 알려진 위치가 있으면 즉시 사용 (웹은 이 기능을 지원하지 않아 건너뜀).
+    //    여기서 실패해도 현재 위치 조회로 넘어가야 하므로 따로 감싼다.
+    if (!kIsWeb) {
+      try {
+        final lastPos = await Geolocator.getLastKnownPosition();
+        if (lastPos != null) return lastPos;
+      } catch (e) {
+        debugPrint('Last known position unavailable: $e');
+      }
+    }
 
-      // 2. Fetch high-accuracy current position
+    // 2. 현재 위치를 직접 조회
+    try {
       return await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
         ),
       );
     } catch (e) {

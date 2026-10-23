@@ -20,7 +20,10 @@ import '../widgets/onboarding_tour.dart';
 import '../widgets/report_modal.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  /// 스플래시에서 이미 확인한 내 위치. 없으면(권한 거부 등) 화면 안에서 다시 조회한다.
+  final LatLng? initialLocation;
+
+  const MapScreen({super.key, this.initialLocation});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -73,6 +76,10 @@ class _MapScreenState extends State<MapScreen> {
     _realtimeLocationSub = LocationService.getPositionStream().listen((Position position) {
       if (!mounted) return;
       final newLoc = LatLng(position.latitude, position.longitude);
+      if (!_hasCenteredOnUser) {
+        _centerOnUser(newLoc);
+        return;
+      }
       setState(() {
         _currentLocation = newLoc;
       });
@@ -202,6 +209,21 @@ class _MapScreenState extends State<MapScreen> {
   bool _isLocating = true;
   bool _isRouteLoading = false;
 
+  bool _hasCenteredOnUser = false;
+
+  /// 내 위치로 지도를 옮기고 로딩 화면을 걷는다. 가장 먼저 도착한 위치(현재 위치 조회/실시간 스트림)가 쓰인다.
+  void _centerOnUser(LatLng loc) {
+    if (!mounted) return;
+    setState(() => _currentLocation = loc);
+    try {
+      _mapController.move(loc, 16.5);
+      _hasCenteredOnUser = true;
+    } catch (e) {
+      debugPrint('MapController move deferred: $e');
+    }
+    _finishLocating();
+  }
+
   void _finishLocating() {
     if (mounted && _isLocating) setState(() => _isLocating = false);
   }
@@ -212,7 +234,15 @@ class _MapScreenState extends State<MapScreen> {
     // 위치를 끝내 못 받아도 로딩 화면이 계속 남지 않도록 안전장치
     Future.delayed(const Duration(seconds: 12), _finishLocating);
     _loadSupabaseData();
-    _fetchCurrentLocation();
+    final known = widget.initialLocation;
+    if (known != null) {
+      // 스플래시에서 위치를 이미 받았으므로 처음부터 내 위치로 열고 로딩 화면은 생략한다.
+      _currentLocation = known;
+      _hasCenteredOnUser = true;
+      _isLocating = false;
+    } else {
+      _fetchCurrentLocation();
+    }
     _startRealtimeLocationTracking();
     _startCompassHeadingListener();
     _maybeStartTour();
@@ -1324,18 +1354,7 @@ class _MapScreenState extends State<MapScreen> {
 
       if (mounted) {
         if (position != null) {
-          final newLoc = LatLng(position.latitude, position.longitude);
-          setState(() {
-            _currentLocation = newLoc;
-          });
-          
-          try {
-            _mapController.move(newLoc, 16.5);
-          } catch (e) {
-            debugPrint('MapController move deferred: $e');
-          }
-          // 지도가 내 위치로 이동한 뒤에 로딩 화면을 걷는다
-          _finishLocating();
+          _centerOnUser(LatLng(position.latitude, position.longitude));
         } else {
           _finishLocating();
           _checkGpsAndPermissions();

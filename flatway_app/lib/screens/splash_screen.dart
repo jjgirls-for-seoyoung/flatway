@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import '../services/location_service.dart';
 import 'map_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,19 +29,31 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _fadeController.forward();
 
-    Timer(const Duration(milliseconds: 2000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const MapScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 600),
-          ),
-        );
-      }
-    });
+    _goToMapWhenReady();
+  }
+
+  /// 스플래시가 떠 있는 동안 내 위치를 먼저 확인한다.
+  /// 최소 2초는 보여주고, 위치가 늦으면 최대 8초까지 기다린 뒤 지도로 넘어간다.
+  Future<void> _goToMapWhenReady() async {
+    final minDisplay = Future.delayed(const Duration(milliseconds: 2000));
+    final location = LocationService.getCurrentPosition()
+        .timeout(const Duration(seconds: 8), onTimeout: () => null)
+        .catchError((_) => null);
+
+    final position = await location;
+    await minDisplay;
+    if (!mounted) return;
+
+    final initial = position == null ? null : LatLng(position.latitude, position.longitude);
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => MapScreen(initialLocation: initial),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 600),
+      ),
+    );
   }
 
   @override
