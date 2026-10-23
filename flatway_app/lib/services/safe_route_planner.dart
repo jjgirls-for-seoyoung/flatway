@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:latlong2/latlong.dart';
 import '../models/hazard_types.dart';
 import 'route_service.dart';
@@ -81,6 +82,14 @@ class SafeRoutePlanner {
 
   // 위험이 이 값(m 환산)보다 작으면 우회로 얻는 이득이 없어 우회 탐색을 건너뛴다(엄격 회피 제외)
   static const double _negligiblePenalty = 60;
+
+  // 우회 경로는 최단 경로의 이 배수 + 여유 거리를 넘으면 쓰지 않는다. (절대 회피 모드라도
+  // 몇 km씩 돌아가는 비현실적인 경로는 걸러낸다)
+  static const double _maxDetourFactor = 2.5;
+  static const double _maxDetourExtraMeters = 500;
+
+  // 같은 길을 갔다가 되돌아오는 구간이 이 길이(m)를 넘으면 불필요한 곁길 왕복으로 보고 버린다.
+  static const double _maxRetraceMeters = 40;
 
   // 수동휠체어: 경로에 위험 요소 1건이 있을 때마다 붙는 사실상 통과 불가 페널티(m 환산)
   static const double _hardBlockPenalty = 1000000;
@@ -165,9 +174,15 @@ class SafeRoutePlanner {
         dist.as(LengthUnit.Meter, p, destination) < _unavoidableRadius;
 
     final candidates = <_Candidate>[];
+    var maxAllowedDistance = double.infinity;
     void addAll(List<PedestrianRouteResult> routes, List<LatLng> vias) {
       for (final r in routes) {
         if (r.points.length < 2) continue;
+        if (vias.isNotEmpty) {
+          // 너무 멀리 돌거나, 곁길까지 갔다가 되돌아오는 우회 경로는 후보에서 제외
+          if (r.distanceMeters > maxAllowedDistance) continue;
+          if (retraceMeters(r.points) > _maxRetraceMeters) continue;
+        }
         final exposures = _exposures(r.points, hazards, mode);
         var cost = r.distanceMeters + exposures.fold<double>(0, (a, e) => a + e.penalty);
         cost += _hardBlockPenalty * exposures.where((e) => e.hard).length;
@@ -190,6 +205,7 @@ class SafeRoutePlanner {
       );
     }
     final baseline = candidates.first; // OSRM의 첫 경로 = 최단 경로
+    maxAllowedDistance = baseline.route.distanceMeters * _maxDetourFactor + _maxDetourExtraMeters;
 
     // 2) 가장 비싼 위험 요소를 좌우로 비켜 가는 우회 후보 추가 반복
     final triedVia = <String>{};
@@ -223,6 +239,25 @@ class SafeRoutePlanner {
       if (candidates.length == before) break;
     }
 
+    // 3) 가지치기: 최종 후보의 경유지 중 빼도 위험이 늘지 않는 것은 빼서 불필요한 우회를 줄인다.
+    for (var pass = 0; pass < 2; pass++) {
+      final current = _best(candidates);
+      if (current.vias.isEmpty) break;
+      final trials = <List<LatLng>>[];
+      for (var i = 0; i < current.vias.length; i++) {
+        final trial = [...current.vias]..removeAt(i);
+        final key = trial.map((p) => '${p.latitude.toStringAsFixed(5)},${p.longitude.toStringAsFixed(5)}').join('|');
+        if (triedVia.add(key)) trials.add(trial);
+      }
+      if (trials.isEmpty) break;
+      final before = candidates.length;
+      final responses = await Future.wait(trials.map((vias) => fetch(vias, false)));
+      for (var i = 0; i < responses.length; i++) {
+        addAll(responses[i], trials[i]);
+      }
+      if (candidates.length == before) break;
+    }
+
     final best = _best(candidates);
     final baselineSet = baseline.exposures.map((e) => e.hazard).toSet();
     final bestSet = best.exposures.map((e) => e.hazard).toSet();
@@ -234,6 +269,45 @@ class SafeRoutePlanner {
       detourMeters: max(0, best.route.distanceMeters - baseline.route.distanceMeters),
       unavoidableHardCount: best.exposures.where((e) => e.hard).length,
     );
+  }
+
+  /// 경로가 같은 길을 되돌아가는(왕복) 총 길이(m)의 근사값.
+  /// 8m 간격으로 경로를 샘플링해, 경로상 64m 이상 떨어진 뒤에 같은 자리(5m 이내)를 다시 지나는 점을 센다.
+  @visibleForTesting
+  static double retraceMeters(List<LatLng> path) {
+    const step = 8.0;
+    const minGapSamples = 8; // 64m
+    final proj = _Projector(path.first);
+    final samples = <_XY>[];
+    var carry = 0.0;
+    var prev = proj.toXY(path.first);
+    samples.add(prev);
+    for (var i = 1; i < path.length; i++) {
+      final cur = proj.toXY(path[i]);
+      var segLen = sqrt(pow(cur.dx - prev.dx, 2) + pow(cur.dy - prev.dy, 2));
+      var from = prev;
+      while (carry + segLen >= step) {
+        final t = (step - carry) / segLen;
+        from = _XY(from.dx + (cur.dx - from.dx) * t, from.dy + (cur.dy - from.dy) * t);
+        samples.add(from);
+        segLen = sqrt(pow(cur.dx - from.dx, 2) + pow(cur.dy - from.dy, 2));
+        carry = 0;
+      }
+      carry += segLen;
+      prev = cur;
+    }
+
+    var revisits = 0;
+    for (var i = 0; i < samples.length; i++) {
+      for (var j = i + minGapSamples; j < samples.length; j++) {
+        final dx = samples[i].dx - samples[j].dx, dy = samples[i].dy - samples[j].dy;
+        if (dx * dx + dy * dy < 25) {
+          revisits++;
+          break;
+        }
+      }
+    }
+    return revisits * step;
   }
 
   static _Candidate _best(List<_Candidate> list) =>

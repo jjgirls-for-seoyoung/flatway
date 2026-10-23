@@ -962,10 +962,7 @@ class _MapScreenState extends State<MapScreen> {
         _isNavigating = true;
       });
 
-      if (route.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints(route.points);
-        _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)));
-      }
+      // 길찾기 후에도 사용자가 보고 있던 지도 위치/확대 수준은 그대로 유지한다.
 
       final summary = result.avoidedCount > 0
           ? '위험 요소 ${result.avoidedCount}건을 피해 ${_formatDistance(result.detourMeters)} 우회하는 경로예요.'

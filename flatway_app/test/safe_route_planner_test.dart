@@ -203,4 +203,49 @@ void main() {
       expect(r.avoidedCount, 2);
     });
   });
+
+  group('불필요한 우회 방지', () {
+    test('같은 길을 갔다 되돌아오는 경로는 왕복으로 감지한다', () {
+      const a = LatLng(37.5300, 126.7200);
+      const out = LatLng(37.5300, 126.7260); // 약 530m 동쪽
+      const b = LatLng(37.5300, 126.7200);
+      expect(SafeRoutePlanner.retraceMeters([a, out, b]), greaterThan(300));
+      expect(SafeRoutePlanner.retraceMeters([a, out]), lessThan(20));
+    });
+
+    test('수동휠체어라도 곁길을 왕복하는 우회는 쓰지 않는다', () async {
+      // 경유점이 있으면 위험을 비켜 곁길 끝까지 갔다 되돌아오는 경로가 나온다
+      Future<List<PedestrianRouteResult>> spur(List<LatLng> via, bool alt) async {
+        if (via.isEmpty) return [_route([_origin, _dest])];
+        return [_route([_origin, const LatLng(37.5300, 126.7230), via.first, const LatLng(37.5300, 126.7230), _dest])];
+      }
+
+      final r = await SafeRoutePlanner.plan(
+        origin: _origin,
+        destination: _dest,
+        hazards: [_hazardOnPath()],
+        mode: 'manual',
+        fetcher: spur,
+      );
+      expect(r.detourMeters, 0); // 왕복 우회는 버리고 최단 경로 유지
+      expect(r.unavoidableHardCount, 1);
+    });
+
+    test('최단 경로의 2.5배를 넘게 돌아가는 우회는 쓰지 않는다', () async {
+      Future<List<PedestrianRouteResult>> huge(List<LatLng> via, bool alt) async {
+        if (via.isEmpty) return [_route([_origin, _dest])];
+        // 위로 크게 돌아가는 경로(총 약 4.5km)
+        return [_route([_origin, const LatLng(37.5700, 126.7245), _dest])];
+      }
+
+      final r = await SafeRoutePlanner.plan(
+        origin: _origin,
+        destination: _dest,
+        hazards: [_hazardOnPath()],
+        mode: 'manual',
+        fetcher: huge,
+      );
+      expect(r.detourMeters, 0);
+    });
+  });
 }
