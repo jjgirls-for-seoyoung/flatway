@@ -24,6 +24,13 @@ BLOBS = {
     "cbce4b9af33ab05318fe57bccd0a21f3": "tour3.jpg",
     "eb6f0f83cf83c192a3fac23bf37f7342": "app_route.jpg",
     "a9e6ddb421ffba65840f7ade6654a5fb": "naver_route.jpg",
+    "7e4767894b864bb51c0ded6ae89a2876": "route_ped.jpg",
+    "78626c58b8e08b966f922b860288a8ff": "route_elec.jpg",
+    "a05cdeb336bd63736a4af6f822a8c88b": "route_manual.jpg",
+    "c11167c948022bd43d7968f5f6d3619e": "pair_ped.jpg",
+    "91d8082b0b677757d95c6c56b5a1ebdd": "pair_elec.jpg",
+    "5c956e3ab7fd30112220524ce9cd3d2d": "pair_manual.jpg",
+    "d865df80eb220e8c196b8fb9bcf0dbd1": "same_manual.jpg",
 }
 
 EMBED_RE = re.compile(r'<x-embed style="([^"]*)">(.*?)</x-embed>', re.S)

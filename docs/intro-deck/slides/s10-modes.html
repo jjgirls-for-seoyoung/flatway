@@ -2,7 +2,7 @@
 <p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
 <h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">맞춤형 경로 계산</h2>
 <div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:20px">
-<p style="font-size:36px;line-height:1.5;color:#24382F">같은 목적지라도 <b>이동 수단에 따라</b> 길을 따로 계산합니다.</p>
+<p style="font-size:36px;line-height:1.5;color:#24382F">같은 목적지라도 <b>이동 수단에 따라</b><br>길을 따로 계산합니다.</p>
 <div style="display:flex;flex-direction:column;gap:14px">
 <p style="font-size:34px;font-weight:700;color:#8A3F0B;background:#FFE6D2;padding:14px 28px;border-radius:14px;width:400px">보행자</p>
 <p style="font-size:34px;font-weight:700;color:#0B4F82;background:#D6EBFA;padding:14px 28px;border-radius:14px;width:400px">전동휠체어</p>
@@ -15,16 +15,16 @@
 @keyframes pl{50%{transform:scale(1.18)}}</style>
 <svg viewBox="0 0 792 640"><rect width="792" height="640" rx="28" fill="#EAF6F0"/>
 <path d="M80 520 L400 340 L710 150" fill="none" stroke="#E8742A" stroke-width="12" stroke-linecap="round"/>
-<path d="M80 520 C 200 540, 330 260, 710 150" fill="none" stroke="#2B8FD6" stroke-width="12" stroke-linecap="round"/>
+<path d="M80 520 C 150 400, 380 220, 710 150" fill="none" stroke="#2B8FD6" stroke-width="12" stroke-linecap="round"/>
 <path d="M80 520 C 90 300, 400 110, 710 150" fill="none" stroke="#2F9E6C" stroke-width="12" stroke-linecap="round"/>
 <g class="h"><rect x="372" y="312" width="56" height="56" rx="12" fill="#E8742A" stroke="#fff" stroke-width="5"/><path d="M386 354 h10 v-10 h10 v-10 h8" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
 <circle r="15" fill="#E8742A" stroke="#fff" stroke-width="5"><animateMotion dur="5s" repeatCount="indefinite" path="M80 520 L400 340 L710 150"/></circle>
-<circle r="15" fill="#2B8FD6" stroke="#fff" stroke-width="5"><animateMotion dur="5s" repeatCount="indefinite" path="M80 520 C 200 540, 330 260, 710 150"/></circle>
+<circle r="15" fill="#2B8FD6" stroke="#fff" stroke-width="5"><animateMotion dur="5s" repeatCount="indefinite" path="M80 520 C 150 400, 380 220, 710 150"/></circle>
 <circle r="15" fill="#2F9E6C" stroke="#fff" stroke-width="5"><animateMotion dur="5s" repeatCount="indefinite" path="M80 520 C 90 300, 400 110, 710 150"/></circle>
 <circle cx="80" cy="520" r="26" fill="#2F5645" stroke="#fff" stroke-width="6"/><text x="80" y="531" text-anchor="middle" font-size="30" font-weight="800" fill="#fff">A</text>
 <circle cx="710" cy="150" r="26" fill="#D6403A" stroke="#fff" stroke-width="6"/><text x="710" y="161" text-anchor="middle" font-size="30" font-weight="800" fill="#fff">B</text>
 <text x="396" y="612" text-anchor="middle" font-size="30" font-weight="700" fill="#2F5645">출발(A)에서 도착(B)까지 세 갈래 경로</text></svg></x-embed>
-<p style="position:absolute;left:128px;top:812px;width:800px;font-size:26px;line-height:1.45;color:#4F6A5C">※ 길 계산에는 오픈스트리트맵(OpenStreetMap) 도로 데이터를 쓰는 오픈소스 경로 엔진(OSRM)을 사용했어요.</p>
+<p style="position:absolute;left:128px;top:812px;width:800px;font-size:26px;line-height:1.45;color:#4F6A5C">※ 길 계산에는 오픈스트리트맵(OpenStreetMap)<br>도로 데이터를 쓰는 오픈소스 경로 엔진(OSRM)을 사용했어요.</p>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
 <p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">11 / 21</p>
 <aside>맞춤형 경로 (약 30초). 보행자, 전동휠체어, 수동휠체어는 피해야 할 장애물이 다르다. 그래서 이동 수단마다 다른 경로를 계산한다. 사용자가 허용 단차와 최대 경사도를 직접 입력하는 기능은 개발 계획 중이다. 자세한 방식은 4장에서 설명한다.</aside>
