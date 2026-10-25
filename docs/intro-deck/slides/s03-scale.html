@@ -1,0 +1,25 @@
+<section id="s03-scale" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 1 · 왜 만들었나</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">사회적 규모</h2>
+<div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:28px">
+<div style="background:#FFFFFF;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#1F7A55">1,613만 명</p>
+<p style="font-size:34px;line-height:1.4;color:#24382F">국내 교통약자 · 전체 인구의 31.5%</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#1F7A55">20~26만 명</p>
+<p style="font-size:34px;line-height:1.4;color:#24382F">일상적으로 휠체어를 사용하는 인구</p>
+</div>
+</div>
+<x-embed style="position:absolute;left:1000px;top:260px;width:792px;height:640px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif}svg{display:block;width:100%;height:100%}</style>
+<svg viewBox="0 0 792 640"><circle cx="396" cy="270" r="190" fill="none" stroke="#FFFFFF" stroke-width="44"/>
+<circle id="arc" cx="396" cy="270" r="190" fill="none" stroke="#3DD990" stroke-width="44" stroke-linecap="round" stroke-dasharray="376 1194" transform="rotate(-90 396 270)"/>
+<text id="pct" x="396" y="296" text-anchor="middle" font-size="96" font-weight="800" fill="#2F5645">31.5%</text>
+<text x="396" y="524" text-anchor="middle" font-size="34" font-weight="700" fill="#2F5645">전체 인구 중 교통약자 비율</text>
+<text id="cnt" x="396" y="590" text-anchor="middle" font-size="46" font-weight="800" fill="#1F7A55">1,613만 명</text></svg>
+<script>var C=2*Math.PI*190,arc=document.getElementById('arc'),pct=document.getElementById('pct'),cnt=document.getElementById('cnt');
+function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/2400),e=1-Math.pow(1-k,3);arc.setAttribute('stroke-dasharray',(C*0.315*e)+' '+C);pct.textContent=(31.5*e).toFixed(1)+'%';cnt.textContent=Math.round(1613*e).toLocaleString()+'만 명';if(k<1)requestAnimationFrame(f);else setTimeout(run,3600)}requestAnimationFrame(f)}run();</script></x-embed>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">03 / 20</p>
+<aside>사회적 규모 (약 30초). 국내 교통약자는 약 1,613만 명으로 전체 인구의 31.5%이고, 일상적으로 휠체어를 사용하는 인구도 20~26만 명이다. 소수의 문제가 아니라 우리 모두의 문제다. (수치 출처는 발표 전에 확인해 두기)</aside>
+</section>

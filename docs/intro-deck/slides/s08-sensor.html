@@ -1,0 +1,30 @@
+<section id="s08-sensor" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">센서 기반 데이터 수집</h2>
+<p style="position:absolute;left:128px;top:236px;width:280px;font-size:26px;font-weight:700;color:#8A3F0B;background:#FFE6D2;padding:6px 18px;border-radius:30px">모바일 앱 전용</p>
+<div style="position:absolute;left:128px;top:320px;width:800px;display:flex;flex-direction:column;gap:28px">
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:20px;padding:28px 36px">
+<p style="font-size:35px;line-height:1.5;color:#24382F">이동 수집을 켜고 걸으면 스마트폰 <b>가속도 센서</b>가 노면 충격을 감지합니다.</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:20px;padding:28px 36px">
+<p style="font-size:35px;line-height:1.5;color:#24382F">충격이 기준을 넘으면 <b>GPS 좌표와 함께</b> 단차 후보로 자동 기록합니다.</p>
+</div>
+</div>
+<x-embed style="position:absolute;left:1000px;top:260px;width:792px;height:640px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif}svg{display:block;width:100%;height:100%}
+.rv{animation:rev 7s linear infinite}
+@keyframes rev{0%{width:0}86%,100%{width:792px}}
+.pa,.pb{animation:pop 7s ease-out infinite}
+.pa{transform-origin:330px 520px;animation-name:popa}.pb{transform-origin:570px 520px;animation-name:popb}
+@keyframes popa{0%,34%{opacity:0;transform:translateY(-40px)}38%,94%{opacity:1;transform:translateY(0)}100%{opacity:0}}
+@keyframes popb{0%,56%{opacity:0;transform:translateY(-40px)}60%,94%{opacity:1;transform:translateY(0)}100%{opacity:0}}</style>
+<svg viewBox="0 0 792 640"><defs><clipPath id="k"><rect class="rv" x="0" y="0" width="792" height="460"/></clipPath></defs>
+<rect x="0" y="40" width="792" height="420" rx="24" fill="#FFFFFF" stroke="#CFEBDD" stroke-width="3"/>
+<path d="M0 210 H792" stroke="#D6403A" stroke-width="4" stroke-dasharray="14 10"/><text x="772" y="196" text-anchor="end" font-size="26" font-weight="700" fill="#B3302B">충격 기준</text>
+<g clip-path="url(#k)"><path d="M0 360 L40 352 L70 368 L100 355 L130 366 L160 358 L190 300 L205 400 L220 360 L260 354 L290 366 L315 358 L330 110 L345 430 L362 360 L400 352 L440 368 L480 356 L520 364 L550 358 L570 150 L585 420 L602 360 L650 355 L700 366 L792 360" fill="none" stroke="#2F5645" stroke-width="6" stroke-linejoin="round"/></g>
+<g class="pa"><circle cx="330" cy="520" r="30" fill="#E8742A" stroke="#FFFFFF" stroke-width="5"/><path d="M318 530 h10 v-10 h10 v-10 h8" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>
+<g class="pb"><circle cx="570" cy="520" r="30" fill="#E8742A" stroke="#FFFFFF" stroke-width="5"/><path d="M558 530 h10 v-10 h10 v-10 h8" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="396" y="610" text-anchor="middle" font-size="30" font-weight="700" fill="#2F5645">기준을 넘는 충격 → 위치와 함께 자동 기록</text></svg></x-embed>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">08 / 20</p>
+<aside>센서 기반 수집 (약 30초). 앱에서 이동 수집을 켜고 걸으면 가속도 센서가 노면 충격을 읽는다. 작은 흔들림은 무시하고 기준을 넘는 충격만 GPS 위치와 함께 단차 후보로 기록한다. 웹에서는 센서를 쓸 수 없어 모바일 앱에서만 지원한다.</aside>
+</section>

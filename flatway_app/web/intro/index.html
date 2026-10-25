@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlatWay 소개</title>
+<link rel="icon" href="../favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#16251d;overflow:hidden;font-family:'Noto Sans KR','Malgun Gothic',sans-serif}
+#view{position:fixed;left:0;top:0;right:0;bottom:56px;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#000}
+.slide{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .35s}
+.slide.on{opacity:1;pointer-events:auto}
+.slide p,.slide h1,.slide h2,.slide h3,.slide ul{margin:0}
+.slide table{border-collapse:collapse}
+.slide th,.slide td{padding:.35em .6em;text-align:left;border-bottom:1px solid #CFEBDD}
+.slide th{font-weight:700;border-bottom:3px solid #2F5645}
+.slide svg{display:block}
+.slide img{display:block}
+#bar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#0f1a14;color:#E0FBEF;font-size:15px}
+#bar button{font:inherit;color:#E0FBEF;background:#24402F;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+#bar button:hover{background:#2F5645}
+#prog{flex:1;height:6px;background:#24402F;border-radius:3px;overflow:hidden}
+#prog i{display:block;height:100%;width:0;background:#3DD990;transition:width .3s}
+#cnt{min-width:64px;text-align:center}
+#ch{color:#8FE8BE;max-width:34vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menu{position:fixed;left:14px;bottom:66px;max-height:70vh;overflow:auto;background:#0f1a14;border:1px solid #2F5645;border-radius:12px;padding:8px;display:none;z-index:5;min-width:280px}
+#menu.open{display:block}
+#menu a{display:flex;gap:10px;padding:8px 12px;color:#E0FBEF;text-decoration:none;border-radius:8px;font-size:15px}
+#menu a:hover,#menu a.cur{background:#24402F}
+#menu a b{color:#3DD990;min-width:26px}
+#menu .h{color:#8FE8BE;font-size:13px;padding:10px 12px 4px}
+#notes{position:fixed;left:0;right:0;bottom:56px;background:rgba(15,26,20,.94);color:#E0FBEF;padding:14px 22px;font-size:18px;line-height:1.6;display:none;z-index:4}
+#notes.open{display:block}
+@media (max-width:640px){#ch{display:none}}
+</style>
+</head>
+<body>
+<div id="view"><div id="stage">
+<section class="slide" id="s01-cover" data-transition="fade" style="background:#2f5645">
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:150px; left:1000px; width:780px; height:780px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.ring{transform-origin:430px 430px;animation:spin 28s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.road{stroke-dasharray:18 16;animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-34}}
+.pin{transform-origin:640px 330px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.25)}}
+.dot{transform-origin:300px 300px;animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.06)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 780 780&quot;&gt;&lt;circle class=&quot;dot&quot; cx=&quot;300&quot; cy=&quot;300&quot; r=&quot;200&quot; fill=&quot;#3E6F59&quot;/&gt;
+&lt;g class=&quot;ring&quot;&gt;&lt;circle cx=&quot;430&quot; cy=&quot;430&quot; r=&quot;215&quot; fill=&quot;none&quot; stroke=&quot;#E0FBEF&quot; stroke-width=&quot;78&quot;/&gt;
+&lt;path id=&quot;c&quot; d=&quot;M430,215 a215,215 0 1,1 -0.1,0&quot; fill=&quot;none&quot;/&gt;
+&lt;text font-size=&quot;40&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot; letter-spacing=&quot;3&quot;&gt;&lt;textPath href=&quot;#c&quot; textLength=&quot;1330&quot; lengthAdjust=&quot;spacing&quot;&gt;Making Every Road Accessible · Making Every Road Accessible ·&lt;/textPath&gt;&lt;/text&gt;&lt;/g&gt;
+&lt;path class=&quot;road&quot; d=&quot;M90 640 C 260 640, 300 470, 430 470 S 600 380, 640 330&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;g class=&quot;pin&quot;&gt;&lt;circle cx=&quot;640&quot; cy=&quot;330&quot; r=&quot;30&quot; fill=&quot;#3DD990&quot; stroke=&quot;#E0FBEF&quot; stroke-width=&quot;6&quot;/&gt;&lt;circle cx=&quot;640&quot; cy=&quot;330&quot; r=&quot;11&quot; fill=&quot;#2F5645&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; top:88px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:500; color:#bfe9d4">작전여자고등학교 · AI·디지털 기반 문제해결 고도화 발표</p>
+  <h1 style="position:absolute; top:377.19px; left:128px; width:872px; height:362.81px; font-family:'Black Han Sans', sans-serif; font-size:220px; font-weight:400; line-height:1; color:#3dd990">FlatWay</h1>
+  <p style="position:absolute; top:560px; left:128px; width:820px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:500; line-height:1.4; color:#e0fbef">휠체어 사용자 및 보행 약자를 위한<br>안전 경로 길찾기 앱</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:500; color:#bfe9d4">2026. 11. 7&nbsp; 2026 인천 AI 이래채움 교육 페스티벌</p>
+  
+</section>
+
+<section class="slide" id="s02-motive" data-transition="fade" style="background:#f6fcf9">
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 1 · 왜 만들었나</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">개인적 동기</h2>
+  <div style="position:absolute; top:300px; left:128px; width:800px; display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; padding:30px 36px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; line-height:1.5; color:#24382f">학교 근처에서 휠체어 사용자가 <b>보도 단차</b>를&nbsp;<br>넘지 못해 멈춰 계신 모습을 목격했습니다.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; padding:30px 36px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; line-height:1.5; color:#24382f">다리를 다친 친구가&nbsp;<br><b>혼자 다니기 곤란해하는</b>&nbsp;<br>모습도 보았습니다.</p>
+    </div>
+  </div>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:260px; left:1000px; width:792px; height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.chair{transform-origin:90px 470px;animation:roll 7s ease-in-out infinite}
+@keyframes roll{0%{transform:translateX(0) rotate(0deg)}38%{transform:translateX(255px) rotate(0deg)}42%{transform:translateX(238px) rotate(-5deg)}46%{transform:translateX(255px) rotate(0deg)}50%{transform:translateX(240px) rotate(-4deg)}54%{transform:translateX(255px) rotate(0deg)}78%{transform:translateX(0) rotate(0deg)}100%{transform:translateX(0) rotate(0deg)}}
+.warn{transform-origin:400px 360px;animation:blink 7s ease-in-out infinite}
+@keyframes blink{0%,30%{opacity:.15;transform:scale(.9)}38%,56%{opacity:1;transform:scale(1.12)}70%,100%{opacity:.15;transform:scale(.9)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;path d=&quot;M0 470 H400 V410 H792 V640 H0 Z&quot; fill=&quot;#DDF3E8&quot;/&gt;
+&lt;path d=&quot;M0 470 H400 V410 H792&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;10&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;g class=&quot;chair&quot;&gt;&lt;circle cx=&quot;90&quot; cy=&quot;420&quot; r=&quot;50&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;10&quot;/&gt;&lt;circle cx=&quot;90&quot; cy=&quot;420&quot; r=&quot;7&quot; fill=&quot;#2F5645&quot;/&gt;&lt;circle cx=&quot;172&quot; cy=&quot;456&quot; r=&quot;14&quot; fill=&quot;#2F5645&quot;/&gt;
+&lt;path d=&quot;M62 330 L62 392 L150 392 L166 450&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;10&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;circle cx=&quot;96&quot; cy=&quot;290&quot; r=&quot;26&quot; fill=&quot;#3DD990&quot;/&gt;&lt;path d=&quot;M96 322 L96 385&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;26&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;warn&quot;&gt;&lt;path d=&quot;M400 330 L440 392 L360 392 Z&quot; fill=&quot;#E8742A&quot; stroke=&quot;#E8742A&quot; stroke-width=&quot;6&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;rect x=&quot;396&quot; y=&quot;350&quot; width=&quot;8&quot; height=&quot;24&quot; fill=&quot;#fff&quot;/&gt;&lt;circle cx=&quot;400&quot; cy=&quot;382&quot; r=&quot;5&quot; fill=&quot;#fff&quot;/&gt;&lt;/g&gt;
+&lt;text x=&quot;396&quot; y=&quot;570&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;휠체어가 지나가기 불편한 단차&lt;/text&gt;&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">02 / 20</p>
+  
+</section>
+
+<section class="slide" id="s03-scale" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 1 · 왜 만들었나</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">사회적 규모</h2>
+<div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:28px">
+<div style="background:#FFFFFF;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#1F7A55">1,613만 명</p>
+<p style="font-size:34px;line-height:1.4;color:#24382F">국내 교통약자 · 전체 인구의 31.5%</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#1F7A55">20~26만 명</p>
+<p style="font-size:34px;line-height:1.4;color:#24382F">일상적으로 휠체어를 사용하는 인구</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;circle cx=&quot;396&quot; cy=&quot;270&quot; r=&quot;190&quot; fill=&quot;none&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;44&quot;/&gt;
+&lt;circle id=&quot;arc&quot; cx=&quot;396&quot; cy=&quot;270&quot; r=&quot;190&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;44&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;376 1194&quot; transform=&quot;rotate(-90 396 270)&quot;/&gt;
+&lt;text id=&quot;pct&quot; x=&quot;396&quot; y=&quot;296&quot; text-anchor=&quot;middle&quot; font-size=&quot;96&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;31.5%&lt;/text&gt;
+&lt;text x=&quot;396&quot; y=&quot;524&quot; text-anchor=&quot;middle&quot; font-size=&quot;34&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;전체 인구 중 교통약자 비율&lt;/text&gt;
+&lt;text id=&quot;cnt&quot; x=&quot;396&quot; y=&quot;590&quot; text-anchor=&quot;middle&quot; font-size=&quot;46&quot; font-weight=&quot;800&quot; fill=&quot;#1F7A55&quot;&gt;1,613만 명&lt;/text&gt;&lt;/svg&gt;
+&lt;script&gt;var C=2*Math.PI*190,arc=document.getElementById(&#x27;arc&#x27;),pct=document.getElementById(&#x27;pct&#x27;),cnt=document.getElementById(&#x27;cnt&#x27;);
+function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/2400),e=1-Math.pow(1-k,3);arc.setAttribute(&#x27;stroke-dasharray&#x27;,(C*0.315*e)+&#x27; &#x27;+C);pct.textContent=(31.5*e).toFixed(1)+&#x27;%&#x27;;cnt.textContent=Math.round(1613*e).toLocaleString()+&#x27;만 명&#x27;;if(k&lt;1)requestAnimationFrame(f);else setTimeout(run,3600)}requestAnimationFrame(f)}run();&lt;/script&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">03 / 20</p>
+
+</section>
+
+<section class="slide" id="s04-case" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 1 · 왜 만들었나</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">현실 사례</h2>
+<div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:28px">
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#C25B16">40%</p>
+<p style="font-size:34px;line-height:1.4;color:#24382F">응급실 손상환자 원인 1위는 낙상·추락</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#C25B16">10명 중 3명</p>
+<p style="font-size:34px;line-height:1.4;color:#24382F">장애인이 외출 시<br>이동수단 이용에 어려움을 겪습니다</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.bar{transform-origin:76px 140px;animation:grow 6s ease-out infinite}
+@keyframes grow{0%{transform:scaleX(0)}35%,92%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+.p{fill:#E8742A;animation:lit 6s ease-out infinite}
+.p2{animation-delay:.5s}.p3{animation-delay:1s}
+@keyframes lit{0%{fill:#C9E3D5}30%,92%{fill:#E8742A}100%{fill:#C9E3D5}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;text x=&quot;76&quot; y=&quot;78&quot; font-size=&quot;38&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;낙상·추락 사고 비율&lt;/text&gt;
+&lt;rect x=&quot;76&quot; y=&quot;112&quot; width=&quot;640&quot; height=&quot;56&quot; rx=&quot;28&quot; fill=&quot;#DDF3E8&quot;/&gt;
+&lt;rect class=&quot;bar&quot; x=&quot;76&quot; y=&quot;112&quot; width=&quot;256&quot; height=&quot;56&quot; rx=&quot;28&quot; fill=&quot;#E8742A&quot;/&gt;
+&lt;text x=&quot;716&quot; y=&quot;214&quot; text-anchor=&quot;end&quot; font-size=&quot;34&quot; font-weight=&quot;800&quot; fill=&quot;#C25B16&quot;&gt;40%&lt;/text&gt;
+&lt;text x=&quot;76&quot; y=&quot;330&quot; font-size=&quot;38&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;외출이 어려운 장애인&lt;/text&gt;
+&lt;g transform=&quot;translate(76 360)&quot;&gt;&lt;g class=&quot;p&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(148 360)&quot;&gt;&lt;g class=&quot;p p2&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(220 360)&quot;&gt;&lt;g class=&quot;p p3&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;&lt;/g&gt;
+&lt;g fill=&quot;#C9E3D5&quot;&gt;&lt;g transform=&quot;translate(292 360)&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(364 360)&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(436 360)&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(508 360)&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(580 360)&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;
+&lt;g transform=&quot;translate(652 360)&quot;&gt;&lt;circle cx=&quot;30&quot; cy=&quot;20&quot; r=&quot;20&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;46&quot; width=&quot;44&quot; height=&quot;76&quot; rx=&quot;18&quot;/&gt;&lt;/g&gt;&lt;/g&gt;
+&lt;text x=&quot;76&quot; y=&quot;560&quot; font-size=&quot;40&quot; font-weight=&quot;800&quot; fill=&quot;#C25B16&quot;&gt;10명 중 3명 이상&lt;/text&gt;&lt;/svg&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">04 / 20</p>
+
+</section>
+
+<section class="slide" id="s05-existing" data-transition="fade" style="background:#e0fbef">
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 2 · 기존 서비스의 한계</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">기존 서비스</h2>
+  <div style="position:absolute; top:300px; left:128px; width:800px; display:flex; flex-direction:column; gap:28px">
+    <div style="display:flex; flex-direction:column; gap:10px; padding:30px 36px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#2f5645">기존의 네이버지도, 카카오 맵</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:33px; line-height:1.5; color:#24382f">지하철 내부와 건물 장소 정보는 있지만, 실제 보도의 <b>단차·경사·파손</b> 정보는 없습니다.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; padding:30px 36px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#2f5645">기존의 장애인 전용 앱·공공 데이터</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:33px; line-height:1.5; color:#24382f">단차·파손·경사를 종합한 경로 안내가 없고, 지자체 편의시설 데이터는 <b>갱신이 중단</b>되어 실제와 다릅니다.</p>
+    </div>
+  </div>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:260px; left:1000px; width:792px; height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.q{transform-box:fill-box;transform-origin:center;animation:ask 4.8s ease-in-out infinite}
+.q2{animation-delay:.6s}.q3{animation-delay:1.2s}.q4{animation-delay:1.8s}
+@keyframes ask{0%,100%{transform:scale(.85);opacity:.45}50%{transform:scale(1.15);opacity:1}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;792&quot; height=&quot;640&quot; rx=&quot;28&quot; fill=&quot;#F4FAF7&quot;/&gt;
+&lt;g stroke=&quot;#FFFFFF&quot; stroke-width=&quot;26&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot;&gt;&lt;path d=&quot;M0 160H792M0 320H792M0 480H792M200 0V640M420 0V640M620 0V640&quot;/&gt;&lt;/g&gt;
+&lt;path id=&quot;r&quot; d=&quot;M60 480 H200 V320 H420 V160 H730&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;g fill=&quot;#FFFFFF&quot; stroke=&quot;#8AA89A&quot; stroke-width=&quot;5&quot; stroke-dasharray=&quot;9 7&quot;&gt;&lt;circle class=&quot;q&quot; cx=&quot;200&quot; cy=&quot;400&quot; r=&quot;30&quot;/&gt;&lt;circle class=&quot;q q2&quot; cx=&quot;310&quot; cy=&quot;320&quot; r=&quot;30&quot;/&gt;&lt;circle class=&quot;q q3&quot; cx=&quot;420&quot; cy=&quot;240&quot; r=&quot;30&quot;/&gt;&lt;circle class=&quot;q q4&quot; cx=&quot;570&quot; cy=&quot;160&quot; r=&quot;30&quot;/&gt;&lt;/g&gt;
+&lt;g font-size=&quot;38&quot; font-weight=&quot;800&quot; fill=&quot;#5B7566&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;200&quot; y=&quot;414&quot;&gt;?&lt;/text&gt;&lt;text x=&quot;310&quot; y=&quot;334&quot;&gt;?&lt;/text&gt;&lt;text x=&quot;420&quot; y=&quot;254&quot;&gt;?&lt;/text&gt;&lt;text x=&quot;570&quot; y=&quot;174&quot;&gt;?&lt;/text&gt;&lt;/g&gt;
+&lt;circle r=&quot;16&quot; fill=&quot;#2F5645&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;6s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M60 480 H200 V320 H420 V160 H730&quot;/&gt;&lt;/circle&gt;
+&lt;rect x=&quot;36&quot; y=&quot;548&quot; width=&quot;720&quot; height=&quot;68&quot; rx=&quot;34&quot; fill=&quot;#2F5645&quot;/&gt;&lt;text x=&quot;396&quot; y=&quot;594&quot; text-anchor=&quot;middle&quot; font-size=&quot;31&quot; font-weight=&quot;700&quot; fill=&quot;#E0FBEF&quot;&gt;위험 구간을 모른 채 최단 경로만 안내&lt;/text&gt;&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">05 / 20</p>
+  
+</section>
+
+<section class="slide" id="s06-compare" data-transition="fade" style="background:#f6fcf9">
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 2 · 기존 서비스의 한계</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">FlatWay, 어떻게 다른가?</h2>
+  <table style="position:absolute; top:300px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:32px; color:#24382f">
+    <tr><th style="width:20%"></th><th style="width:20%; text-align:center">카카오맵·네이버 지도</th><th style="width:20%; text-align:center">휠비</th><th style="width:40%; text-align:center; color:#1f7a55">FlatWay</th></tr>
+    <tr style="background:#ffffff"><td style="color:#1f7a55">단차·파손 반영</td><td style="text-align:center">없음</td><td style="text-align:center">표시만, 우회 불가</td><td style="text-align:center">위험 정보 기반 자동 우회</td></tr>
+    <tr style="background:#eaf6f0"><td style="color:#1f7a55">이동수단별 경로</td><td style="text-align:center">미분리</td><td style="text-align:center">미분리</td><td style="text-align:center">보행·전동·수동 휠체어 분리</td></tr>
+    <tr style="background:#ffffff"><td style="color:#1f7a55">건물 내부 연계</td><td style="text-align:center">미지원</td><td style="text-align:center">미지원</td><td style="text-align:center; color:#b4500f">개발 계획 중</td></tr>
+    <tr style="background:#eaf6f0"><td style="color:#1f7a55">실시간 반영</td><td style="text-align:center">미지원</td><td style="text-align:center">미지원</td><td style="text-align:center">앱·웹 즉시 동기화</td></tr>
+  </table>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:290px; left:1126px; width:666px; height:370px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
+.g{animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{0%,100%{stroke-opacity:.55;filter:drop-shadow(0 0 2px #3DD990)}50%{stroke-opacity:1;filter:drop-shadow(0 0 14px #3DD990)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 666 370&quot;&gt;&lt;rect class=&quot;g&quot; x=&quot;5&quot; y=&quot;5&quot; width=&quot;656&quot; height=&quot;360&quot; rx=&quot;18&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;7&quot;/&gt;
+&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; top:716px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:28px; color:#4f6a5c">※ 건물 내부 연계는 현재 개발 계획 중입니다.</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">06 / 20</p>
+  
+</section>
+
+<section class="slide" id="s07-arch" data-transition="fade" style="background:#e0fbef">
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 3 · FlatWay 핵심 기술</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">시스템 구조</h2>
+  <div style="position:absolute; top:300px; left:128px; width:800px; display:flex; flex-direction:column; gap:22px">
+    <div style="display:flex; flex-direction:column; gap:6px; padding:24px 34px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#1f7a55">FlatWay 앱 (안드로이드·웹)</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.45; color:#24382f">지도 · 위험 제보 · 안전 길찾기</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:6px; padding:24px 34px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#1f7a55">관리자 웹 대시보드</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.45; color:#24382f">위험도·유형별 필터와 히트맵으로 유지보수 현황 파악</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:6px; padding:24px 34px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#1f7a55">실시간 클라우드 데이터베이스(Supabase)</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.45; color:#24382f">제보·사진·사용자 계정을 저장하고 앱과 웹에 즉시 반영</p>
+    </div>
+  </div>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:260px; left:1000px; width:792px; height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;g stroke=&quot;#8AA89A&quot; stroke-width=&quot;5&quot; stroke-dasharray=&quot;10 8&quot; fill=&quot;none&quot;&gt;&lt;path d=&quot;M150 230 L330 420&quot;/&gt;&lt;path d=&quot;M642 230 L462 420&quot;/&gt;&lt;/g&gt;
+&lt;rect x=&quot;30&quot; y=&quot;90&quot; width=&quot;240&quot; height=&quot;140&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;150&quot; y=&quot;147&quot; text-anchor=&quot;middle&quot; font-size=&quot;34&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;FlatWay&lt;/text&gt;&lt;text x=&quot;150&quot; y=&quot;192&quot; text-anchor=&quot;middle&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;앱&lt;/text&gt;
+&lt;rect x=&quot;522&quot; y=&quot;90&quot; width=&quot;240&quot; height=&quot;140&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;642&quot; y=&quot;147&quot; text-anchor=&quot;middle&quot; font-size=&quot;34&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;관리자 웹&lt;/text&gt;&lt;text x=&quot;642&quot; y=&quot;192&quot; text-anchor=&quot;middle&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;대시보드&lt;/text&gt;
+&lt;g&gt;&lt;ellipse cx=&quot;396&quot; cy=&quot;450&quot; rx=&quot;130&quot; ry=&quot;36&quot; fill=&quot;#2F5645&quot;/&gt;&lt;path d=&quot;M266 450 V540 A130 36 0 0 0 526 540 V450&quot; fill=&quot;#2F5645&quot;/&gt;&lt;ellipse cx=&quot;396&quot; cy=&quot;450&quot; rx=&quot;130&quot; ry=&quot;36&quot; fill=&quot;#3E6F59&quot;/&gt;&lt;text x=&quot;396&quot; y=&quot;548&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;클라우드 데이터베이스&lt;/text&gt;&lt;/g&gt;
+&lt;circle r=&quot;13&quot; fill=&quot;#E8742A&quot;&gt;&lt;animateMotion dur=&quot;3s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M150 230 L330 420&quot;/&gt;&lt;/circle&gt;
+&lt;circle r=&quot;13&quot; fill=&quot;#3DD990&quot;&gt;&lt;animateMotion dur=&quot;3s&quot; begin=&quot;1s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M462 420 L642 230&quot;/&gt;&lt;/circle&gt;
+&lt;circle r=&quot;13&quot; fill=&quot;#3DD990&quot;&gt;&lt;animateMotion dur=&quot;3s&quot; begin=&quot;2s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M330 420 L150 230&quot;/&gt;&lt;/circle&gt;
+&lt;text x=&quot;150&quot; y=&quot;300&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#B4500F&quot;&gt;제보&lt;/text&gt;&lt;text x=&quot;560&quot; y=&quot;300&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;현황&lt;/text&gt;&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">07 / 20</p>
+  
+</section>
+
+<section class="slide" id="s08-sensor" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">센서 기반 데이터 수집</h2>
+<p style="position:absolute;left:128px;top:236px;width:280px;font-size:26px;font-weight:700;color:#8A3F0B;background:#FFE6D2;padding:6px 18px;border-radius:30px">모바일 앱 전용</p>
+<div style="position:absolute;left:128px;top:320px;width:800px;display:flex;flex-direction:column;gap:28px">
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:20px;padding:28px 36px">
+<p style="font-size:35px;line-height:1.5;color:#24382F">이동 수집을 켜고 걸으면 스마트폰 <b>가속도 센서</b>가 노면 충격을 감지합니다.</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:20px;padding:28px 36px">
+<p style="font-size:35px;line-height:1.5;color:#24382F">충격이 기준을 넘으면 <b>GPS 좌표와 함께</b> 단차 후보로 자동 기록합니다.</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.rv{animation:rev 7s linear infinite}
+@keyframes rev{0%{width:0}86%,100%{width:792px}}
+.pa,.pb{animation:pop 7s ease-out infinite}
+.pa{transform-origin:330px 520px;animation-name:popa}.pb{transform-origin:570px 520px;animation-name:popb}
+@keyframes popa{0%,34%{opacity:0;transform:translateY(-40px)}38%,94%{opacity:1;transform:translateY(0)}100%{opacity:0}}
+@keyframes popb{0%,56%{opacity:0;transform:translateY(-40px)}60%,94%{opacity:1;transform:translateY(0)}100%{opacity:0}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;defs&gt;&lt;clipPath id=&quot;k&quot;&gt;&lt;rect class=&quot;rv&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;792&quot; height=&quot;460&quot;/&gt;&lt;/clipPath&gt;&lt;/defs&gt;
+&lt;rect x=&quot;0&quot; y=&quot;40&quot; width=&quot;792&quot; height=&quot;420&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#CFEBDD&quot; stroke-width=&quot;3&quot;/&gt;
+&lt;path d=&quot;M0 210 H792&quot; stroke=&quot;#D6403A&quot; stroke-width=&quot;4&quot; stroke-dasharray=&quot;14 10&quot;/&gt;&lt;text x=&quot;772&quot; y=&quot;196&quot; text-anchor=&quot;end&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#B3302B&quot;&gt;충격 기준&lt;/text&gt;
+&lt;g clip-path=&quot;url(#k)&quot;&gt;&lt;path d=&quot;M0 360 L40 352 L70 368 L100 355 L130 366 L160 358 L190 300 L205 400 L220 360 L260 354 L290 366 L315 358 L330 110 L345 430 L362 360 L400 352 L440 368 L480 356 L520 364 L550 358 L570 150 L585 420 L602 360 L650 355 L700 366 L792 360&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;6&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;pa&quot;&gt;&lt;circle cx=&quot;330&quot; cy=&quot;520&quot; r=&quot;30&quot; fill=&quot;#E8742A&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M318 530 h10 v-10 h10 v-10 h8&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;pb&quot;&gt;&lt;circle cx=&quot;570&quot; cy=&quot;520&quot; r=&quot;30&quot; fill=&quot;#E8742A&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M558 530 h10 v-10 h10 v-10 h8&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
+&lt;text x=&quot;396&quot; y=&quot;610&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;기준을 넘는 충격 → 위치와 함께 자동 기록&lt;/text&gt;&lt;/svg&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">08 / 20</p>
+
+</section>
+
+<section class="slide" id="s09-verify" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">교차검증 점수</h2>
+<p style="position:absolute;left:128px;top:236px;width:240px;font-size:26px;font-weight:700;color:#8A3F0B;background:#FFD9B8;padding:6px 18px;border-radius:30px">개발 계획 중</p>
+<div style="position:absolute;left:128px;top:320px;width:800px;display:flex;flex-direction:column;gap:24px">
+<div style="background:#FFFFFF;border-radius:20px;padding:28px 36px">
+<p style="font-size:34px;line-height:1.5;color:#24382F">같은 위치를 지나간 다른 사용자의 센서 기록과 비교해 <b>신뢰도 점수</b>를 매깁니다.</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:28px 36px">
+<p style="font-size:34px;line-height:1.5;color:#24382F">50% 미만은 <b>검증 대기</b>, 50% 이상은 정식 위험 핀으로 등록해 허위 제보를 막습니다.</p>
+</div>
+<p style="font-size:28px;line-height:1.5;color:#4F6A5C">현재는 제보 상세에서 ‘도움이 돼요’ 확인 버튼까지 제공합니다.</p>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;circle cx=&quot;396&quot; cy=&quot;270&quot; r=&quot;170&quot; fill=&quot;none&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;40&quot;/&gt;
+&lt;circle id=&quot;arc&quot; cx=&quot;396&quot; cy=&quot;270&quot; r=&quot;170&quot; fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;40&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;748 1068&quot; transform=&quot;rotate(-90 396 270)&quot;/&gt;
+&lt;path id=&quot;pin&quot; d=&quot;M396 190 a56 56 0 1 1 0.1 0 Z M396 190 c-40 0 -64 30 -64 62 c0 38 50 80 64 96 c14 -16 64 -58 64 -96 c0 -32 -24 -62 -64 -62 Z&quot; fill=&quot;#2F9E6C&quot; fill-rule=&quot;evenodd&quot; transform=&quot;translate(0 -10)&quot;/&gt;
+&lt;text id=&quot;pc&quot; x=&quot;396&quot; y=&quot;292&quot; text-anchor=&quot;middle&quot; font-size=&quot;68&quot; font-weight=&quot;800&quot; fill=&quot;#000000&quot;&gt;70%&lt;/text&gt;
+&lt;text id=&quot;lb&quot; x=&quot;396&quot; y=&quot;540&quot; text-anchor=&quot;middle&quot; font-size=&quot;42&quot; font-weight=&quot;800&quot; fill=&quot;#1F7A55&quot;&gt;정식 위험 핀 등록&lt;/text&gt;
+&lt;text x=&quot;396&quot; y=&quot;590&quot; text-anchor=&quot;middle&quot; font-size=&quot;28&quot; font-weight=&quot;700&quot; fill=&quot;#4F6A5C&quot;&gt;신뢰도 50% 기준&lt;/text&gt;&lt;/svg&gt;
+&lt;script&gt;var C=2*Math.PI*170,arc=document.getElementById(&#x27;arc&#x27;),pin=document.getElementById(&#x27;pin&#x27;),pc=document.getElementById(&#x27;pc&#x27;),lb=document.getElementById(&#x27;lb&#x27;);
+function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/4200),v=Math.round(70*k);arc.setAttribute(&#x27;stroke-dasharray&#x27;,(C*v/100)+&#x27; &#x27;+C);var ok=v&gt;=50;var col=ok?&#x27;#2F9E6C&#x27;:&#x27;#E5A81B&#x27;;arc.setAttribute(&#x27;stroke&#x27;,col);pin.setAttribute(&#x27;fill&#x27;,col);pc.textContent=v+&#x27;%&#x27;;lb.textContent=ok?&#x27;정식 위험 핀 등록&#x27;:&#x27;검증 대기&#x27;;lb.setAttribute(&#x27;fill&#x27;,ok?&#x27;#1F7A55&#x27;:&#x27;#8A5A00&#x27;);if(k&lt;1)requestAnimationFrame(f);else setTimeout(run,2600)}requestAnimationFrame(f)}run();&lt;/script&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">09 / 20</p>
+
+</section>
+
+<section class="slide" id="s10-modes" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">맞춤형 경로 계산</h2>
+<div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:36px;line-height:1.5;color:#24382F">같은 목적지라도 <b>이동 수단에 따라</b> 길을 따로 계산합니다.</p>
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-size:34px;font-weight:700;color:#8A3F0B;background:#FFE6D2;padding:14px 28px;border-radius:14px;width:400px">보행자</p>
+<p style="font-size:34px;font-weight:700;color:#0B4F82;background:#D6EBFA;padding:14px 28px;border-radius:14px;width:400px">전동휠체어</p>
+<p style="font-size:34px;font-weight:700;color:#1B5E3C;background:#D3F1E1;padding:14px 28px;border-radius:14px;width:400px">수동휠체어</p>
+</div>
+<p style="font-size:28px;line-height:1.5;color:#8A3F0B;font-weight:700">허용 단차·최대 경사도 직접 입력은 개발 계획 중</p>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.h{transform-box:fill-box;transform-origin:center;animation:pl 2.4s ease-in-out infinite}
+@keyframes pl{50%{transform:scale(1.18)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;rect width=&quot;792&quot; height=&quot;640&quot; rx=&quot;28&quot; fill=&quot;#EAF6F0&quot;/&gt;
+&lt;path d=&quot;M80 520 L400 340 L710 150&quot; fill=&quot;none&quot; stroke=&quot;#E8742A&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;path d=&quot;M80 520 C 200 540, 330 260, 710 150&quot; fill=&quot;none&quot; stroke=&quot;#2B8FD6&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;path d=&quot;M80 520 C 90 300, 400 110, 710 150&quot; fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;g class=&quot;h&quot;&gt;&lt;rect x=&quot;372&quot; y=&quot;312&quot; width=&quot;56&quot; height=&quot;56&quot; rx=&quot;12&quot; fill=&quot;#E8742A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M386 354 h10 v-10 h10 v-10 h8&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
+&lt;circle r=&quot;15&quot; fill=&quot;#E8742A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;5s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M80 520 L400 340 L710 150&quot;/&gt;&lt;/circle&gt;
+&lt;circle r=&quot;15&quot; fill=&quot;#2B8FD6&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;5s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M80 520 C 200 540, 330 260, 710 150&quot;/&gt;&lt;/circle&gt;
+&lt;circle r=&quot;15&quot; fill=&quot;#2F9E6C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;5s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M80 520 C 90 300, 400 110, 710 150&quot;/&gt;&lt;/circle&gt;
+&lt;circle cx=&quot;80&quot; cy=&quot;520&quot; r=&quot;26&quot; fill=&quot;#2F5645&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;80&quot; y=&quot;531&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;A&lt;/text&gt;
+&lt;circle cx=&quot;710&quot; cy=&quot;150&quot; r=&quot;26&quot; fill=&quot;#D6403A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;710&quot; y=&quot;161&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;B&lt;/text&gt;
+&lt;text x=&quot;396&quot; y=&quot;612&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;출발(A)에서 도착(B)까지 세 갈래 경로&lt;/text&gt;&lt;/svg&gt;"></iframe>
+<p style="position:absolute;left:128px;top:812px;width:800px;font-size:26px;line-height:1.45;color:#4F6A5C">※ 길 계산에는 오픈스트리트맵(OpenStreetMap) 도로 데이터를 쓰는 오픈소스 경로 엔진(OSRM)을 사용했어요.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">10 / 20</p>
+
+</section>
+
+<section class="slide" id="s11-upgrade" data-transition="fade" style="background:#f6fcf9">
+  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">고도화 한눈에 보기</h2>
+  <div style="position:absolute; top:262px; left:128px; width:1664px; display:flex; flex-direction:row; gap:32px">
+    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
+      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#1f7a55">166개</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#24382f">전체 작업 횟수 (8/19~)</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
+      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#1f7a55">4명</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#24382f">함께 만든 팀원</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
+      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#1f7a55">14개</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#24382f">알고리즘 테스트 통과</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#2f5645; border-radius:20px">
+      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#3dd990">4가지</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#e0fbef">핵심 개선</p>
+    </div>
+  </div>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:520px; left:128px; width:1664px; height:380px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.ln{stroke-dasharray:1560;animation:draw 8s ease-in-out infinite}
+@keyframes draw{0%{stroke-dashoffset:1560}40%,100%{stroke-dashoffset:0}}
+.d{transform-box:fill-box;transform-origin:center;animation:pop 8s ease-out infinite backwards}
+.d1{animation-delay:0s}.d2{animation-delay:.9s}.d3{animation-delay:1.8s}.d4{animation-delay:2.7s}
+@keyframes pop{0%{transform:scale(0)}10%{transform:scale(1.35)}16%,100%{transform:scale(1)}}
+.t{animation:fade 8s ease-out infinite backwards}
+.t1{animation-delay:0s}.t2{animation-delay:.9s}.t3{animation-delay:1.8s}.t4{animation-delay:2.7s}
+@keyframes fade{0%{opacity:0}14%,100%{opacity:1}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 1664 380&quot;&gt;&lt;path class=&quot;ln&quot; d=&quot;M60 120 H1604&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; fill=&quot;none&quot;/&gt;
+&lt;g class=&quot;d d1&quot;&gt;&lt;circle cx=&quot;150&quot; cy=&quot;120&quot; r=&quot;26&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;d d2&quot;&gt;&lt;circle cx=&quot;560&quot; cy=&quot;120&quot; r=&quot;26&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;d d3&quot;&gt;&lt;circle cx=&quot;1030&quot; cy=&quot;120&quot; r=&quot;26&quot; fill=&quot;#E8742A&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;d d4&quot;&gt;&lt;circle cx=&quot;1480&quot; cy=&quot;120&quot; r=&quot;26&quot; fill=&quot;#E8742A&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;t t1&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;150&quot; y=&quot;64&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;8/19&lt;/text&gt;&lt;text x=&quot;150&quot; y=&quot;214&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#24382F&quot;&gt;프로젝트 시작&lt;/text&gt;&lt;/g&gt;
+&lt;g class=&quot;t t2&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;560&quot; y=&quot;64&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;8/26~27&lt;/text&gt;&lt;text x=&quot;560&quot; y=&quot;214&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#24382F&quot;&gt;UI 개편 · 로그인&lt;/text&gt;&lt;/g&gt;
+&lt;g class=&quot;t t3&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;1030&quot; y=&quot;64&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#B4500F&quot;&gt;10/18&lt;/text&gt;&lt;text x=&quot;1030&quot; y=&quot;214&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#24382F&quot;&gt;웹 공개 · 카테고리 정리&lt;/text&gt;&lt;text x=&quot;1030&quot; y=&quot;260&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#24382F&quot;&gt;위험 회피 길찾기&lt;/text&gt;&lt;/g&gt;
+&lt;g class=&quot;t t4&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;1480&quot; y=&quot;64&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#B4500F&quot;&gt;10/23&lt;/text&gt;&lt;text x=&quot;1480&quot; y=&quot;214&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#24382F&quot;&gt;이동수단별 회피&lt;/text&gt;&lt;text x=&quot;1480&quot; y=&quot;260&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#24382F&quot;&gt;알고리즘 구현&lt;/text&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">11 / 20</p>
+  
+</section>
+
+<section class="slide" id="s12-qr" data-transition="fade" style="background:#2F5645;color:#E0FBEF;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#8FE8BE;letter-spacing:2px">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:96px;font-weight:400;line-height:1.1;color:#3DD990">직접 써 보세요</h2>
+<div style="position:absolute;left:128px;top:340px;width:880px;display:flex;flex-direction:column;gap:30px">
+<p style="font-size:46px;font-weight:500;line-height:1.5;color:#E0FBEF">휴대폰 카메라로 QR을 스캔하면<br><b>설치 없이 바로</b> 열립니다.</p>
+<p style="font-size:30px;font-weight:500;line-height:1.5;color:#BFE9D4">temporary-express-flint-jxi3l4g.vercel.app</p>
+<p style="font-size:32px;font-weight:700;line-height:1.5;color:#3DD990">다음 슬라이드부터는 오른쪽 위 QR로<br>언제든 접속할 수 있어요.</p>
+</div>
+<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;left:1160px;top:300px;width:481px;height:481px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1130px;top:270px;width:541px;height:541px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
+.c{animation:p 1.8s ease-in-out infinite}
+@keyframes p{50%{stroke-width:14;opacity:.8}}
+.sc{animation:s 3s ease-in-out infinite}
+@keyframes s{0%,100%{transform:translateY(0)}50%{transform:translateY(440px)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 541 541&quot;&gt;&lt;g fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;10&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path class=&quot;c&quot; d=&quot;M20 90 V20 H90&quot;/&gt;&lt;path class=&quot;c&quot; d=&quot;M451 20 H521 V90&quot;/&gt;&lt;path class=&quot;c&quot; d=&quot;M521 451 V521 H451&quot;/&gt;&lt;path class=&quot;c&quot; d=&quot;M90 521 H20 V451&quot;/&gt;&lt;/g&gt;
+&lt;rect class=&quot;sc&quot; x=&quot;40&quot; y=&quot;46&quot; width=&quot;461&quot; height=&quot;10&quot; rx=&quot;5&quot; fill=&quot;#3DD990&quot; opacity=&quot;0.8&quot;/&gt;&lt;/svg&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#8FE8BE">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#8FE8BE;text-align:right">12 / 20</p>
+
+</section>
+
+<section class="slide" id="s13-web" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ① 웹 서비스</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">웹으로 누구나 바로</h2>
+<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
+<div style="position:absolute;left:128px;top:300px;width:740px;display:flex;flex-direction:column;gap:22px">
+<div style="background:#FFFFFF;border-radius:20px;padding:24px 32px;display:flex;flex-direction:column;gap:4px">
+<p style="font-size:35px;font-weight:700;line-height:1.3;color:#1F7A55">설치도 가입도 없이</p>
+<p style="font-size:30px;line-height:1.45;color:#24382F">링크나 QR 한 번으로 바로 접속</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:24px 32px;display:flex;flex-direction:column;gap:4px">
+<p style="font-size:35px;font-weight:700;line-height:1.3;color:#1F7A55">게스트로 바로 시작</p>
+<p style="font-size:30px;line-height:1.45;color:#24382F">로그인은 필요할 때만</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:900px;top:300px;width:540px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.ty{animation:type 8s steps(18) infinite}
+@keyframes type{0%{width:0}25%,100%{width:310px}}
+.mp{animation:mp 8s ease-out infinite}
+@keyframes mp{0%,26%{opacity:0}34%,100%{opacity:1}}
+.pn{transform-box:fill-box;transform-origin:center;animation:pn 8s ease-out infinite}
+.p2{animation-delay:.3s}.p3{animation-delay:.6s}
+@keyframes pn{0%,34%{transform:scale(0)}42%{transform:scale(1.3)}48%,100%{transform:scale(1)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 540 590&quot;&gt;&lt;rect x=&quot;10&quot; y=&quot;10&quot; width=&quot;520&quot; height=&quot;470&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;6&quot;/&gt;
+&lt;rect x=&quot;10&quot; y=&quot;10&quot; width=&quot;520&quot; height=&quot;84&quot; rx=&quot;24&quot; fill=&quot;#2F5645&quot;/&gt;
+&lt;rect x=&quot;30&quot; y=&quot;26&quot; width=&quot;480&quot; height=&quot;52&quot; rx=&quot;26&quot; fill=&quot;#E0FBEF&quot;/&gt;
+&lt;clipPath id=&quot;u&quot;&gt;&lt;rect class=&quot;ty&quot; x=&quot;52&quot; y=&quot;26&quot; width=&quot;0&quot; height=&quot;52&quot;/&gt;&lt;/clipPath&gt;
+&lt;text clip-path=&quot;url(#u)&quot; x=&quot;52&quot; y=&quot;62&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;링크 · QR 스캔&lt;/text&gt;
+&lt;g class=&quot;mp&quot;&gt;&lt;rect x=&quot;26&quot; y=&quot;112&quot; width=&quot;488&quot; height=&quot;352&quot; rx=&quot;14&quot; fill=&quot;#EAF3EE&quot;/&gt;
+&lt;path d=&quot;M26 230H514M26 350H514M180 112V464M360 112V464&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;18&quot; fill=&quot;none&quot;/&gt;
+&lt;path d=&quot;M60 430 L180 350 L360 230 L470 150&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;10&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;circle class=&quot;pn&quot; cx=&quot;270&quot; cy=&quot;290&quot; r=&quot;24&quot; fill=&quot;#E8742A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;
+&lt;circle class=&quot;pn p2&quot; cx=&quot;180&quot; cy=&quot;170&quot; r=&quot;24&quot; fill=&quot;#D6403A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;
+&lt;circle class=&quot;pn p3&quot; cx=&quot;420&quot; cy=&quot;380&quot; r=&quot;24&quot; fill=&quot;#7C3AED&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;/g&gt;
+&lt;rect x=&quot;10&quot; y=&quot;510&quot; width=&quot;250&quot; height=&quot;64&quot; rx=&quot;32&quot; fill=&quot;#2F5645&quot;/&gt;&lt;text x=&quot;135&quot; y=&quot;552&quot; text-anchor=&quot;middle&quot; font-size=&quot;28&quot; font-weight=&quot;800&quot; fill=&quot;#E0FBEF&quot;&gt;설치 필요 없음&lt;/text&gt;
+&lt;rect x=&quot;280&quot; y=&quot;510&quot; width=&quot;250&quot; height=&quot;64&quot; rx=&quot;32&quot; fill=&quot;#3DD990&quot;/&gt;&lt;text x=&quot;405&quot; y=&quot;552&quot; text-anchor=&quot;middle&quot; font-size=&quot;28&quot; font-weight=&quot;800&quot; fill=&quot;#1F3A2D&quot;&gt;가입 필요 없음&lt;/text&gt;&lt;/svg&gt;"></iframe>
+<img src="img/map.jpg" alt="FlatWay 앱 지도 화면 캡처" style="position:absolute;left:1490px;top:300px;width:295px;height:590px;object-fit:cover;border-radius:28px;border:6px solid #2F5645">
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">13 / 20</p>
+
+</section>
+
+<section class="slide" id="s14-category" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ② 카테고리</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">카테고리별로 한눈에</h2>
+<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
+<div style="position:absolute;left:128px;top:300px;width:700px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #EA580C;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">위험 4종을 아이콘·색으로 구분</p>
+<p style="font-size:28px;line-height:1.4;color:#4F6A5C">단차 · 파손 · 적치물 · 경사</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #DC2626;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">보고 싶은 종류만 골라 보기</p>
+<p style="font-size:28px;line-height:1.4;color:#4F6A5C">칩을 누르면 지도 마커가 바로 걸러져요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #7C3AED;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">제보 화면과 같은 선택지</p>
+<p style="font-size:28px;line-height:1.4;color:#4F6A5C">이름과 아이콘을 하나로 통일했어요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #0284C7;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">건물 분류는 삭제</p>
+<p style="font-size:28px;line-height:1.4;color:#4F6A5C">위험 정보에 집중하도록 단순화했어요</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:860px;top:300px;width:580px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.m{transition:opacity .4s}
+svg[data-a=step] .m:not(.step),svg[data-a=damage] .m:not(.damage),svg[data-a=obstacle] .m:not(.obstacle),svg[data-a=slope] .m:not(.slope){opacity:.12}
+.c rect{fill:#FFFFFF;stroke-width:5;transition:fill .3s}
+.cs rect{stroke:#EA580C}.cd rect{stroke:#DC2626}.co rect{stroke:#7C3AED}.cl rect{stroke:#0284C7}
+.cs .ic{color:#EA580C}.cd .ic{color:#DC2626}.co .ic{color:#7C3AED}.cl .ic{color:#0284C7}
+.c text{fill:#24382F;font-size:28px;font-weight:800}
+svg[data-a=step] .cs rect{fill:#EA580C}svg[data-a=damage] .cd rect{fill:#DC2626}svg[data-a=obstacle] .co rect{fill:#7C3AED}svg[data-a=slope] .cl rect{fill:#0284C7}
+svg[data-a=step] .cs text,svg[data-a=damage] .cd text,svg[data-a=obstacle] .co text,svg[data-a=slope] .cl text{fill:#FFFFFF}
+svg[data-a=step] .cs .ic,svg[data-a=damage] .cd .ic,svg[data-a=obstacle] .co .ic,svg[data-a=slope] .cl .ic{color:#FFFFFF}&lt;/style&gt;
+&lt;svg id=&quot;s&quot; viewBox=&quot;0 0 580 590&quot; data-a=&quot;all&quot;&gt;&lt;defs&gt;
+&lt;symbol id=&quot;i-step&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;M4 19h4v-4h4v-4h4V7h4&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/symbol&gt;
+&lt;symbol id=&quot;i-damage&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;g fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.4&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M5 19L14 10&quot;/&gt;&lt;path d=&quot;M12 5l3-2 6 6-2 3z&quot; fill=&quot;currentColor&quot;/&gt;&lt;path d=&quot;M19 19L10 10&quot;/&gt;&lt;circle cx=&quot;7&quot; cy=&quot;7&quot; r=&quot;3&quot;/&gt;&lt;/g&gt;&lt;/symbol&gt;
+&lt;symbol id=&quot;i-obstacle&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;g fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.6&quot; stroke-linecap=&quot;round&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;8&quot;/&gt;&lt;path d=&quot;M6.5 6.5L17.5 17.5&quot;/&gt;&lt;/g&gt;&lt;/symbol&gt;
+&lt;symbol id=&quot;i-slope&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;g fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M3 17l6-6 4 4 8-8&quot;/&gt;&lt;path d=&quot;M15 7h6v6&quot;/&gt;&lt;/g&gt;&lt;/symbol&gt;&lt;/defs&gt;
+&lt;g class=&quot;c cs&quot;&gt;&lt;rect x=&quot;6&quot; y=&quot;6&quot; width=&quot;272&quot; height=&quot;70&quot; rx=&quot;35&quot;/&gt;&lt;use class=&quot;ic&quot; href=&quot;#i-step&quot; x=&quot;90&quot; y=&quot;23&quot; width=&quot;36&quot; height=&quot;36&quot;/&gt;&lt;text x=&quot;138&quot; y=&quot;52&quot;&gt;단차&lt;/text&gt;&lt;/g&gt;
+&lt;g class=&quot;c cd&quot;&gt;&lt;rect x=&quot;302&quot; y=&quot;6&quot; width=&quot;272&quot; height=&quot;70&quot; rx=&quot;35&quot;/&gt;&lt;use class=&quot;ic&quot; href=&quot;#i-damage&quot; x=&quot;386&quot; y=&quot;23&quot; width=&quot;36&quot; height=&quot;36&quot;/&gt;&lt;text x=&quot;434&quot; y=&quot;52&quot;&gt;파손&lt;/text&gt;&lt;/g&gt;
+&lt;g class=&quot;c co&quot;&gt;&lt;rect x=&quot;6&quot; y=&quot;92&quot; width=&quot;272&quot; height=&quot;70&quot; rx=&quot;35&quot;/&gt;&lt;use class=&quot;ic&quot; href=&quot;#i-obstacle&quot; x=&quot;76&quot; y=&quot;109&quot; width=&quot;36&quot; height=&quot;36&quot;/&gt;&lt;text x=&quot;124&quot; y=&quot;138&quot;&gt;적치물&lt;/text&gt;&lt;/g&gt;
+&lt;g class=&quot;c cl&quot;&gt;&lt;rect x=&quot;302&quot; y=&quot;92&quot; width=&quot;272&quot; height=&quot;70&quot; rx=&quot;35&quot;/&gt;&lt;use class=&quot;ic&quot; href=&quot;#i-slope&quot; x=&quot;386&quot; y=&quot;109&quot; width=&quot;36&quot; height=&quot;36&quot;/&gt;&lt;text x=&quot;434&quot; y=&quot;138&quot;&gt;경사&lt;/text&gt;&lt;/g&gt;
+&lt;rect x=&quot;6&quot; y=&quot;186&quot; width=&quot;568&quot; height=&quot;398&quot; rx=&quot;22&quot; fill=&quot;#EAF3EE&quot;/&gt;
+&lt;path d=&quot;M6 300H574M6 430H574M170 186V584M400 186V584&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;18&quot; fill=&quot;none&quot;/&gt;
+&lt;g class=&quot;m step&quot;&gt;&lt;circle cx=&quot;80&quot; cy=&quot;258&quot; r=&quot;24&quot; fill=&quot;#EA580C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-step&quot; x=&quot;66&quot; y=&quot;244&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m step&quot;&gt;&lt;circle cx=&quot;280&quot; cy=&quot;350&quot; r=&quot;24&quot; fill=&quot;#EA580C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-step&quot; x=&quot;266&quot; y=&quot;336&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m step&quot;&gt;&lt;circle cx=&quot;490&quot; cy=&quot;490&quot; r=&quot;24&quot; fill=&quot;#EA580C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-step&quot; x=&quot;476&quot; y=&quot;476&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m damage&quot;&gt;&lt;circle cx=&quot;130&quot; cy=&quot;380&quot; r=&quot;24&quot; fill=&quot;#DC2626&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-damage&quot; x=&quot;116&quot; y=&quot;366&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m damage&quot;&gt;&lt;circle cx=&quot;330&quot; cy=&quot;240&quot; r=&quot;24&quot; fill=&quot;#DC2626&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-damage&quot; x=&quot;316&quot; y=&quot;226&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m damage&quot;&gt;&lt;circle cx=&quot;450&quot; cy=&quot;340&quot; r=&quot;24&quot; fill=&quot;#DC2626&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-damage&quot; x=&quot;436&quot; y=&quot;326&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m damage&quot;&gt;&lt;circle cx=&quot;90&quot; cy=&quot;500&quot; r=&quot;24&quot; fill=&quot;#DC2626&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-damage&quot; x=&quot;76&quot; y=&quot;486&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m obstacle&quot;&gt;&lt;circle cx=&quot;230&quot; cy=&quot;488&quot; r=&quot;24&quot; fill=&quot;#7C3AED&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-obstacle&quot; x=&quot;216&quot; y=&quot;474&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m obstacle&quot;&gt;&lt;circle cx=&quot;520&quot; cy=&quot;254&quot; r=&quot;24&quot; fill=&quot;#7C3AED&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-obstacle&quot; x=&quot;506&quot; y=&quot;240&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m slope&quot;&gt;&lt;circle cx=&quot;408&quot; cy=&quot;495&quot; r=&quot;24&quot; fill=&quot;#0284C7&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-slope&quot; x=&quot;394&quot; y=&quot;481&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;g class=&quot;m slope&quot;&gt;&lt;circle cx=&quot;276&quot; cy=&quot;245&quot; r=&quot;24&quot; fill=&quot;#0284C7&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;use href=&quot;#i-slope&quot; x=&quot;262&quot; y=&quot;231&quot; width=&quot;28&quot; height=&quot;28&quot; style=&quot;color:#fff&quot;/&gt;&lt;/g&gt;
+&lt;/svg&gt;
+&lt;script&gt;var s=document.getElementById(&#x27;s&#x27;),a=[&#x27;all&#x27;,&#x27;step&#x27;,&#x27;damage&#x27;,&#x27;obstacle&#x27;,&#x27;slope&#x27;],i=0;setInterval(function(){i=(i+1)%a.length;s.setAttribute(&#x27;data-a&#x27;,a[i])},1700);&lt;/script&gt;"></iframe>
+<img src="img/filter_step.jpg" alt="단차 카테고리를 선택한 FlatWay 지도 화면" style="position:absolute;left:1490px;top:300px;width:295px;height:590px;object-fit:cover;border-radius:28px;border:6px solid #2F5645">
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">14 / 20</p>
+
+</section>
+
+<section class="slide" id="s15-algo" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ③ 길찾기 기능</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">위험을 피하는 길찾기</h2>
+<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
+<div style="position:absolute;left:128px;top:300px;width:660px;display:flex;flex-direction:column;gap:22px">
+<div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
+<p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">1. 후보 경로 모으기</p>
+<p style="font-size:29px;line-height:1.45;color:#24382F">최단 경로와 대안 경로를 가져와요</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
+<p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">2. 점수 매기기</p>
+<p style="font-size:29px;line-height:1.45;color:#24382F">거리에 지나는 위험의 페널티를 더해요 (종류·심각도·단차 높이 반영)</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
+<p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">3. 우회로 만들어 비교</p>
+<p style="font-size:29px;line-height:1.45;color:#24382F">가장 위험한 곳의 옆길을 경유해 다시 계산하고, 점수가 가장 낮은 길을 골라요</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:830px;top:300px;width:962px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.e1,.e2,.pen,.r2,.rb2,.via{transition:opacity .5s}
+svg[data-p=&quot;0&quot;] .e1,svg[data-p=&quot;0&quot;] .pen,svg[data-p=&quot;0&quot;] .r2,svg[data-p=&quot;0&quot;] .rb2,svg[data-p=&quot;0&quot;] .via{opacity:0}
+svg[data-p=&quot;1&quot;] .r2,svg[data-p=&quot;1&quot;] .rb2,svg[data-p=&quot;1&quot;] .via{opacity:0}
+svg[data-p=&quot;2&quot;] .r1{opacity:.35}
+.r1{transition:opacity .5s}&lt;/style&gt;
+&lt;svg id=&quot;s&quot; viewBox=&quot;0 0 962 590&quot; data-p=&quot;2&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;560&quot; height=&quot;500&quot; rx=&quot;24&quot; fill=&quot;#F4FAF7&quot;/&gt;
+&lt;path d=&quot;M0 120H560M0 300H560M0 460H560M60 0V500M280 0V500M500 0V500&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;22&quot; fill=&quot;none&quot;/&gt;
+&lt;path class=&quot;r2&quot; d=&quot;M60 460 V120 H500&quot; fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;path class=&quot;r1&quot; d=&quot;M60 460 H280 V120 H500&quot; fill=&quot;none&quot; stroke=&quot;#2B8FD6&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;rect x=&quot;258&quot; y=&quot;278&quot; width=&quot;44&quot; height=&quot;44&quot; rx=&quot;10&quot; fill=&quot;#EA580C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M270 312 h9 v-9 h9 v-9 h7&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;g class=&quot;via&quot;&gt;&lt;circle cx=&quot;60&quot; cy=&quot;300&quot; r=&quot;14&quot; fill=&quot;#fff&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;6&quot;/&gt;&lt;/g&gt;
+&lt;circle cx=&quot;60&quot; cy=&quot;460&quot; r=&quot;26&quot; fill=&quot;#2F5645&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;60&quot; y=&quot;471&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;A&lt;/text&gt;
+&lt;circle cx=&quot;500&quot; cy=&quot;120&quot; r=&quot;26&quot; fill=&quot;#D6403A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;500&quot; y=&quot;131&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;B&lt;/text&gt;
+&lt;text x=&quot;590&quot; y=&quot;64&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;경로 점수 = 거리 + 위험&lt;/text&gt;
+&lt;text x=&quot;590&quot; y=&quot;150&quot; font-size=&quot;28&quot; font-weight=&quot;700&quot; fill=&quot;#2B6FA6&quot;&gt;최단 경로&lt;/text&gt;
+&lt;rect x=&quot;590&quot; y=&quot;166&quot; width=&quot;170&quot; height=&quot;42&quot; rx=&quot;10&quot; fill=&quot;#7FA9C9&quot;/&gt;
+&lt;rect class=&quot;pen&quot; x=&quot;760&quot; y=&quot;166&quot; width=&quot;190&quot; height=&quot;42&quot; rx=&quot;10&quot; fill=&quot;#D6403A&quot;/&gt;
+&lt;text class=&quot;pen&quot; x=&quot;590&quot; y=&quot;248&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#B3302B&quot;&gt;위험 페널티가 커서 점수가 높음&lt;/text&gt;
+&lt;g class=&quot;rb2&quot;&gt;&lt;text x=&quot;590&quot; y=&quot;340&quot; font-size=&quot;28&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;우회 경로&lt;/text&gt;
+&lt;rect x=&quot;590&quot; y=&quot;356&quot; width=&quot;215&quot; height=&quot;42&quot; rx=&quot;10&quot; fill=&quot;#2F9E6C&quot;/&gt;
+&lt;text x=&quot;590&quot; y=&quot;438&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;조금 더 걸어도 점수가 낮음&lt;/text&gt;&lt;/g&gt;
+&lt;rect x=&quot;0&quot; y=&quot;526&quot; width=&quot;962&quot; height=&quot;64&quot; rx=&quot;32&quot; fill=&quot;#2F5645&quot;/&gt;&lt;text id=&quot;cap&quot; x=&quot;481&quot; y=&quot;569&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#E0FBEF&quot;&gt;점수가 가장 낮은 안전한 경로를 선택&lt;/text&gt;&lt;/svg&gt;
+&lt;script&gt;var s=document.getElementById(&#x27;s&#x27;),cap=document.getElementById(&#x27;cap&#x27;),T=[&#x27;① 최단 경로가 위험 구간을 지나요&#x27;,&#x27;② 위험 페널티를 더해 점수를 매겨요&#x27;,&#x27;③ 위험을 비켜 가는 경로가 더 낮은 점수&#x27;],p=-1;
+function step(){p=(p+1)%4;if(p==3){s.setAttribute(&#x27;data-p&#x27;,&#x27;2&#x27;);cap.textContent=&#x27;점수가 가장 낮은 안전한 경로를 선택&#x27;;return}s.setAttribute(&#x27;data-p&#x27;,String(p));cap.textContent=T[p]}
+step();setInterval(step,2600);&lt;/script&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">15 / 20</p>
+
+</section>
+
+<section class="slide" id="s16-modes2" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ③ 길찾기 기능</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">이동 수단별 회피 강도</h2>
+<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
+<div style="position:absolute;left:128px;top:300px;width:700px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #E8742A;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:33px;font-weight:800;line-height:1.3;color:#8A3F0B">보행자</p>
+<p style="font-size:28px;line-height:1.4;color:#24382F">중간 정도 위험은 감수하고 멀리 돌아가지 않아요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #2B8FD6;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:33px;font-weight:800;line-height:1.3;color:#0B4F82">전동휠체어</p>
+<p style="font-size:28px;line-height:1.4;color:#24382F">단차는 아무리 멀어도 피하고, 경사는 멀리 돌아가며 피하진 않아요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #2F9E6C;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:33px;font-weight:800;line-height:1.3;color:#1B5E3C">수동휠체어</p>
+<p style="font-size:28px;line-height:1.4;color:#24382F">위험이 있으면 아무리 멀어도 위험 없는 길을 골라요</p>
+</div>
+<p style="font-size:25px;line-height:1.45;color:#4F6A5C">너무 먼 우회(최단 경로의 2.5배 초과)와 왕복 우회는 쓰지 않아요.</p>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:860px;top:300px;width:580px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 580 590&quot;&gt;&lt;g stroke-linecap=&quot;round&quot; fill=&quot;none&quot; stroke-width=&quot;8&quot;&gt;
+&lt;path d=&quot;M40 140 H540&quot; stroke=&quot;#F3C9A6&quot;/&gt;&lt;path d=&quot;M40 330 H540&quot; stroke=&quot;#BCDDF3&quot;/&gt;&lt;path d=&quot;M40 520 H540&quot; stroke=&quot;#BDE5D1&quot;/&gt;&lt;/g&gt;
+&lt;text x=&quot;40&quot; y=&quot;192&quot; font-size=&quot;28&quot; font-weight=&quot;800&quot; fill=&quot;#8A3F0B&quot;&gt;보행자&lt;/text&gt;&lt;text x=&quot;40&quot; y=&quot;386&quot; font-size=&quot;28&quot; font-weight=&quot;800&quot; fill=&quot;#0B4F82&quot;&gt;전동휠체어&lt;/text&gt;&lt;text x=&quot;40&quot; y=&quot;580&quot; font-size=&quot;28&quot; font-weight=&quot;800&quot; fill=&quot;#1B5E3C&quot;&gt;수동휠체어&lt;/text&gt;
+&lt;g stroke=&quot;#fff&quot; stroke-width=&quot;4&quot;&gt;&lt;rect x=&quot;248&quot; y=&quot;118&quot; width=&quot;44&quot; height=&quot;44&quot; rx=&quot;10&quot; fill=&quot;#EA580C&quot;/&gt;&lt;rect x=&quot;198&quot; y=&quot;308&quot; width=&quot;44&quot; height=&quot;44&quot; rx=&quot;10&quot; fill=&quot;#EA580C&quot;/&gt;&lt;path d=&quot;M378 352 l24 -44 l24 44 Z&quot; fill=&quot;#0284C7&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;rect x=&quot;198&quot; y=&quot;498&quot; width=&quot;44&quot; height=&quot;44&quot; rx=&quot;10&quot; fill=&quot;#EA580C&quot;/&gt;&lt;path d=&quot;M378 542 l24 -44 l24 44 Z&quot; fill=&quot;#0284C7&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
+&lt;g fill=&quot;none&quot; stroke-width=&quot;6&quot; stroke-dasharray=&quot;2 14&quot; stroke-linecap=&quot;round&quot; opacity=&quot;.9&quot;&gt;&lt;path d=&quot;M40 330 H120 C150 330,150 252,205 252 C260 252,260 330,300 330 H540&quot; stroke=&quot;#2B8FD6&quot;/&gt;&lt;path d=&quot;M40 520 H110 C140 520,140 430,200 430 H400 C460 430,460 520,500 520 H540&quot; stroke=&quot;#2F9E6C&quot;/&gt;&lt;/g&gt;
+&lt;circle r=&quot;16&quot; fill=&quot;#E8742A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;5s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M40 140 H540&quot;/&gt;&lt;/circle&gt;
+&lt;circle r=&quot;16&quot; fill=&quot;#2B8FD6&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;5s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M40 330 H120 C150 330,150 252,205 252 C260 252,260 330,300 330 H540&quot;/&gt;&lt;/circle&gt;
+&lt;circle r=&quot;16&quot; fill=&quot;#2F9E6C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;5s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M40 520 H110 C140 520,140 430,200 430 H400 C460 430,460 520,500 520 H540&quot;/&gt;&lt;/circle&gt;&lt;/svg&gt;"></iframe>
+<div style="position:absolute;left:1490px;top:300px;width:295px;height:590px;border:4px dashed #8AA89A;border-radius:28px;background:#EEF7F2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+<p style="font-size:30px;font-weight:700;color:#4F6A5C;text-align:center">길찾기 화면 캡처</p>
+<p style="font-size:26px;color:#4F6A5C;text-align:center">(추가 예정)</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">16 / 20</p>
+
+</section>
+
+<section class="slide" id="s17-guide" data-transition="fade" style="background:#e0fbef">
+  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화 ④ 첫 사용 가이드</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">FlatWay 첫 사용자도 쉽게</h2>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 37 37" aria-label="FlatWay 접속 QR 코드" style="position:absolute; top:56px; right:128px; width:170px; height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+  <p style="position:absolute; top:232px; right:128px; width:170px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:700; text-align:center; color:#2f5645">직접 써보기</p>
+  <div style="position:absolute; top:300px; left:128px; width:600px; display:flex; flex-direction:column; gap:20px">
+    <div style="display:flex; flex-direction:column; gap:4px; padding:22px 28px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">처음 접속하면 말풍선 안내</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.45; color:#24382f">소개 → 길찾기 → 현위치 제보 순서로 4단계</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:4px; padding:22px 28px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">? 버튼으로 언제든 다시</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.45; color:#24382f">10단계 상세 가이드로 모든 기능 설명</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:4px; padding:22px 28px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">‘다시 보지 않기’ 선택</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.45; color:#24382f">익숙해지면 안내를 끌 수 있어요</p>
+    </div>
+  </div>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:300px; left:770px; width:330px; height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+#sp{transition:all .6s ease}#bb{transition:all .6s ease}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 330 590&quot;&gt;&lt;rect x=&quot;8&quot; y=&quot;8&quot; width=&quot;314&quot; height=&quot;574&quot; rx=&quot;40&quot; fill=&quot;#EAF3EE&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;8&quot;/&gt;
+&lt;rect x=&quot;30&quot; y=&quot;46&quot; width=&quot;270&quot; height=&quot;62&quot; rx=&quot;14&quot; fill=&quot;#fff&quot; stroke=&quot;#CFEBDD&quot; stroke-width=&quot;3&quot;/&gt;&lt;circle cx=&quot;62&quot; cy=&quot;77&quot; r=&quot;12&quot; fill=&quot;none&quot; stroke=&quot;#1F7A55&quot; stroke-width=&quot;5&quot;/&gt;&lt;rect x=&quot;236&quot; y=&quot;62&quot; width=&quot;32&quot; height=&quot;32&quot; rx=&quot;6&quot; fill=&quot;#1F7A55&quot; transform=&quot;rotate(45 252 78)&quot;/&gt;
+&lt;path d=&quot;M30 250H300M30 380H300M110 130V560M220 130V560&quot; stroke=&quot;#fff&quot; stroke-width=&quot;16&quot; fill=&quot;none&quot;/&gt;
+&lt;rect x=&quot;30&quot; y=&quot;488&quot; width=&quot;270&quot; height=&quot;64&quot; rx=&quot;14&quot; fill=&quot;#1E2742&quot;/&gt;&lt;text x=&quot;165&quot; y=&quot;530&quot; text-anchor=&quot;middle&quot; font-size=&quot;26&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;현위치 제보&lt;/text&gt;
+&lt;rect id=&quot;sp&quot; x=&quot;22&quot; y=&quot;40&quot; width=&quot;286&quot; height=&quot;74&quot; rx=&quot;16&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot;/&gt;
+&lt;g id=&quot;bb&quot;&gt;&lt;rect x=&quot;30&quot; y=&quot;150&quot; width=&quot;270&quot; height=&quot;100&quot; rx=&quot;18&quot; fill=&quot;#fff&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;4&quot;/&gt;&lt;text id=&quot;bt&quot; x=&quot;165&quot; y=&quot;212&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;FlatWay 소개&lt;/text&gt;&lt;/g&gt;&lt;/svg&gt;
+&lt;script&gt;var sp=document.getElementById(&#x27;sp&#x27;),bb=document.getElementById(&#x27;bb&#x27;),bt=document.getElementById(&#x27;bt&#x27;),i=0,S=[{y:40,h:74,t:&#x27;FlatWay 소개&#x27;,by:140},{y:40,h:74,t:&#x27;1. 길찾기&#x27;,by:140},{y:482,h:76,t:&#x27;2. 현위치 제보&#x27;,by:350},{y:40,h:74,t:&#x27;? 상세 가이드&#x27;,by:140}];
+function go(){var s=S[i];sp.setAttribute(&#x27;y&#x27;,s.y);sp.setAttribute(&#x27;height&#x27;,s.h);bb.setAttribute(&#x27;transform&#x27;,&#x27;translate(0 &#x27;+(s.by-150)+&#x27;)&#x27;);bt.textContent=s.t;i=(i+1)%S.length}go();setInterval(go,2200);&lt;/script&gt;"></iframe>
+  <img src="img/tour2.jpg" alt="첫 사용 가이드 2단계 길찾기 말풍선" style="position:absolute; top:300px; left:1130px; width:295px; height:590px; border:6px solid #2f5645; border-radius:28px">
+  <img src="img/tour3.jpg" alt="첫 사용 가이드 3단계 현위치 제보 말풍선" style="position:absolute; top:300px; left:1490px; width:295px; height:590px; border:6px solid #2f5645; border-radius:28px">
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">17 / 20</p>
+  
+</section>
+
+<section class="slide" id="s18-test" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 5 · 검증과 앞으로</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">테스트와 개선 과정</h2>
+<div style="position:absolute;left:128px;top:300px;width:900px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">현장 테스트</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">학교에서 근처 역까지 직접 이동하며 단차·노면 파손·급경사 수집을 확인했어요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">알고리즘 테스트 14개 통과</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">이동 수단별 회피, 너무 먼 우회 제한 등을 코드로 검증했어요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">실제 도로·제보 데이터로 확인</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">작전역에서 계양구청까지 경로에서 위험 요소 1건을 피했어요</p>
+</div>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">발견한 문제는 바로 개선</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">방향 혼동은 나침반 모드로, 설정 안내가 팝업에 가리던 문제는 즉시 닫히게 고쳤어요</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1100px;top:300px;width:692px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.ck{stroke-dasharray:70;animation:tick 6s ease-out infinite backwards}
+.k2{animation-delay:.6s}.k3{animation-delay:1.2s}.k4{animation-delay:1.8s}
+@keyframes tick{0%{stroke-dashoffset:70}20%,100%{stroke-dashoffset:0}}
+.ar{transform-origin:346px 250px;animation:sp 6s ease-out infinite backwards}
+@keyframes sp{0%{transform:scale(.85);opacity:.3}20%,100%{transform:scale(1);opacity:1}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 692 590&quot;&gt;&lt;circle cx=&quot;346&quot; cy=&quot;250&quot; r=&quot;170&quot; fill=&quot;none&quot; stroke=&quot;#DDF3E8&quot; stroke-width=&quot;40&quot;/&gt;
+&lt;circle class=&quot;ar&quot; cx=&quot;346&quot; cy=&quot;250&quot; r=&quot;170&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;40&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;text x=&quot;346&quot; y=&quot;272&quot; text-anchor=&quot;middle&quot; font-size=&quot;84&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;14/14&lt;/text&gt;
+&lt;text x=&quot;346&quot; y=&quot;336&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;테스트 통과&lt;/text&gt;
+&lt;g fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;14&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;
+&lt;path class=&quot;ck&quot; d=&quot;M96 500 l24 26 l44 -52&quot;/&gt;&lt;path class=&quot;ck k2&quot; d=&quot;M256 500 l24 26 l44 -52&quot;/&gt;&lt;path class=&quot;ck k3&quot; d=&quot;M416 500 l24 26 l44 -52&quot;/&gt;&lt;path class=&quot;ck k4&quot; d=&quot;M576 500 l24 26 l44 -52&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">18 / 20</p>
+
+</section>
+
+<section class="slide" id="s19-next" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 5 · 검증과 앞으로</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">앞으로의 계획</h2>
+<div style="position:absolute;left:128px;top:300px;width:880px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#FFFFFF;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">건물 내부 연계</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">경사로 · 엘리베이터 · 장애인 화장실 정보 통합</p>
+</div>
+<div style="background:#FFFFFF;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">나에게 맞춘 기준 입력</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">허용 단차와 최대 경사도를 직접 설정</p>
+</div>
+<div style="background:#FFFFFF;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">센서 교차검증 점수</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">여러 사용자의 기록으로 제보의 신뢰도 확인</p>
+</div>
+<div style="background:#FFFFFF;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">위험 구간을 완전히 피하는 길</p>
+<p style="font-size:27px;line-height:1.45;color:#24382F">도로 데이터를 직접 다뤄 우회 가능성 높이기</p>
+</div>
+</div>
+<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1060px;top:300px;width:732px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
+.n{transform-box:fill-box;transform-origin:center;animation:lit 8s ease-in-out infinite}
+.n2{animation-delay:1.6s}.n3{animation-delay:3.2s}.n4{animation-delay:4.8s}
+@keyframes lit{0%,100%{transform:scale(1);fill:#FFFFFF}6%,20%{transform:scale(1.35);fill:#3DD990}28%{transform:scale(1);fill:#FFFFFF}}
+.rd{stroke-dasharray:640;animation:dr 8s ease-in-out infinite}
+@keyframes dr{0%{stroke-dashoffset:640}70%,100%{stroke-dashoffset:0}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 732 590&quot;&gt;&lt;path d=&quot;M366 40 V560&quot; stroke=&quot;#CFEBDD&quot; stroke-width=&quot;14&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;path class=&quot;rd&quot; d=&quot;M366 40 V560&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;14&quot; stroke-linecap=&quot;round&quot; fill=&quot;none&quot;/&gt;
+&lt;g stroke=&quot;#2F5645&quot; stroke-width=&quot;10&quot;&gt;&lt;circle class=&quot;n&quot; cx=&quot;366&quot; cy=&quot;90&quot; r=&quot;30&quot; fill=&quot;#fff&quot;/&gt;&lt;circle class=&quot;n n2&quot; cx=&quot;366&quot; cy=&quot;230&quot; r=&quot;30&quot; fill=&quot;#fff&quot;/&gt;&lt;circle class=&quot;n n3&quot; cx=&quot;366&quot; cy=&quot;370&quot; r=&quot;30&quot; fill=&quot;#fff&quot;/&gt;&lt;circle class=&quot;n n4&quot; cx=&quot;366&quot; cy=&quot;510&quot; r=&quot;30&quot; fill=&quot;#fff&quot;/&gt;&lt;/g&gt;
+&lt;g font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;&lt;text x=&quot;430&quot; y=&quot;102&quot;&gt;건물 내부&lt;/text&gt;&lt;text x=&quot;430&quot; y=&quot;242&quot;&gt;내 기준 설정&lt;/text&gt;&lt;text x=&quot;430&quot; y=&quot;382&quot;&gt;교차검증&lt;/text&gt;&lt;text x=&quot;430&quot; y=&quot;522&quot;&gt;완전 우회&lt;/text&gt;&lt;/g&gt;
+&lt;g font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#B4500F&quot; text-anchor=&quot;end&quot;&gt;&lt;text x=&quot;300&quot; y=&quot;100&quot;&gt;개발 계획 중&lt;/text&gt;&lt;text x=&quot;300&quot; y=&quot;240&quot;&gt;개발 계획 중&lt;/text&gt;&lt;text x=&quot;300&quot; y=&quot;380&quot;&gt;개발 계획 중&lt;/text&gt;&lt;text x=&quot;300&quot; y=&quot;520&quot;&gt;개발 계획 중&lt;/text&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">19 / 20</p>
+
+</section>
+
+<section class="slide" id="s20-team" data-transition="fade" style="background:#2f5645">
+  <p style="position:absolute; top:96px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:48px; font-weight:700; color:#e0fbef">모두에게 더 편한 길을 위해</p>
+  <h1 style="position:absolute; top:190px; left:128px; width:1000px; font-family:'Black Han Sans', sans-serif; font-size:230px; font-weight:400; line-height:1; color:#3dd990">FlatWay</h1>
+  <p style="position:absolute; top:500px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; letter-spacing:2px; color:#8fe8be">TEAM · 작전여자고등학교</p>
+  <p style="position:absolute; top:560px; left:128px; width:1100px; font-family:'Noto Sans KR', sans-serif; font-size:62px; font-weight:700; line-height:1.3; color:#e0fbef">박진아 · 전서영 · 김보민 · 권나윤</p>
+  <p style="position:absolute; top:700px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:500; color:#e0fbef">감사합니다</p>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 37 37" aria-label="FlatWay 접속 QR 코드" style="position:absolute; top:80px; right:128px; width:260px; height:260px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
+  <p style="position:absolute; top:352px; right:128px; width:260px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; text-align:center; color:#e0fbef">지금 접속해 보세요</p>
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:420px; left:1180px; width:612px; height:480px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
+.rd{stroke-dasharray:900;animation:dr 5s ease-in-out infinite}
+@keyframes dr{0%{stroke-dashoffset:900}60%,100%{stroke-dashoffset:0}}
+.fl{transform-origin:520px 90px;animation:fl 5s ease-out infinite}
+@keyframes fl{0%,55%{transform:scale(0)}68%{transform:scale(1.25)}78%,100%{transform:scale(1)}}
+.cf{animation:up 5s ease-out infinite}
+.c2{animation-delay:.2s}.c3{animation-delay:.4s}
+@keyframes up{0%,58%{opacity:0;transform:translateY(20px)}70%{opacity:1}100%{opacity:0;transform:translateY(-40px)}}&lt;/style&gt;
+&lt;svg viewBox=&quot;0 0 612 480&quot;&gt;&lt;path class=&quot;rd&quot; d=&quot;M50 420 C 160 420, 160 280, 270 280 S 400 150, 520 120&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;14&quot; stroke-linecap=&quot;round&quot;/&gt;
+&lt;circle cx=&quot;50&quot; cy=&quot;420&quot; r=&quot;22&quot; fill=&quot;#E0FBEF&quot;/&gt;
+&lt;g class=&quot;fl&quot;&gt;&lt;path d=&quot;M520 120 V40&quot; stroke=&quot;#E0FBEF&quot; stroke-width=&quot;10&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;path d=&quot;M520 44 L584 70 L520 96 Z&quot; fill=&quot;#3DD990&quot;/&gt;&lt;/g&gt;
+&lt;g fill=&quot;#3DD990&quot;&gt;&lt;circle class=&quot;cf&quot; cx=&quot;470&quot; cy=&quot;60&quot; r=&quot;9&quot;/&gt;&lt;circle class=&quot;cf c2&quot; cx=&quot;570&quot; cy=&quot;140&quot; r=&quot;8&quot;/&gt;&lt;circle class=&quot;cf c3&quot; cx=&quot;440&quot; cy=&quot;130&quot; r=&quot;7&quot;/&gt;&lt;/g&gt;
+&lt;g fill=&quot;#E0FBEF&quot;&gt;&lt;circle class=&quot;cf c2&quot; cx=&quot;500&quot; cy=&quot;20&quot; r=&quot;7&quot;/&gt;&lt;circle class=&quot;cf c3&quot; cx=&quot;590&quot; cy=&quot;30&quot; r=&quot;9&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#8fe8be">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#8fe8be">20 / 20</p>
+  
+</section>
+
+</div></div>
+<div id="notes"></div>
+<div id="menu"></div>
+<div id="bar">
+<button id="mb" title="목차 (M)">목차</button>
+<button id="pv" title="이전 (←)">◀</button>
+<button id="nx" title="다음 (→)">▶</button>
+<span id="cnt">1 / 20</span>
+<div id="prog"><i></i></div>
+<span id="ch"></span>
+<button id="nb" title="발표 메모 (N)">메모</button>
+<button id="fb" title="전체화면 (F)">전체화면</button>
+</div>
+<script>
+var T=["FlatWay", "개인적 동기", "사회적 규모", "현실 사례", "기존 서비스", "FlatWay, 어떻게 다른가?", "시스템 구조", "센서 기반 데이터 수집", "교차검증 점수", "맞춤형 경로 계산", "고도화 한눈에 보기", "직접 써 보세요", "웹으로 누구나 바로", "카테고리별로 한눈에", "위험을 피하는 길찾기", "이동 수단별 회피 강도", "FlatWay 첫 사용자도 쉽게", "테스트와 개선 과정", "앞으로의 계획", "FlatWay"],NOTES=["표지 (약 20초). 인사와 한 줄 소개: 휠체어 사용자와 보행 약자를 위한 안전 경로 내비게이션 FlatWay입니다. 오늘은 처음 만든 서비스에서 어떻게 고도화했는지를 중심으로 발표합니다.", "개인적 동기 (약 30초). 학교 근처에서 휠체어를 타신 분이 보도의 작은 턱 앞에서 멈춰 계신 모습을 봤고, 다리를 다친 친구도 혼자 다니기 힘들어했다. 이 두 장면이 시작이었다.", "사회적 규모 (약 30초). 국내 교통약자는 약 1,613만 명으로 전체 인구의 31.5%이고, 일상적으로 휠체어를 사용하는 인구도 20~26만 명이다. 소수의 문제가 아니라 우리 모두의 문제다. (수치 출처는 발표 전에 확인해 두기)", "현실 사례 (약 30초). 응급실 손상환자 원인 1위가 낙상·추락(40%)이고, 장애인 10명 중 3명 이상이 외출할 때 이동수단 이용에 어려움을 겪는다. 작은 단차 하나가 사고와 외출 포기로 이어진다. (수치 출처는 발표 전에 확인해 두기)", "기존 서비스 (약 30초). 일반 지도 앱은 보도의 단차·경사·파손을 모른다. 장애인 전용 앱이나 지자체 데이터도 종합 경로 안내는 없고 갱신이 멈춰 실제와 다르다. 그래서 길은 있는데 갈 수 없는 길이 안내된다.", "비교표 (약 40초). 위에서부터: 단차·파손 반영(우회까지), 이동수단별 경로 분리, 건물 내부 연계(개발 계획 중), 실시간 반영. FlatWay 칸의 초록 테두리를 따라 하나씩 짚어 준다.", "시스템 구조 (약 30초). 사용자는 앱이나 웹에서 위험을 제보하고, 제보는 클라우드 데이터베이스에 저장되어 앱과 웹 대시보드에 바로 반영된다. 주황 점은 제보, 초록 점은 위험 정보가 흐르는 모습이다.", "센서 기반 수집 (약 30초). 앱에서 이동 수집을 켜고 걸으면 가속도 센서가 노면 충격을 읽는다. 작은 흔들림은 무시하고 기준을 넘는 충격만 GPS 위치와 함께 단차 후보로 기록한다. 웹에서는 센서를 쓸 수 없어 모바일 앱에서만 지원한다.", "교차검증 점수 (약 30초). 허위 제보나 어뷰징을 막기 위한 설계다. 다른 사용자의 센서 기록과 맞아떨어질수록 신뢰도가 올라가고, 50%를 넘으면 정식 위험 핀이 된다. 아직 개발 계획 중이며 현재는 확인 버튼까지 구현했다고 솔직하게 말하기.", "맞춤형 경로 (약 30초). 보행자, 전동휠체어, 수동휠체어는 피해야 할 장애물이 다르다. 그래서 이동 수단마다 다른 경로를 계산한다. 사용자가 허용 단차와 최대 경사도를 직접 입력하는 기능은 개발 계획 중이다. 자세한 방식은 4장에서 설명한다.", "고도화 한눈에 보기 (약 30초). 8월 19일 시작해 커밋 166개, 팀원 4명, 알고리즘 테스트 14개를 통과했다. 그 가운데 눈에 띄는 개선 네 가지를 차례로 보여 준다: 웹 서비스, 카테고리, 위험 회피 길찾기, 첫 사용 가이드.", "직접 써 보세요 (약 30초). 개선점을 설명하기 전에 QR을 보여 준다. 청중이 휴대폰으로 스캔해서 직접 열어 보게 한 뒤 설명으로 넘어간다. 다음 슬라이드부터 오른쪽 위 구석에 작은 QR이 계속 보인다.", "개선① 웹 서비스 (약 30초). 예전에는 앱을 설치해야 했지만 이제는 링크나 QR 한 번이면 누구나 바로 쓸 수 있다. 게스트로 시작하고 필요할 때만 로그인한다.", "개선② 카테고리 (약 30초). 위험을 단차, 파손, 적치물, 경사 네 가지로 나누고 아이콘과 색을 다르게 했다. 위쪽 칩을 누르면 해당 종류만 지도에 남는다. 제보 화면의 선택지도 같은 이름과 아이콘으로 통일했고 건물 분류는 없앴다.", "개선③ 위험을 피하는 길찾기 (약 40초). 기존에는 최단 경로만 안내했다. 이제는 후보 경로마다 거리에 위험 페널티를 더해 점수를 매기고, 가장 위험한 지점의 옆길을 경유하는 우회 경로를 만들어 비교한 뒤 점수가 가장 낮은 길을 고른다. 파란 길이 위험을 지날 때 초록 우회로가 더 낮은 점수를 받는 모습이다.", "이동 수단별 회피 강도 (약 30초). 같은 위험이라도 사람마다 감당할 수 있는 정도가 다르다. 보행자는 큰 위험만 피하고, 전동휠체어는 단차를 반드시 피하며, 수동휠체어는 위험이 있으면 멀리 돌아서라도 위험 없는 길을 고른다. 오른쪽 점선 칸에는 길찾기 화면 캡처를 넣을 예정(발표 전 교체).", "개선④ 첫 사용 가이드 (약 20초). 처음 접속하면 말풍선이 소개, 길찾기, 현위치 제보를 차례로 짚어 준다. 상단 물음표 버튼으로 10단계 상세 가이드를 언제든 다시 볼 수 있고, 익숙해지면 다시 보지 않기를 선택할 수 있다.", "테스트와 개선 과정 (약 30초). 학교에서 역까지 직접 이동하며 수집을 확인했고, 길찾기 알고리즘은 테스트 14개로 검증했다. 실제 도로와 실제 제보 데이터로도 우회가 되는 것을 확인했다. 발견한 문제는 그때그때 고쳤다.", "앞으로의 계획 (약 30초). 아직 구현하지 못한 것을 솔직하게 소개한다: 건물 내부 연계, 허용 단차와 경사도 직접 입력, 센서 교차검증 점수, 위험 구간을 완전히 피하는 길찾기. 모두 개발 계획 중이다.", "마무리 (약 20초). 모두에게 더 편한 길을 위해 FlatWay를 만들었다. 함께한 팀원 소개와 감사 인사, QR을 띄워 둔 채 질문을 받는다. (이전 자료의 FlayWay 오타를 FlatWay로 고쳤다)"],CH=[{"label": "1장. 왜 만들었나", "start": 0}, {"label": "2장. 기존 서비스의 한계와 FlatWay의 차이", "start": 4}, {"label": "3장. FlatWay의 구조와 핵심 기술", "start": 6}, {"label": "4장. 고도화", "start": 10}, {"label": "5장. 검증과 앞으로의 계획, 팀 소개", "start": 17}];
+var slides=[].slice.call(document.querySelectorAll('.slide')),n=slides.length,cur=-1;
+var stage=document.getElementById('stage'),view=document.getElementById('view');
+function fit(){var w=view.clientWidth,h=view.clientHeight,s=Math.min(w/1920,h/1080);stage.style.transform='scale('+s+')';stage.style.left=((w-1920*s)/2)+'px';stage.style.top=((h-1080*s)/2)+'px'}
+function chapterOf(i){var c=CH[0];for(var k=0;k<CH.length;k++)if(CH[k].start<=i)c=CH[k];return c.label}
+function mount(i,on){var fr=slides[i].querySelectorAll('iframe.embed');for(var k=0;k<fr.length;k++){if(on){if(!fr[k].getAttribute('srcdoc'))fr[k].setAttribute('srcdoc',fr[k].getAttribute('data-srcdoc'))}else fr[k].removeAttribute('srcdoc')}}
+function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);
+document.getElementById('cnt').textContent=(i+1)+' / '+n;document.querySelector('#prog i').style.width=((i+1)/n*100)+'%';document.getElementById('ch').textContent=chapterOf(i);
+document.getElementById('notes').textContent=NOTES[i]||'';var cs=document.querySelectorAll('#menu a');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('cur',k===i);
+if(!noHash)history.replaceState(null,'','#'+(i+1))}
+var mn=document.getElementById('menu'),hh='';CH.forEach(function(c,ci){});
+(function(){var html='',ci=0;for(var i=0;i<n;i++){while(ci<CH.length&&CH[ci].start===i){html+='<div class="h">'+CH[ci].label+'</div>';ci++}html+='<a href="#'+(i+1)+'" data-i="'+i+'"><b>'+(i+1)+'</b>'+T[i]+'</a>'}mn.innerHTML=html})();
+mn.addEventListener('click',function(e){var a=e.target.closest('a');if(a){e.preventDefault();go(+a.getAttribute('data-i'));mn.classList.remove('open')}});
+document.getElementById('mb').onclick=function(){mn.classList.toggle('open')};
+document.getElementById('pv').onclick=function(){go(cur-1)};document.getElementById('nx').onclick=function(){go(cur+1)};
+document.getElementById('nb').onclick=function(){document.getElementById('notes').classList.toggle('open')};
+function fs(){var d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()}
+document.getElementById('fb').onclick=fs;
+document.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){go(cur+1);e.preventDefault()}else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){go(cur-1);e.preventDefault()}else if(k==='Home')go(0);else if(k==='End')go(n-1);else if(k==='f'||k==='F')fs();else if(k==='n'||k==='N')document.getElementById('notes').classList.toggle('open');else if(k==='m'||k==='M')mn.classList.toggle('open');else if(k==='Escape')mn.classList.remove('open')});
+var sx=null;view.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});view.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));sx=null});
+view.addEventListener('click',function(e){mn.classList.remove('open');var r=view.getBoundingClientRect();if(e.clientX-r.left>r.width*0.5)go(cur+1);else go(cur-1)});
+window.addEventListener('resize',fit);window.addEventListener('hashchange',function(){var h=parseInt(location.hash.slice(1),10);if(h)go(h-1,true)});
+fit();var h0=parseInt(location.hash.slice(1),10);go(h0?h0-1:0,!h0);
+</script>
+</body>
+</html>

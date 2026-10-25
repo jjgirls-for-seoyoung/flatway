@@ -1,0 +1,26 @@
+<section id="s09-verify" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
+<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">교차검증 점수</h2>
+<p style="position:absolute;left:128px;top:236px;width:240px;font-size:26px;font-weight:700;color:#8A3F0B;background:#FFD9B8;padding:6px 18px;border-radius:30px">개발 계획 중</p>
+<div style="position:absolute;left:128px;top:320px;width:800px;display:flex;flex-direction:column;gap:24px">
+<div style="background:#FFFFFF;border-radius:20px;padding:28px 36px">
+<p style="font-size:34px;line-height:1.5;color:#24382F">같은 위치를 지나간 다른 사용자의 센서 기록과 비교해 <b>신뢰도 점수</b>를 매깁니다.</p>
+</div>
+<div style="background:#FFFFFF;border-radius:20px;padding:28px 36px">
+<p style="font-size:34px;line-height:1.5;color:#24382F">50% 미만은 <b>검증 대기</b>, 50% 이상은 정식 위험 핀으로 등록해 허위 제보를 막습니다.</p>
+</div>
+<p style="font-size:28px;line-height:1.5;color:#4F6A5C">현재는 제보 상세에서 ‘도움이 돼요’ 확인 버튼까지 제공합니다.</p>
+</div>
+<x-embed style="position:absolute;left:1000px;top:260px;width:792px;height:640px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif}svg{display:block;width:100%;height:100%}</style>
+<svg viewBox="0 0 792 640"><circle cx="396" cy="270" r="170" fill="none" stroke="#FFFFFF" stroke-width="40"/>
+<circle id="arc" cx="396" cy="270" r="170" fill="none" stroke="#2F9E6C" stroke-width="40" stroke-linecap="round" stroke-dasharray="748 1068" transform="rotate(-90 396 270)"/>
+<path id="pin" d="M396 190 a56 56 0 1 1 0.1 0 Z M396 190 c-40 0 -64 30 -64 62 c0 38 50 80 64 96 c14 -16 64 -58 64 -96 c0 -32 -24 -62 -64 -62 Z" fill="#2F9E6C" fill-rule="evenodd" transform="translate(0 -10)"/>
+<text id="pc" x="396" y="292" text-anchor="middle" font-size="68" font-weight="800" fill="#000000">70%</text>
+<text id="lb" x="396" y="540" text-anchor="middle" font-size="42" font-weight="800" fill="#1F7A55">정식 위험 핀 등록</text>
+<text x="396" y="590" text-anchor="middle" font-size="28" font-weight="700" fill="#4F6A5C">신뢰도 50% 기준</text></svg>
+<script>var C=2*Math.PI*170,arc=document.getElementById('arc'),pin=document.getElementById('pin'),pc=document.getElementById('pc'),lb=document.getElementById('lb');
+function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/4200),v=Math.round(70*k);arc.setAttribute('stroke-dasharray',(C*v/100)+' '+C);var ok=v>=50;var col=ok?'#2F9E6C':'#E5A81B';arc.setAttribute('stroke',col);pin.setAttribute('fill',col);pc.textContent=v+'%';lb.textContent=ok?'정식 위험 핀 등록':'검증 대기';lb.setAttribute('fill',ok?'#1F7A55':'#8A5A00');if(k<1)requestAnimationFrame(f);else setTimeout(run,2600)}requestAnimationFrame(f)}run();</script></x-embed>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">09 / 20</p>
+<aside>교차검증 점수 (약 30초). 허위 제보나 어뷰징을 막기 위한 설계다. 다른 사용자의 센서 기록과 맞아떨어질수록 신뢰도가 올라가고, 50%를 넘으면 정식 위험 핀이 된다. 아직 개발 계획 중이며 현재는 확인 버튼까지 구현했다고 솔직하게 말하기.</aside>
+</section>

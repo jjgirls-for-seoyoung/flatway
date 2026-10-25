@@ -1,0 +1,31 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-10-25T11:30:00Z" },
+  "lists": "css",
+  "title": "FlatWay 발표 (고도화)",
+  "order": [
+    "s01-cover", "s02-motive", "s03-scale", "s04-case",
+    "s05-existing", "s06-compare",
+    "s07-arch", "s08-sensor", "s09-verify", "s10-modes",
+    "s11-upgrade", "s12-qr", "s13-web", "s14-category", "s15-algo", "s16-modes2", "s17-guide",
+    "s18-test", "s19-next", "s20-team"
+  ],
+  "sections": {
+    "ch1": { "description": "1장. 왜 만들었나: 휠체어 사용자를 직접 목격한 경험과 사회적 규모", "start": "s01-cover" },
+    "ch2": { "description": "2장. 기존 서비스의 한계와 FlatWay의 차이", "start": "s05-existing" },
+    "ch3": { "description": "3장. FlatWay의 구조와 핵심 기술", "start": "s07-arch" },
+    "ch4": { "description": "4장. 고도화: 웹 서비스, 카테고리, 위험 회피 길찾기, 첫 사용 가이드", "start": "s11-upgrade" },
+    "ch5": { "description": "5장. 검증과 앞으로의 계획, 팀 소개", "start": "s18-test" }
+  },
+  "faces": {
+    "black-han-sans": {
+      "family": "Black Han Sans",
+      "href": "https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap"
+    },
+    "noto-sans-kr": {
+      "family": "Noto Sans KR",
+      "href": "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+    }
+  },
+  "designSystems": []
+}
