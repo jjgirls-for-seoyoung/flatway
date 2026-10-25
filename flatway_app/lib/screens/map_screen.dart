@@ -8,6 +8,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/hazard_types.dart';
 import '../services/location_service.dart';
 import '../services/route_service.dart';
@@ -227,6 +228,19 @@ class _MapScreenState extends State<MapScreen> {
 
   void _finishLocating() {
     if (mounted && _isLocating) setState(() => _isLocating = false);
+  }
+
+  // 발표 소개 슬라이드(/intro/)를 새 탭(웹) 또는 브라우저(앱)로 연다
+  Future<void> _openIntro() async {
+    final uri = kIsWeb
+        ? Uri.base.resolve('intro/')
+        : Uri.parse('https://temporary-express-flint-jxi3l4g.vercel.app/intro/');
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('소개 페이지를 열 수 없습니다.'), duration: Duration(seconds: 2)),
+      );
+    }
   }
 
   @override
@@ -1603,6 +1617,20 @@ class _MapScreenState extends State<MapScreen> {
             const Text(
               'FlatWay',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            const SizedBox(width: 10),
+            InkWell(
+              onTap: _openIntro,
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF047857).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFF047857).withValues(alpha: 0.4)),
+                ),
+                child: const Text('소개', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF047857))),
+              ),
             ),
           ],
         ),
