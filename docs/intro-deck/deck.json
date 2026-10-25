@@ -5,7 +5,7 @@
   "title": "FlatWay 발표 (고도화)",
   "order": [
     "s01-cover", "s02-motive", "s03-scale", "s04-case",
-    "s05-existing", "s06-compare",
+    "s05-existing", "s06-compare", "s06b-vs-naver",
     "s07-arch", "s08-sensor", "s09-verify", "s10-modes",
     "s11-upgrade", "s12-qr", "s13-web", "s14-category", "s15-algo", "s16-modes2", "s17-guide",
     "s18-test", "s19-next", "s20-team"

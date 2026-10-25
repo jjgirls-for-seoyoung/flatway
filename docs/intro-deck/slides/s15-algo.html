@@ -44,6 +44,6 @@ svg[data-p="2"] .r1{opacity:.35}
 function step(){p=(p+1)%4;if(p==3){s.setAttribute('data-p','2');cap.textContent='점수가 가장 낮은 안전한 경로를 선택';return}s.setAttribute('data-p',String(p));cap.textContent=T[p]}
 step();setInterval(step,2600);</script></x-embed>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">15 / 20</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">16 / 21</p>
 <aside>개선③ 위험을 피하는 길찾기 (약 40초). 기존에는 최단 경로만 안내했다. 이제는 후보 경로마다 거리에 위험 페널티를 더해 점수를 매기고, 가장 위험한 지점의 옆길을 경유하는 우회 경로를 만들어 비교한 뒤 점수가 가장 낮은 길을 고른다. 파란 길이 위험을 지날 때 초록 우회로가 더 낮은 점수를 받는 모습이다.</aside>
 </section>

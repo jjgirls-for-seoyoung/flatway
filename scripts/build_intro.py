@@ -22,6 +22,8 @@ BLOBS = {
     "92158119df7f857c27e7718cacfcb546": "tour1.jpg",
     "32c615140ca5bbccc30c588a13fea0ef": "tour2.jpg",
     "cbce4b9af33ab05318fe57bccd0a21f3": "tour3.jpg",
+    "eb6f0f83cf83c192a3fac23bf37f7342": "app_route.jpg",
+    "a9e6ddb421ffba65840f7ade6654a5fb": "naver_route.jpg",
 }
 
 EMBED_RE = re.compile(r'<x-embed style="([^"]*)">(.*?)</x-embed>', re.S)

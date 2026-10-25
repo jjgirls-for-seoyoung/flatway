@@ -21,6 +21,6 @@
 <script>var C=2*Math.PI*170,arc=document.getElementById('arc'),pin=document.getElementById('pin'),pc=document.getElementById('pc'),lb=document.getElementById('lb');
 function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/4200),v=Math.round(70*k);arc.setAttribute('stroke-dasharray',(C*v/100)+' '+C);var ok=v>=50;var col=ok?'#2F9E6C':'#E5A81B';arc.setAttribute('stroke',col);pin.setAttribute('fill',col);pc.textContent=v+'%';lb.textContent=ok?'정식 위험 핀 등록':'검증 대기';lb.setAttribute('fill',ok?'#1F7A55':'#8A5A00');if(k<1)requestAnimationFrame(f);else setTimeout(run,2600)}requestAnimationFrame(f)}run();</script></x-embed>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">09 / 20</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">10 / 21</p>
 <aside>교차검증 점수 (약 30초). 허위 제보나 어뷰징을 막기 위한 설계다. 다른 사용자의 센서 기록과 맞아떨어질수록 신뢰도가 올라가고, 50%를 넘으면 정식 위험 핀이 된다. 아직 개발 계획 중이며 현재는 확인 버튼까지 구현했다고 솔직하게 말하기.</aside>
 </section>
