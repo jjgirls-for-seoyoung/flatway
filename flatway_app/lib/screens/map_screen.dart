@@ -12,6 +12,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/hazard_types.dart';
 import '../services/location_service.dart';
+import '../services/nav_tracker.dart';
 import '../services/place_search_service.dart';
 import '../services/route_service.dart';
 import '../services/safe_route_planner.dart';
@@ -92,6 +93,16 @@ class _MapScreenState extends State<MapScreen> {
   String? _destName;
   LatLng? _destLocation;
   bool _isNavigating = false;
+
+  // 실시간 길안내 상태
+  NavTracker? _navTracker;
+  NavState? _navState;
+  bool _navLive = false; // 내 위치에서 출발하는 경로인지(true면 걸어가는 위치를 따라 갱신)
+  int _announcedStep = -1;
+  bool _announcedArrival = false;
+
+  // 내 실제 위치를 받았는지. false면 지도에 보이는 '내 위치'는 기본 위치(작전역 부근)다.
+  bool _hasRealLocation = false;
   List<LatLng> _navRoutePoints = [];
   List<RouteStep> _navRouteSteps = [];
   double _navDistanceMeters = 0.0;
@@ -112,11 +123,13 @@ class _MapScreenState extends State<MapScreen> {
       final newLoc = LatLng(position.latitude, position.longitude);
       if (!_hasCenteredOnUser) {
         _centerOnUser(newLoc);
+        _updateNavProgress();
         return;
       }
       setState(() {
         _currentLocation = newLoc;
       });
+      _updateNavProgress();
       if (_isHeadingUp) {
         try {
           _mapController.move(newLoc, _mapController.camera.zoom);
@@ -248,7 +261,10 @@ class _MapScreenState extends State<MapScreen> {
   /// 내 위치로 지도를 옮기고 로딩 화면을 걷는다. 가장 먼저 도착한 위치(현재 위치 조회/실시간 스트림)가 쓰인다.
   void _centerOnUser(LatLng loc) {
     if (!mounted) return;
-    setState(() => _currentLocation = loc);
+    setState(() {
+      _currentLocation = loc;
+      _hasRealLocation = true;
+    });
     try {
       _mapController.move(loc, 16.5);
       _hasCenteredOnUser = true;
@@ -286,6 +302,7 @@ class _MapScreenState extends State<MapScreen> {
     if (known != null) {
       // 스플래시에서 위치를 이미 받았으므로 처음부터 내 위치로 열고 로딩 화면은 생략한다.
       _currentLocation = known;
+      _hasRealLocation = true;
       _hasCenteredOnUser = true;
       _isLocating = false;
     } else {
@@ -424,6 +441,44 @@ class _MapScreenState extends State<MapScreen> {
     _destSearchController.dispose();
     super.dispose();
   }
+
+  double get _modeSpeedKmh =>
+      (_selectedRouteMode == 'electric') ? 6.0 : (_selectedRouteMode == 'manual') ? 3.2 : 4.0;
+
+  /// 내 위치가 바뀔 때마다 경로상 진행 상황(다음 안내, 남은 거리)을 갱신한다.
+  void _updateNavProgress() {
+    final tracker = _navTracker;
+    if (!_isNavigating || !_navLive || tracker == null || !_hasRealLocation) return;
+
+    final state = tracker.update(_currentLocation);
+    final prevStep = _navState?.nextStepIndex;
+    setState(() => _navState = state);
+
+    if (state.arrived) {
+      if (!_announcedArrival) {
+        _announcedArrival = true;
+        _speakGuidance('목적지에 도착했습니다.');
+      }
+      return;
+    }
+    if (state.offRouteMeters > 60) return; // 경로 이탈 중에는 음성 안내를 하지 않는다
+
+    if (state.nextStepIndex != _announcedStep &&
+        (prevStep == null || state.nextStepIndex != prevStep || _announcedStep == -1) &&
+        state.nextStepIndex < tracker.steps.length) {
+      _announcedStep = state.nextStepIndex;
+      final step = tracker.steps[state.nextStepIndex];
+      _speakGuidance('${_formatDistance(_roundForSpeech(state.metersToNextStep))} 앞 ${maneuverLabel(step.type, step.modifier)}');
+    }
+  }
+
+  /// 대시보드에 보여줄 남은 거리/시간. 실시간 안내 중이면 걸어간 만큼 줄어든다.
+  double get _dashMeters => (_navLive && _navState != null) ? _navState!.remainingMeters : _navDistanceMeters;
+  int get _dashMinutes => (_navLive && _navState != null)
+      ? max(1, (_navState!.remainingMeters / (_modeSpeedKmh * 1000 / 60)).round())
+      : _navEstMinutes;
+
+  double _roundForSpeech(double m) => m >= 100 ? (m / 10).round() * 10.0 : m.roundToDouble();
 
   // Distance Formatting Helper (1,000m 이상은 km 단위로 자동 변환)
   String _formatDistance(double meters) {
@@ -716,6 +771,10 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                       onTap: () {
                         Navigator.pop(context);
+                        if (!_hasRealLocation) {
+                          _showSearchSnackBar('내 위치를 확인하지 못해 현재 위치를 쓸 수 없어요. 장소를 검색하거나 지도를 눌러 지정해 주세요.');
+                          return;
+                        }
                         setState(() {
                           if (isSettingStart) {
                             _startName = '현재 위치';
@@ -1096,8 +1155,7 @@ class _MapScreenState extends State<MapScreen> {
     _routeHazardCount = result.hazardsOnRoute.length;
     final route = result.route;
 
-    final speedKmh = (_selectedRouteMode == 'electric') ? 6.0 : (_selectedRouteMode == 'manual') ? 3.2 : 4.0;
-    final minutes = (route.distanceMeters / (speedKmh * 1000 / 60)).round();
+    final minutes = (route.distanceMeters / (_modeSpeedKmh * 1000 / 60)).round();
 
     if (mounted) {
       setState(() {
@@ -1106,6 +1164,15 @@ class _MapScreenState extends State<MapScreen> {
         _navDistanceMeters = route.distanceMeters;
         _navEstMinutes = max(1, minutes);
         _isNavigating = true;
+
+        // 실시간 안내: 내 위치에서 출발하는 경로일 때만 걸어가는 위치를 따라 갱신한다.
+        _navTracker = NavTracker(route.points, route.steps);
+        _navLive = _hasRealLocation &&
+            route.points.isNotEmpty &&
+            const Distance().as(LengthUnit.Meter, _currentLocation, route.points.first) < 100;
+        _navState = _navTracker!.update(_navLive ? _currentLocation : route.points.first);
+        _announcedStep = -1;
+        _announcedArrival = false;
       });
 
       // 길찾기 후에도 사용자가 보고 있던 지도 위치/확대 수준은 그대로 유지한다.
@@ -1126,6 +1193,9 @@ class _MapScreenState extends State<MapScreen> {
 
   void _clearNavigation() {
     setState(() {
+      _navTracker = null;
+      _navState = null;
+      _navLive = false;
       _isNavigating = false;
       _startName = null;
       _startLocation = null;
@@ -1869,7 +1939,7 @@ class _MapScreenState extends State<MapScreen> {
                         child: CustomPaint(
                           size: const Size(28, 34),
                           painter: DirectionalPinPainter(
-                            fillColor: const Color(0xFF047857),
+                            fillColor: _hasRealLocation ? const Color(0xFF047857) : const Color(0xFF9E9E9E),
                             borderColor: Colors.white,
                           ),
                         ),
@@ -1932,52 +2002,13 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Real Navigation Top Guidance Banner (턴바이턴 네비게이션 헤더)
+          // 실시간 턴바이턴 안내 배너 (실제 경로 단계 + 현재 위치 기반)
           if (_isNavigating)
             Positioned(
               top: 10,
               left: 12,
               right: 12,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: Color(0xFF047857), width: 1.8),
-                ),
-                elevation: 4,
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF047857).withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.turn_right, color: Color(0xFF047857), size: 24),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '90m 앞 우회전 (단차 우회 구간)',
-                              style: TextStyle(color: Color(0xFF111111), fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '다음: 계양대로 보행약자 안전길 진입 ➔ ${_destName ?? "목적지"}',
-                              style: const TextStyle(color: Color(0xFF777777), fontSize: 11),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: _buildGuidanceBanner(),
             ),
 
           // 1. Top Section: Clean Search Box (Shown when NOT navigating)
@@ -2100,6 +2131,10 @@ class _MapScreenState extends State<MapScreen> {
                               // Quick "현재 위치" pick button
                               InkWell(
                                 onTap: () {
+                                  if (!_hasRealLocation) {
+                                    _showSearchSnackBar('내 위치를 확인하지 못해 현재 위치를 쓸 수 없어요. 장소를 검색하거나 지도를 눌러 지정해 주세요.');
+                                    return;
+                                  }
                                   setState(() {
                                     _startName = '현재 위치';
                                     _startLocation = _currentLocation;
@@ -2243,6 +2278,43 @@ class _MapScreenState extends State<MapScreen> {
 
                 const SizedBox(height: 6),
 
+                // 내 위치를 못 받았을 때: 지도에 보이는 위치가 실제 내 위치가 아님을 알린다
+                if (!_hasRealLocation && !_isLocating) ...[
+                  Card(
+                    margin: EdgeInsets.zero,
+                    color: const Color(0xFFFFF7E6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Color(0xFFF3C77A)),
+                    ),
+                    elevation: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_disabled_rounded, size: 18, color: Color(0xFFB45309)),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              '내 위치를 확인하지 못해 기본 위치(작전역 부근)를 보여주고 있어요.',
+                              style: TextStyle(fontSize: 11, color: Color(0xFF7C4A03)),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _fetchCurrentLocation,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              minimumSize: const Size(0, 32),
+                            ),
+                            child: const Text('다시 시도', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                ],
+
                 // Category Chips Row
                 SingleChildScrollView(
                   key: _tourChipsKey,
@@ -2307,7 +2379,13 @@ class _MapScreenState extends State<MapScreen> {
                               Expanded(
                                 child: ElevatedButton.icon(
                                   key: _tourReportKey,
-                                  onPressed: () => _openReportModal(_currentLocation),
+                                  onPressed: () {
+                                    if (!_hasRealLocation) {
+                                      _showSearchSnackBar('내 위치를 확인하지 못해 현위치 제보를 할 수 없어요. 지도를 눌러 위치를 직접 지정해 제보해 주세요.');
+                                      return;
+                                    }
+                                    _openReportModal(_currentLocation);
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF1E2742),
                                     foregroundColor: Colors.white,
@@ -2386,7 +2464,7 @@ class _MapScreenState extends State<MapScreen> {
                                 children: [
                                   const Text('소요 시간', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 3),
-                                  Text('약 ${_formatDuration(_navEstMinutes)}', style: const TextStyle(color: Color(0xFF047857), fontSize: 18, fontWeight: FontWeight.bold)),
+                                  Text('약 ${_formatDuration(_dashMinutes)}', style: const TextStyle(color: Color(0xFF047857), fontSize: 18, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                               Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
@@ -2394,7 +2472,7 @@ class _MapScreenState extends State<MapScreen> {
                                 children: [
                                   const Text('남은 거리', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 3),
-                                  Text(_formatDistance(_navDistanceMeters), style: const TextStyle(color: Color(0xFF111111), fontSize: 17, fontWeight: FontWeight.bold)),
+                                  Text(_formatDistance(_dashMeters), style: const TextStyle(color: Color(0xFF111111), fontSize: 17, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                               Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
@@ -2530,6 +2608,132 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  IconData _maneuverIcon(RouteStep s) {
+    if (s.type == 'arrive') return Icons.flag_rounded;
+    if (s.type.startsWith('roundabout') || s.type == 'rotary') return Icons.roundabout_left_rounded;
+    switch (s.modifier) {
+      case 'right':
+        return Icons.turn_right;
+      case 'left':
+        return Icons.turn_left;
+      case 'sharp right':
+        return Icons.turn_sharp_right;
+      case 'sharp left':
+        return Icons.turn_sharp_left;
+      case 'slight right':
+        return Icons.turn_slight_right;
+      case 'slight left':
+        return Icons.turn_slight_left;
+      case 'uturn':
+        return Icons.u_turn_left;
+      default:
+        return Icons.straight;
+    }
+  }
+
+  Widget _buildGuidanceBanner() {
+    const green = Color(0xFF047857);
+    final state = _navState;
+    final steps = _navRouteSteps;
+    final destName = _destName ?? '목적지';
+
+    IconData icon = Icons.straight;
+    Color accent = green;
+    String title = '경로를 따라 이동하세요';
+    String subtitle = '$destName까지 ${_formatDistance(_navDistanceMeters)}';
+    Widget? action;
+
+    if (state != null && steps.length >= 2) {
+      if (_navLive && state.arrived) {
+        icon = Icons.flag_rounded;
+        title = '목적지에 도착했어요';
+        subtitle = destName;
+      } else if (_navLive && state.offRouteMeters > 60) {
+        icon = Icons.wrong_location_rounded;
+        accent = const Color(0xFFD97706);
+        title = '경로에서 벗어났어요';
+        subtitle = '현재 위치에서 다시 길을 찾을 수 있어요';
+        action = TextButton(
+          onPressed: () {
+            setState(() {
+              _startName = '현재 위치';
+              _startLocation = _currentLocation;
+              _startSearchController.text = '현재 위치';
+            });
+            _calculateAccessibleRoute();
+          },
+          child: const Text('다시 찾기', style: TextStyle(fontWeight: FontWeight.bold)),
+        );
+      } else {
+        final next = steps[state.nextStepIndex.clamp(0, steps.length - 1)];
+        final isArrive = next.type == 'arrive';
+        final label = maneuverLabel(next.type, next.modifier);
+        final dist = _formatDistance(_roundForSpeech(state.metersToNextStep));
+        icon = _maneuverIcon(next);
+        title = isArrive
+            ? '$dist 앞 목적지 도착'
+            : '$dist 앞 $label${next.name.isEmpty ? '' : ' (${next.name})'}';
+
+        final followIdx = state.nextStepIndex + 1;
+        if (isArrive) {
+          subtitle = destName;
+        } else if (followIdx < steps.length) {
+          final f = steps[followIdx];
+          subtitle = f.type == 'arrive'
+              ? '다음: $destName 도착'
+              : '다음: ${maneuverLabel(f.type, f.modifier)}${f.name.isEmpty ? '' : ' (${f.name})'}';
+        }
+        if (!_navLive) {
+          subtitle = '경로 미리보기 · $subtitle';
+        }
+      }
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: accent, width: 1.8),
+      ),
+      elevation: 4,
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: accent, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(color: Color(0xFF111111), fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Color(0xFF777777), fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+            ?action,
+          ],
+        ),
       ),
     );
   }

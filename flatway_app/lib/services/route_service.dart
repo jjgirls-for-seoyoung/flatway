@@ -6,15 +6,44 @@ import 'package:latlong2/latlong.dart';
 class RouteStep {
   final String instruction;
   final String modifier; // 'left', 'right', 'straight', etc.
-  final double distanceMeters;
-  final LatLng location;
+  final double distanceMeters; // 이 안내 지점에서 다음 안내 지점까지의 거리
+  final LatLng location; // 이 안내(회전 등)가 일어나는 지점
+  final String type; // OSRM maneuver type: 'depart', 'turn', 'arrive' ...
+  final String name; // 이어지는 도로 이름 (없으면 빈 문자열)
 
   RouteStep({
     required this.instruction,
     required this.modifier,
     required this.distanceMeters,
     required this.location,
+    this.type = '',
+    this.name = '',
   });
+}
+
+/// OSRM의 maneuver(type, modifier)를 한국어 안내 동사로 바꾼다.
+String maneuverLabel(String type, String modifier) {
+  if (type == 'arrive') return '목적지 도착';
+  if (type == 'depart') return '출발';
+  if (type.startsWith('roundabout') || type == 'rotary') return '회전교차로 진입';
+  switch (modifier) {
+    case 'right':
+      return '우회전';
+    case 'left':
+      return '좌회전';
+    case 'sharp right':
+      return '급우회전';
+    case 'sharp left':
+      return '급좌회전';
+    case 'slight right':
+      return '오른쪽 방향';
+    case 'slight left':
+      return '왼쪽 방향';
+    case 'uturn':
+      return '유턴';
+    default:
+      return '직진';
+  }
 }
 
 class PedestrianRouteResult {
@@ -93,17 +122,15 @@ class RouteService {
           stepLoc = LatLng((locCoords[1] as num).toDouble(), (locCoords[0] as num).toDouble());
         }
 
-        String text;
+        // 이 단계의 distance는 '이 안내 지점 이후' 직진하는 거리이므로, 문구에는 넣지 않는다.
+        final String text;
         if (type == 'depart') {
           text = '보행로를 따라 출발합니다.';
         } else if (type == 'arrive') {
           text = '목적지에 도착합니다.';
-        } else if (modifier == 'right' || modifier == 'sharp right' || modifier == 'slight right') {
-          text = '${stepDist.toStringAsFixed(0)}m 앞 우회전 ($name)';
-        } else if (modifier == 'left' || modifier == 'sharp left' || modifier == 'slight left') {
-          text = '${stepDist.toStringAsFixed(0)}m 앞 좌회전 ($name)';
         } else {
-          text = '${stepDist.toStringAsFixed(0)}m 직진 ($name)';
+          final action = maneuverLabel(type, modifier);
+          text = name.isEmpty ? action : '$action ($name)';
         }
 
         steps.add(RouteStep(
@@ -111,6 +138,8 @@ class RouteService {
           modifier: modifier,
           distanceMeters: stepDist,
           location: stepLoc,
+          type: type,
+          name: name,
         ));
       }
     }
