@@ -32,8 +32,6 @@ html,body{margin:0;height:100%;background:#16251d;overflow:hidden;font-family:'N
 #menu a:hover,#menu a.cur{background:#24402F}
 #menu a b{color:#3DD990;min-width:26px}
 #menu .h{color:#8FE8BE;font-size:13px;padding:10px 12px 4px}
-#notes{position:fixed;left:0;right:0;bottom:56px;background:rgba(15,26,20,.94);color:#E0FBEF;padding:14px 22px;font-size:18px;line-height:1.6;display:none;z-index:4}
-#notes.open{display:block}
 @media (max-width:640px){#ch{display:none}}
 </style>
 </head>
@@ -754,7 +752,6 @@ function go(){var s=S[i];sp.setAttribute(&#x27;y&#x27;,s.y);sp.setAttribute(&#x2
 </section>
 
 </div></div>
-<div id="notes"></div>
 <div id="menu"></div>
 <div id="bar">
 <button id="mb" title="목차 (M)">목차</button>
@@ -763,11 +760,10 @@ function go(){var s=S[i];sp.setAttribute(&#x27;y&#x27;,s.y);sp.setAttribute(&#x2
 <span id="cnt">1 / 20</span>
 <div id="prog"><i></i></div>
 <span id="ch"></span>
-<button id="nb" title="발표 메모 (N)">메모</button>
 <button id="fb" title="전체화면 (F)">전체화면</button>
 </div>
 <script>
-var T=["FlatWay", "개인적 동기", "사회적 규모", "현실 사례", "기존 서비스", "FlatWay, 어떻게 다른가?", "기존의 네이버 지도와 무엇이 다를까?", "시스템 구조", "센서 기반 데이터 수집", "교차검증 점수", "맞춤형 경로 계산", "고도화 한눈에 보기", "직접 써 보세요", "웹으로 누구나 바로", "카테고리별로 한눈에", "위험을 피하는 길찾기", "이동 수단별 회피 강도", "FlatWay 첫 사용자도 쉽게", "테스트와 개선 과정", "앞으로의 계획", "FlatWay"],NOTES=["표지 (약 20초). 인사와 한 줄 소개: 휠체어 사용자와 보행 약자를 위한 안전 경로 내비게이션 FlatWay입니다. 오늘은 처음 만든 서비스에서 어떻게 고도화했는지를 중심으로 발표합니다.", "개인적 동기 (약 30초). 학교 근처에서 휠체어를 타신 분이 보도의 작은 턱 앞에서 멈춰 계신 모습을 봤고, 다리를 다친 친구도 혼자 다니기 힘들어했다. 이 두 장면이 시작이었다.", "사회적 규모 (약 30초). 국내 교통약자는 약 1,613만 명으로 전체 인구의 31.5%이고, 일상적으로 휠체어를 사용하는 인구도 20~26만 명이다. 소수의 문제가 아니라 우리 모두의 문제다. (수치 출처는 발표 전에 확인해 두기)", "현실 사례 (약 30초). 응급실 손상환자 원인 1위가 낙상·추락(40%)이고, 장애인 10명 중 3명 이상이 외출할 때 이동수단 이용에 어려움을 겪는다. 작은 단차 하나가 사고와 외출 포기로 이어진다. (수치 출처는 발표 전에 확인해 두기)", "기존 서비스 (약 30초). 일반 지도 앱은 보도의 단차·경사·파손을 모른다. 장애인 전용 앱이나 지자체 데이터도 종합 경로 안내는 없고 갱신이 멈춰 실제와 다르다. 그래서 길은 있는데 갈 수 없는 길이 안내된다.", "비교표 (약 40초). 위에서부터: 단차·파손 반영(우회까지), 이동수단별 경로 분리, 건물 내부 연계(개발 계획 중), 실시간 반영. FlatWay 칸의 초록 테두리를 따라 하나씩 짚어 준다.", "FlatWay와 네이버 지도 비교 (약 30초). 왼쪽은 우리 앱이다. 붉은 점은 제보된 위험 요소이고, 초록 선은 위험을 피해 돌아가는 경로다. 오른쪽은 네이버 지도 도보 길찾기 화면이다. 큰길우선이나 계단회피 같은 옵션은 있지만 보도의 단차와 파손 같은 위험 정보는 지도에 나타나지 않고, 휠체어 이동 수단도 따로 없다. 물음표는 위험 구간을 모른 채 안내된다는 뜻이다. (네이버 기능은 발표 전에 한 번 더 확인해 두기)", "시스템 구조 (약 30초). 사용자는 앱이나 웹에서 위험을 제보하고, 제보는 클라우드 데이터베이스에 저장되어 앱과 웹 대시보드에 바로 반영된다. 주황 점은 제보, 초록 점은 위험 정보가 흐르는 모습이다.", "센서 기반 수집 (약 30초). 앱에서 이동 수집을 켜고 걸으면 가속도 센서가 노면 충격을 읽는다. 작은 흔들림은 무시하고 기준을 넘는 충격만 GPS 위치와 함께 단차 후보로 기록한다. 웹에서는 센서를 쓸 수 없어 모바일 앱에서만 지원한다.", "교차검증 점수 (약 30초). 허위 제보나 어뷰징을 막기 위한 설계다. 다른 사용자의 센서 기록과 맞아떨어질수록 신뢰도가 올라가고, 50%를 넘으면 정식 위험 핀이 된다. 아직 개발 계획 중이며 현재는 확인 버튼까지 구현했다고 솔직하게 말하기.", "맞춤형 경로 (약 30초). 보행자, 전동휠체어, 수동휠체어는 피해야 할 장애물이 다르다. 그래서 이동 수단마다 다른 경로를 계산한다. 사용자가 허용 단차와 최대 경사도를 직접 입력하는 기능은 개발 계획 중이다. 자세한 방식은 4장에서 설명한다.", "고도화 한눈에 보기 (약 30초). 8월 19일 시작해 커밋 166개, 팀원 4명, 알고리즘 테스트 14개를 통과했다. 그 가운데 눈에 띄는 개선 네 가지를 차례로 보여 준다: 웹 서비스, 카테고리, 위험 회피 길찾기, 첫 사용 가이드.", "직접 써 보세요 (약 30초). 개선점을 설명하기 전에 QR을 보여 준다. 청중이 휴대폰으로 스캔해서 직접 열어 보게 한 뒤 설명으로 넘어간다. 다음 슬라이드부터 오른쪽 위 구석에 작은 QR이 계속 보인다.", "개선① 웹 서비스 (약 30초). 예전에는 앱을 설치해야 했지만 이제는 링크나 QR 한 번이면 누구나 바로 쓸 수 있다. 게스트로 시작하고 필요할 때만 로그인한다.", "개선② 카테고리 (약 30초). 위험을 단차, 파손, 적치물, 경사 네 가지로 나누고 아이콘과 색을 다르게 했다. 위쪽 칩을 누르면 해당 종류만 지도에 남는다. 제보 화면의 선택지도 같은 이름과 아이콘으로 통일했고 건물 분류는 없앴다.", "개선③ 위험을 피하는 길찾기 (약 40초). 기존에는 최단 경로만 안내했다. 이제는 후보 경로마다 거리에 위험 페널티를 더해 점수를 매기고, 가장 위험한 지점의 옆길을 경유하는 우회 경로를 만들어 비교한 뒤 점수가 가장 낮은 길을 고른다. 파란 길이 위험을 지날 때 초록 우회로가 더 낮은 점수를 받는 모습이다.", "이동 수단별 회피 강도 (약 30초). 같은 위험이라도 사람마다 감당할 수 있는 정도가 다르다. 보행자는 큰 위험만 피하고, 전동휠체어는 단차를 반드시 피하며, 수동휠체어는 위험이 있으면 멀리 돌아서라도 위험 없는 길을 고른다. 오른쪽 두 화면은 같은 출발지와 도착지로 이동 수단만 바꿔 길찾기를 한 결과다. 보행자는 단차 위를 지나는 최단 경로(356m, 위험 1건)를 가지만, 휠체어 모드는 단차를 피해 옆길로 돌아가는 548m 경로(위험 0건)를 안내한다. 이 구간에는 단차만 있어 전동·수동 경로가 같고, 파손이나 경사가 있는 구간에서는 수동휠체어만 더 멀리 돌아간다. (두 모드가 다르게 나오는 구간은 데이터가 더 쌓이면 보여 줄 수 있다)", "개선④ 첫 사용 가이드 (약 20초). 처음 접속하면 말풍선이 소개, 길찾기, 현위치 제보를 차례로 짚어 준다. 상단 물음표 버튼으로 10단계 상세 가이드를 언제든 다시 볼 수 있고, 익숙해지면 다시 보지 않기를 선택할 수 있다.", "테스트와 개선 과정 (약 30초). 학교에서 역까지 직접 이동하며 수집을 확인했고, 길찾기 알고리즘은 테스트 14개로 검증했다. 실제 도로와 실제 제보 데이터로도 우회가 되는 것을 확인했다. 발견한 문제는 그때그때 고쳤다.", "앞으로의 계획 (약 30초). 아직 구현하지 못한 것을 솔직하게 소개한다: 건물 내부 연계, 허용 단차와 경사도 직접 입력, 센서 교차검증 점수, 위험 구간을 완전히 피하는 길찾기. 모두 개발 계획 중이다.", "마무리 (약 20초). 모두에게 더 편한 길을 위해 FlatWay를 만들었다. 함께한 팀원 소개와 감사 인사, QR을 띄워 둔 채 질문을 받는다. (이전 자료의 FlayWay 오타를 FlatWay로 고쳤다)"],CH=[{"label": "1장. 왜 만들었나", "start": 0}, {"label": "2장. 기존 서비스의 한계와 FlatWay의 차이", "start": 4}, {"label": "3장. FlatWay의 구조와 핵심 기술", "start": 7}, {"label": "4장. 고도화", "start": 11}, {"label": "5장. 검증과 앞으로의 계획, 팀 소개", "start": 18}];
+var T=["FlatWay", "개인적 동기", "사회적 규모", "현실 사례", "기존 서비스", "FlatWay, 어떻게 다른가?", "기존의 네이버 지도와 무엇이 다를까?", "시스템 구조", "센서 기반 데이터 수집", "교차검증 점수", "맞춤형 경로 계산", "고도화 한눈에 보기", "직접 써 보세요", "웹으로 누구나 바로", "카테고리별로 한눈에", "위험을 피하는 길찾기", "이동 수단별 회피 강도", "FlatWay 첫 사용자도 쉽게", "테스트와 개선 과정", "앞으로의 계획", "FlatWay"],CH=[{"label": "1장. 왜 만들었나", "start": 0}, {"label": "2장. 기존 서비스의 한계와 FlatWay의 차이", "start": 4}, {"label": "3장. FlatWay의 구조와 핵심 기술", "start": 7}, {"label": "4장. 고도화", "start": 11}, {"label": "5장. 검증과 앞으로의 계획, 팀 소개", "start": 18}];
 var slides=[].slice.call(document.querySelectorAll('.slide')),n=slides.length,cur=-1;
 var stage=document.getElementById('stage'),view=document.getElementById('view');
 function fit(){var w=view.clientWidth,h=view.clientHeight,s=Math.min(w/1920,h/1080);stage.style.transform='scale('+s+')';stage.style.left=((w-1920*s)/2)+'px';stage.style.top=((h-1080*s)/2)+'px'}
@@ -775,17 +771,16 @@ function chapterOf(i){var c=CH[0];for(var k=0;k<CH.length;k++)if(CH[k].start<=i)
 function mount(i,on){var fr=slides[i].querySelectorAll('iframe.embed');for(var k=0;k<fr.length;k++){if(on){if(!fr[k].getAttribute('srcdoc'))fr[k].setAttribute('srcdoc',fr[k].getAttribute('data-srcdoc'))}else fr[k].removeAttribute('srcdoc')}}
 function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);
 document.getElementById('cnt').textContent=(i+1)+' / '+n;document.querySelector('#prog i').style.width=((i+1)/n*100)+'%';document.getElementById('ch').textContent=chapterOf(i);
-document.getElementById('notes').textContent=NOTES[i]||'';var cs=document.querySelectorAll('#menu a');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('cur',k===i);
+var cs=document.querySelectorAll('#menu a');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('cur',k===i);
 if(!noHash)history.replaceState(null,'','#'+(i+1))}
 var mn=document.getElementById('menu'),hh='';CH.forEach(function(c,ci){});
 (function(){var html='',ci=0;for(var i=0;i<n;i++){while(ci<CH.length&&CH[ci].start===i){html+='<div class="h">'+CH[ci].label+'</div>';ci++}html+='<a href="#'+(i+1)+'" data-i="'+i+'"><b>'+(i+1)+'</b>'+T[i]+'</a>'}mn.innerHTML=html})();
 mn.addEventListener('click',function(e){var a=e.target.closest('a');if(a){e.preventDefault();go(+a.getAttribute('data-i'));mn.classList.remove('open')}});
 document.getElementById('mb').onclick=function(){mn.classList.toggle('open')};
 document.getElementById('pv').onclick=function(){go(cur-1)};document.getElementById('nx').onclick=function(){go(cur+1)};
-document.getElementById('nb').onclick=function(){document.getElementById('notes').classList.toggle('open')};
 function fs(){var d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()}
 document.getElementById('fb').onclick=fs;
-document.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){go(cur+1);e.preventDefault()}else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){go(cur-1);e.preventDefault()}else if(k==='Home')go(0);else if(k==='End')go(n-1);else if(k==='f'||k==='F')fs();else if(k==='n'||k==='N')document.getElementById('notes').classList.toggle('open');else if(k==='m'||k==='M')mn.classList.toggle('open');else if(k==='Escape')mn.classList.remove('open')});
+document.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){go(cur+1);e.preventDefault()}else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){go(cur-1);e.preventDefault()}else if(k==='Home')go(0);else if(k==='End')go(n-1);else if(k==='f'||k==='F')fs();else if(k==='m'||k==='M')mn.classList.toggle('open');else if(k==='Escape')mn.classList.remove('open')});
 var sx=null;view.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});view.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));sx=null});
 view.addEventListener('click',function(e){mn.classList.remove('open');var r=view.getBoundingClientRect();if(e.clientX-r.left>r.width*0.5)go(cur+1);else go(cur-1)});
 window.addEventListener('resize',fit);window.addEventListener('hashchange',function(){var h=parseInt(location.hash.slice(1),10);if(h)go(h-1,true)});
