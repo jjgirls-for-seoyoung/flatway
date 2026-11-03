@@ -438,6 +438,14 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // Duration Formatting Helper (60분 이상은 시간 단위로 자동 변환: 75분 -> 1시간 15분)
+  String _formatDuration(int minutes) {
+    if (minutes < 60) return '$minutes분';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    return m == 0 ? '$h시간' : '$h시간 $m분';
+  }
+
   // Search History Helper
   void _addRecentSearch(PlaceResult place) {
     setState(() {
@@ -1158,7 +1166,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '모드: $routeModeName | 총 ${_formatDistance(_navDistanceMeters)} (약 $_navEstMinutes분)',
+                      '모드: $routeModeName | 총 ${_formatDistance(_navDistanceMeters)} (약 ${_formatDuration(_navEstMinutes)})',
                       style: const TextStyle(fontSize: 12, color: Colors.blueAccent, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -2378,7 +2386,7 @@ class _MapScreenState extends State<MapScreen> {
                                 children: [
                                   const Text('소요 시간', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 3),
-                                  Text('약 $_navEstMinutes분', style: const TextStyle(color: Color(0xFF047857), fontSize: 18, fontWeight: FontWeight.bold)),
+                                  Text('약 ${_formatDuration(_navEstMinutes)}', style: const TextStyle(color: Color(0xFF047857), fontSize: 18, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                               Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
