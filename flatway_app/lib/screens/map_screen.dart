@@ -12,6 +12,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/hazard_types.dart';
 import '../services/location_service.dart';
+import '../services/place_search_service.dart';
 import '../services/route_service.dart';
 import '../services/safe_route_planner.dart';
 import '../services/supabase_service.dart';
@@ -49,14 +50,17 @@ class _MapScreenState extends State<MapScreen> {
 
   // Search Expansion & Recommendation State
   bool _isRouteSearchExpanded = false;
-  // 최근 검색어는 이 기기에 저장한다 (계정과는 무관)
-  static const _recentSearchesKey = 'recent_searches';
-  final List<String> _recentSearches = [];
+  // 최근 검색한 장소는 이 기기에 저장한다 (계정과는 무관). 좌표까지 저장해서 다시 눌러도 같은 장소로 설정된다.
+  static const _recentPlacesKey = 'recent_places_v2';
+  final List<PlaceResult> _recentSearches = [];
 
   Future<void> _loadRecentSearches() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getStringList(_recentSearchesKey) ?? const [];
+      final saved = (prefs.getStringList(_recentPlacesKey) ?? const [])
+          .map(PlaceResult.fromJsonString)
+          .whereType<PlaceResult>()
+          .toList();
       if (mounted && saved.isNotEmpty) {
         setState(() {
           _recentSearches
@@ -72,7 +76,7 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _saveRecentSearches() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_recentSearchesKey, List<String>.from(_recentSearches));
+      await prefs.setStringList(_recentPlacesKey, _recentSearches.map((p) => p.toJsonString()).toList());
     } catch (e) {
       debugPrint('Failed to save recent searches: $e');
     }
@@ -435,12 +439,10 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // Search History Helper
-  void _addRecentSearch(String term) {
-    final clean = term.trim();
-    if (clean.isEmpty) return;
+  void _addRecentSearch(PlaceResult place) {
     setState(() {
-      _recentSearches.remove(clean);
-      _recentSearches.insert(0, clean);
+      _recentSearches.removeWhere(place.isSamePlaceAs);
+      _recentSearches.insert(0, place);
       if (_recentSearches.length > 10) {
         _recentSearches.removeLast();
       }
@@ -448,15 +450,14 @@ class _MapScreenState extends State<MapScreen> {
     _saveRecentSearches();
   }
 
-  // Handle Location Search
-  void _performSearch(String query) {
+  // Handle Location Search (상단 검색창에서 엔터)
+  Future<void> _performSearch(String query) async {
     final cleanQuery = query.trim().toLowerCase();
     if (cleanQuery.isEmpty) return;
 
-    _addRecentSearch(query);
-
     for (final entry in _knownLandmarks.entries) {
       if (entry.key.toLowerCase().contains(cleanQuery)) {
+        _addRecentSearch(PlaceResult(name: entry.key, address: '주요 장소', location: entry.value));
         _mapController.move(entry.value, 17.5);
         _showSearchSnackBar('${entry.key} (으)로 지도가 이동되었습니다.');
         return;
@@ -473,18 +474,27 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-    _showSearchSnackBar('검색 결과가 없습니다. (예: 작전역, 작전여고)');
+    // 등록된 장소/제보에 없으면 실제 장소 검색
+    _showSearchSnackBar('장소를 검색하는 중이에요...');
+    final results = await PlaceSearchService.search(query, near: _currentLocation);
+    if (!mounted) return;
+    if (results == null) {
+      _showSearchSnackBar('검색에 실패했어요. 네트워크를 확인해 주세요.');
+    } else if (results.isEmpty) {
+      _showSearchSnackBar('"$query" 검색 결과가 없어요.');
+    } else {
+      final place = results.first;
+      _addRecentSearch(place);
+      _mapController.move(place.location, 17.5);
+      _showSearchSnackBar('${place.name} (으)로 지도가 이동되었습니다.');
+    }
   }
 
-  void _selectSearchTerm(String term, {required bool isSettingStart, LatLng? explicitLocation}) {
-    _addRecentSearch(term);
+  void _selectSearchTerm(PlaceResult place, {required bool isSettingStart}) {
+    _addRecentSearch(place);
 
-    LatLng? loc = explicitLocation;
-    if (loc == null && _knownLandmarks.containsKey(term)) {
-      loc = _knownLandmarks[term];
-    }
-
-    loc ??= _currentLocation;
+    final term = place.name;
+    final loc = place.location;
 
     setState(() {
       if (isSettingStart) {
@@ -521,6 +531,14 @@ class _MapScreenState extends State<MapScreen> {
   void _showSearchRecommendationModal({bool isSettingStart = false}) {
     final TextEditingController searchInputController = TextEditingController();
     String currentQuery = '';
+
+    // 실제 장소 검색(네트워크) 상태
+    List<PlaceResult> remoteResults = [];
+    bool isSearching = false;
+    bool searchFailed = false;
+    bool sheetClosed = false;
+    int searchSeq = 0;
+    Timer? debounce;
 
     showModalBottomSheet(
       context: context,
@@ -599,12 +617,43 @@ class _MapScreenState extends State<MapScreen> {
                         onChanged: (val) {
                           setModalState(() {
                             currentQuery = val;
+                            remoteResults = [];
+                            searchFailed = false;
+                          });
+                          debounce?.cancel();
+                          final q = val.trim();
+                          if (q.length < 2) {
+                            setModalState(() => isSearching = false);
+                            return;
+                          }
+                          setModalState(() => isSearching = true);
+                          // 입력이 멈춘 뒤에 검색 (요청 남발 방지)
+                          debounce = Timer(const Duration(milliseconds: 450), () async {
+                            final seq = ++searchSeq;
+                            final results = await PlaceSearchService.search(q, near: _currentLocation);
+                            if (sheetClosed || seq != searchSeq) return; // 닫혔거나 더 새 검색이 있음
+                            setModalState(() {
+                              isSearching = false;
+                              searchFailed = results == null;
+                              remoteResults = results ?? [];
+                            });
                           });
                         },
                         onSubmitted: (val) {
-                          if (val.trim().isNotEmpty) {
+                          // 엔터: 등록된 주요 장소 → 검색된 장소 순으로 첫 결과를 선택
+                          final q = val.trim().toLowerCase();
+                          if (q.isEmpty) return;
+                          PlaceResult? pick;
+                          for (final e in _knownLandmarks.entries) {
+                            if (e.key.toLowerCase().contains(q)) {
+                              pick = PlaceResult(name: e.key, address: '주요 장소', location: e.value);
+                              break;
+                            }
+                          }
+                          pick ??= remoteResults.isNotEmpty ? remoteResults.first : null;
+                          if (pick != null) {
                             Navigator.pop(context);
-                            _selectSearchTerm(val.trim(), isSettingStart: isSettingStart);
+                            _selectSearchTerm(pick, isSettingStart: isSettingStart);
                           }
                         },
                         decoration: InputDecoration(
@@ -615,9 +664,13 @@ class _MapScreenState extends State<MapScreen> {
                               ? IconButton(
                                   icon: const Icon(Icons.clear_rounded, size: 18, color: Color(0xFF777777)),
                                   onPressed: () {
+                                    debounce?.cancel();
                                     setModalState(() {
                                       searchInputController.clear();
                                       currentQuery = '';
+                                      remoteResults = [];
+                                      isSearching = false;
+                                      searchFailed = false;
                                     });
                                   },
                                 )
@@ -690,40 +743,55 @@ class _MapScreenState extends State<MapScreen> {
                     if (cleanQuery.isNotEmpty) ...[
                       const Text('검색 결과', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF777777))),
                       const SizedBox(height: 6),
-                      if (matchingLandmarks.isEmpty)
-                        ListTile(
+                      ...matchingLandmarks.map((entry) {
+                        return _buildPlaceTile(
+                          PlaceResult(name: entry.key, address: '주요 장소', location: entry.value),
+                          icon: Icons.place_rounded,
+                          onPick: (place) {
+                            Navigator.pop(context);
+                            _selectSearchTerm(place, isSettingStart: isSettingStart);
+                          },
+                        );
+                      }),
+                      ...remoteResults
+                          .where((r) => !matchingLandmarks.any((e) => e.key == r.name))
+                          .map((place) {
+                        return _buildPlaceTile(
+                          place,
+                          icon: Icons.location_on_outlined,
+                          onPick: (place) {
+                            Navigator.pop(context);
+                            _selectSearchTerm(place, isSettingStart: isSettingStart);
+                          },
+                        );
+                      }),
+                      if (isSearching)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF047857))),
+                              SizedBox(width: 10),
+                              Text('장소를 검색하는 중이에요...', style: TextStyle(fontSize: 12, color: Color(0xFF777777))),
+                            ],
+                          ),
+                        )
+                      else if (searchFailed && matchingLandmarks.isEmpty)
+                        const ListTile(
                           dense: true,
                           contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.search_off_rounded, color: Color(0xFF949494), size: 20),
-                          title: Text('"$currentQuery" 명칭으로 설정', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF047857))),
-                          subtitle: const Text('등록된 주요 장소 목록에 없으나 해당 검색어로 설정합니다.', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _selectSearchTerm(currentQuery, isSettingStart: isSettingStart);
-                          },
+                          leading: Icon(Icons.wifi_off_rounded, color: Color(0xFF949494), size: 20),
+                          title: Text('검색에 실패했어요', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
+                          subtitle: Text('네트워크를 확인하고 다시 시도해 주세요.', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
                         )
-                      else ...[
-                        ...matchingLandmarks.map((entry) {
-                          return ListTile(
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                            leading: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF047857).withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Icon(Icons.place_rounded, color: Color(0xFF047857), size: 16),
-                            ),
-                            title: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
-                            subtitle: Text('주요 장소 (${entry.value.latitude.toStringAsFixed(4)}, ${entry.value.longitude.toStringAsFixed(4)})', style: const TextStyle(fontSize: 11, color: Color(0xFF949494))),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _selectSearchTerm(entry.key, isSettingStart: isSettingStart, explicitLocation: entry.value);
-                            },
-                          );
-                        }),
-                      ],
+                      else if (cleanQuery.length >= 2 && matchingLandmarks.isEmpty && remoteResults.isEmpty)
+                        const ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(Icons.search_off_rounded, color: Color(0xFF949494), size: 20),
+                          title: Text('검색 결과가 없어요', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
+                          subtitle: Text('다른 이름이나 주소로 검색해 보세요.', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
+                        ),
                       const SizedBox(height: 12),
                     ],
 
@@ -761,16 +829,16 @@ class _MapScreenState extends State<MapScreen> {
                       Wrap(
                         spacing: 8,
                         runSpacing: 6,
-                        children: _recentSearches.map((term) {
+                        children: _recentSearches.map((place) {
                           return ActionChip(
                             avatar: const Icon(Icons.history_rounded, size: 14, color: Color(0xFF777777)),
-                            label: Text(term, style: const TextStyle(fontSize: 12, color: Color(0xFF111111))),
+                            label: Text(place.name, style: const TextStyle(fontSize: 12, color: Color(0xFF111111))),
                             backgroundColor: const Color(0xFFF5F5F5),
                             side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             onPressed: () {
                               Navigator.pop(context);
-                              _selectSearchTerm(term, isSettingStart: isSettingStart);
+                              _selectSearchTerm(place, isSettingStart: isSettingStart);
                             },
                           );
                         }).toList(),
@@ -783,6 +851,29 @@ class _MapScreenState extends State<MapScreen> {
           );
         },
       ),
+    ).whenComplete(() {
+      sheetClosed = true;
+      debounce?.cancel();
+    });
+  }
+
+  Widget _buildPlaceTile(PlaceResult place, {required IconData icon, required void Function(PlaceResult) onPick}) {
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      leading: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: const Color(0xFF047857).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Icon(icon, color: const Color(0xFF047857), size: 16),
+      ),
+      title: Text(place.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
+      subtitle: place.address.isEmpty
+          ? null
+          : Text(place.address, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: Color(0xFF949494))),
+      onTap: () => onPick(place),
     );
   }
 
