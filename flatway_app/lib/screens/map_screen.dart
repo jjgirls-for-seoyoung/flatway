@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/hazard_types.dart';
@@ -48,7 +49,34 @@ class _MapScreenState extends State<MapScreen> {
 
   // Search Expansion & Recommendation State
   bool _isRouteSearchExpanded = false;
-  final List<String> _recentSearches = ['작전역', '작전여고', '계양구청', '작전역 1번 출구'];
+  // 최근 검색어는 이 기기에 저장한다 (계정과는 무관)
+  static const _recentSearchesKey = 'recent_searches';
+  final List<String> _recentSearches = [];
+
+  Future<void> _loadRecentSearches() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList(_recentSearchesKey) ?? const [];
+      if (mounted && saved.isNotEmpty) {
+        setState(() {
+          _recentSearches
+            ..clear()
+            ..addAll(saved);
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load recent searches: $e');
+    }
+  }
+
+  Future<void> _saveRecentSearches() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_recentSearchesKey, List<String>.from(_recentSearches));
+    } catch (e) {
+      debugPrint('Failed to save recent searches: $e');
+    }
+  }
 
   // Map Tile Style: 'vworld' | 'satellite' | 'esri_sat' | 'dark' | 'carto'
   String _selectedMapTileStyle = 'vworld';
@@ -249,6 +277,7 @@ class _MapScreenState extends State<MapScreen> {
     // 위치를 끝내 못 받아도 로딩 화면이 계속 남지 않도록 안전장치
     Future.delayed(const Duration(seconds: 12), _finishLocating);
     _loadSupabaseData();
+    _loadRecentSearches();
     final known = widget.initialLocation;
     if (known != null) {
       // 스플래시에서 위치를 이미 받았으므로 처음부터 내 위치로 열고 로딩 화면은 생략한다.
@@ -416,6 +445,7 @@ class _MapScreenState extends State<MapScreen> {
         _recentSearches.removeLast();
       }
     });
+    _saveRecentSearches();
   }
 
   // Handle Location Search
@@ -710,6 +740,7 @@ class _MapScreenState extends State<MapScreen> {
                                   _recentSearches.clear();
                                 });
                               });
+                              _saveRecentSearches();
                             },
                             child: const Text('전체 삭제', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
                           ),
