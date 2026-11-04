@@ -1,12 +1,12 @@
 <section id="s01-cover" data-transition="fade" style="background:#2f5645">
   <x-embed style="position:absolute; top:150px; left:1000px; width:780px; height:780px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif}svg{display:block;width:100%;height:100%}
-.ring{transform-origin:430px 430px;animation:spin 28s linear infinite}
+.ring{transform-origin:430px 430px;animation:spin 28s linear 1 forwards}
 @keyframes spin{to{transform:rotate(360deg)}}
-.road{stroke-dasharray:18 16;animation:flow 1.6s linear infinite}
+.road{stroke-dasharray:18 16;animation:flow 1.6s linear 1 forwards}
 @keyframes flow{to{stroke-dashoffset:-34}}
-.pin{transform-origin:640px 330px;animation:pulse 2s ease-in-out infinite}
+.pin{transform-origin:640px 330px;animation:pulse 2s ease-in-out 1 forwards}
 @keyframes pulse{50%{transform:scale(1.25)}}
-.dot{transform-origin:300px 300px;animation:breathe 6s ease-in-out infinite}
+.dot{transform-origin:300px 300px;animation:breathe 6s ease-in-out 1 forwards}
 @keyframes breathe{50%{transform:scale(1.06)}}</style>
 <svg viewBox="0 0 780 780"><circle class="dot" cx="300" cy="300" r="200" fill="#3E6F59"/>
 <defs><clipPath id="lo"><rect x="0" y="470" width="780" height="310"/></clipPath><clipPath id="up"><rect x="0" y="0" width="780" height="470"/></clipPath></defs>
@@ -17,6 +17,7 @@
 <g clip-path="url(#up)"><path class="road" d="M90 640 C 260 640, 300 470, 430 470 S 600 380, 640 330" fill="none" stroke="#3DD990" stroke-width="12" stroke-linecap="round"/></g>
 <g class="pin"><circle cx="640" cy="330" r="30" fill="#3DD990" stroke="#E0FBEF" stroke-width="6"/><circle cx="640" cy="330" r="11" fill="#2F5645"/></g></svg></x-embed>
   <p style="position:absolute; top:88px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:500; color:#bfe9d4">작전여자고등학교 · AI·디지털 기반 문제해결 고도화 발표</p>
+  <p style="position:absolute; top:296px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:48px; font-weight:700; color:#e0fbef">모두에게 더 편한 길을 위해</p>
   <h1 style="position:absolute; top:377.19px; left:128px; width:872px; height:362.81px; font-family:'Black Han Sans', sans-serif; font-size:220px; font-weight:400; line-height:1; color:#3dd990">FlatWay</h1>
   <p style="position:absolute; top:650px; left:128px; width:820px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:500; line-height:1.4; color:#e0fbef">휠체어 사용자 및 보행 약자를 위한<br>안전 경로 길찾기 앱</p>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:500; color:#bfe9d4">2026. 11. 7&nbsp; 2026 인천 AI 미래채움 교육 페스티벌</p>

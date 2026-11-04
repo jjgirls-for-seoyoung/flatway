@@ -11,12 +11,12 @@
 </div>
 </div>
 <x-embed style="position:absolute;left:1000px;top:260px;width:792px;height:640px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif}svg{display:block;width:100%;height:100%}
-.rv{animation:rev 7s linear infinite}
+.rv{animation:rev 7s linear 1 forwards}
 @keyframes rev{0%{width:0}86%,100%{width:792px}}
-.pa,.pb{animation:pop 7s ease-out infinite}
+.pa,.pb{animation:pop 7s ease-out 1 forwards}
 .pa{transform-origin:330px 520px;animation-name:popa}.pb{transform-origin:570px 520px;animation-name:popb}
-@keyframes popa{0%,34%{opacity:0;transform:translateY(-40px)}38%,94%{opacity:1;transform:translateY(0)}100%{opacity:0}}
-@keyframes popb{0%,56%{opacity:0;transform:translateY(-40px)}60%,94%{opacity:1;transform:translateY(0)}100%{opacity:0}}</style>
+@keyframes popa{0%,34%{opacity:0;transform:translateY(-40px)}38%,100%{opacity:1;transform:translateY(0)}}
+@keyframes popb{0%,56%{opacity:0;transform:translateY(-40px)}60%,100%{opacity:1;transform:translateY(0)}}</style>
 <svg viewBox="0 0 792 640"><defs><clipPath id="k"><rect class="rv" x="0" y="0" width="792" height="460"/></clipPath></defs>
 <rect x="0" y="40" width="792" height="420" rx="24" fill="#FFFFFF" stroke="#CFEBDD" stroke-width="3"/>
 <path d="M0 210 H792" stroke="#D6403A" stroke-width="4" stroke-dasharray="14 10"/><text x="772" y="196" text-anchor="end" font-size="26" font-weight="700" fill="#B3302B">충격 기준</text>
@@ -25,6 +25,6 @@
 <g class="pb"><circle cx="570" cy="520" r="30" fill="#E8742A" stroke="#FFFFFF" stroke-width="5"/><path d="M558 530 h10 v-10 h10 v-10 h8" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="396" y="610" text-anchor="middle" font-size="30" font-weight="700" fill="#2F5645">기준을 넘는 충격 → 위치와 함께 자동 기록</text></svg></x-embed>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">09 / 21</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">07 / 21</p>
 <aside>센서 기반 수집 (약 30초). 앱에서 이동 수집을 켜고 걸으면 가속도 센서가 노면 충격을 읽는다. 작은 흔들림은 무시하고 기준을 넘는 충격만 GPS 위치와 함께 단차 후보로 기록한다. 웹에서는 센서를 쓸 수 없어 모바일 앱에서만 지원한다.</aside>
 </section>

@@ -10,7 +10,7 @@
 </div>
 <div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
 <p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">2. 점수 매기기</p>
-<p style="font-size:29px;line-height:1.45;color:#24382F">거리에 지나는 위험의 페널티를 더해요 (종류·심각도·단차 높이 반영)</p>
+<p style="font-size:29px;line-height:1.45;color:#24382F">거리에 지나는 위험의 페널티를 더해요<br>(종류·심각도·단차 높이 반영)</p>
 </div>
 <div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
 <p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">3. 우회로 만들어 비교</p>
@@ -40,10 +40,11 @@ svg[data-p="2"] .r1{opacity:.35}
 <rect x="590" y="356" width="215" height="42" rx="10" fill="#2F9E6C"/>
 <text x="590" y="438" font-size="26" font-weight="700" fill="#1F7A55">조금 더 걸어도 점수가 낮음</text></g>
 <rect x="0" y="526" width="962" height="64" rx="32" fill="#2F5645"/><text id="cap" x="481" y="569" text-anchor="middle" font-size="30" font-weight="700" fill="#E0FBEF">점수가 가장 낮은 안전한 경로를 선택</text></svg>
-<script>var s=document.getElementById('s'),cap=document.getElementById('cap'),T=['① 최단 경로가 위험 구간을 지나요','② 위험 페널티를 더해 점수를 매겨요','③ 위험을 비켜 가는 경로가 더 낮은 점수'],p=-1;
-function step(){p=(p+1)%4;if(p==3){s.setAttribute('data-p','2');cap.textContent='점수가 가장 낮은 안전한 경로를 선택';return}s.setAttribute('data-p',String(p));cap.textContent=T[p]}
-step();setInterval(step,2600);</script></x-embed>
+<script>var s=document.getElementById('s'),cap=document.getElementById('cap'),T=['① 최단 경로가 위험 구간을 지나요','② 위험 페널티를 더해 점수를 매겨요','③ 위험을 비켜 가는 경로가 더 낮은 점수'],p=-1,t;
+function step(){p=(p+1)%4;if(p==3){s.setAttribute('data-p','2');cap.textContent='점수가 가장 낮은 안전한 경로를 선택';clearInterval(t);return}s.setAttribute('data-p',String(p));cap.textContent=T[p]}
+step();t=setInterval(step,2600);</script></x-embed>
+<p style="position:absolute;left:128px;top:872px;width:700px;font-size:26px;line-height:1.45;color:#4F6A5C">※ 길 계산에는 오픈스트리트맵(OpenStreetMap)<br>도로 데이터를 쓰는 오픈소스 경로 엔진(OSRM)을 사용했어요.</p>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">16 / 21</p>
-<aside>개선③ 위험을 피하는 길찾기 (약 40초). 기존에는 최단 경로만 안내했다. 이제는 후보 경로마다 거리에 위험 페널티를 더해 점수를 매기고, 가장 위험한 지점의 옆길을 경유하는 우회 경로를 만들어 비교한 뒤 점수가 가장 낮은 길을 고른다. 파란 길이 위험을 지날 때 초록 우회로가 더 낮은 점수를 받는 모습이다.</aside>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">15 / 21</p>
+<aside>개선③ 위험을 피하는 길찾기 (약 40초). 기존에는 최단 경로만 안내했다. 이제는 후보 경로마다 거리에 위험 페널티를 더해 점수를 매기고, 가장 위험한 지점의 옆길을 경유하는 우회 경로를 만들어 비교한 뒤 점수가 가장 낮은 길을 고른다. 길 계산에는 오픈스트리트맵 도로 데이터를 쓰는 오픈소스 경로 엔진(OSRM)을 사용했다. 파란 길이 위험을 지날 때 초록 우회로가 더 낮은 점수를 받는 모습이다.</aside>
 </section>

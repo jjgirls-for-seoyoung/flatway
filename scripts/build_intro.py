@@ -17,6 +17,8 @@ OUT = ROOT / "flatway_app" / "web" / "intro"
 
 # 아티팩트에 올린 이미지 id -> 저장소 안의 파일 이름
 BLOBS = {
+    "6d1f0c8e4a2b47d9a3c5e7f81b2d4a60": "dash_pin.jpg",
+    "9b3e5a7c1d2f48e6b0a4c6d8e1f3a572": "dash_heat.jpg",
     "4f8fc0c69eaae37266bffe45665318b2": "map.jpg",
     "a2d023ddccf1dcf384b8ed54d55ff496": "filter_step.jpg",
     "92158119df7f857c27e7718cacfcb546": "tour1.jpg",
@@ -98,10 +100,11 @@ TEMPLATE = r"""<!doctype html>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#16251d;overflow:hidden;font-family:'Noto Sans KR','Malgun Gothic',sans-serif}
-#view{position:fixed;left:0;top:0;right:0;bottom:56px;overflow:hidden}
-#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#000}
-.slide{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .35s}
+html,body{margin:0;height:100%;background:#f3f4f6;overflow:hidden;font-family:'Noto Sans KR','Malgun Gothic',sans-serif}
+#view{position:fixed;left:0;top:0;right:0;bottom:64px;overflow:hidden}
+html:fullscreen #view{background:#111}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.14)}
+.slide{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .35s;word-break:keep-all}
 .slide.on{opacity:1;pointer-events:auto}
 .slide p,.slide h1,.slide h2,.slide h3,.slide ul{margin:0}
 .slide table{border-collapse:collapse}
@@ -109,20 +112,28 @@ html,body{margin:0;height:100%;background:#16251d;overflow:hidden;font-family:'N
 .slide th{font-weight:700;border-bottom:3px solid #2F5645}
 .slide svg{display:block}
 .slide img{display:block}
-#bar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#0f1a14;color:#E0FBEF;font-size:15px}
-#bar button{font:inherit;color:#E0FBEF;background:#24402F;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
-#bar button:hover{background:#2F5645}
-#prog{flex:1;height:6px;background:#24402F;border-radius:3px;overflow:hidden}
-#prog i{display:block;height:100%;width:0;background:#3DD990;transition:width .3s}
-#cnt{min-width:64px;text-align:center}
-#ch{color:#8FE8BE;max-width:34vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#menu{position:fixed;left:14px;bottom:66px;max-height:70vh;overflow:auto;background:#0f1a14;border:1px solid #2F5645;border-radius:12px;padding:8px;display:none;z-index:5;min-width:280px}
+#bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#fff;border-top:1px solid #e5e7eb;color:#374151;font-size:14px}
+#bar button{font:inherit;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+#bar button:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af}
+#bar button:focus-visible{outline:2px solid #047857;outline-offset:2px}
+#bar button:disabled{color:#c4c8cf;border-color:#eceef1;cursor:default}
+#bar button.pri{background:#047857;border-color:#047857;color:#fff}
+#bar button.pri:hover:not(:disabled){background:#065f46;border-color:#065f46}
+#bar button.pri:disabled{background:#e5e7eb;border-color:#e5e7eb;color:#9ca3af}
+#bar .sp{width:8px}
+#prog{flex:1;height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;min-width:40px}
+#prog i{display:block;height:100%;width:0;background:#047857;transition:width .3s}
+#cnt{min-width:64px;text-align:center;font-weight:700;color:#111827}
+#ch{color:#6b7280;max-width:30vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menu{position:fixed;left:16px;bottom:74px;max-height:70vh;overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:8px;display:none;z-index:5;min-width:300px;box-shadow:0 12px 32px rgba(0,0,0,.14)}
 #menu.open{display:block}
-#menu a{display:flex;gap:10px;padding:8px 12px;color:#E0FBEF;text-decoration:none;border-radius:8px;font-size:15px}
-#menu a:hover,#menu a.cur{background:#24402F}
-#menu a b{color:#3DD990;min-width:26px}
-#menu .h{color:#8FE8BE;font-size:13px;padding:10px 12px 4px}
-@media (max-width:640px){#ch{display:none}}
+#menu a{display:flex;gap:12px;padding:9px 12px;color:#374151;text-decoration:none;border-radius:8px;font-size:14px}
+#menu a:hover{background:#f3f4f6}
+#menu a.cur{background:#ecfdf5;color:#065f46;font-weight:700}
+#menu a b{color:#6b7280;min-width:26px;font-weight:500}
+#menu a.cur b{color:#047857}
+#menu .h{color:#6b7280;font-size:12px;font-weight:700;padding:12px 12px 4px}
+@media (max-width:640px){#ch{display:none}#bar{gap:6px;padding:0 10px}#bar button{padding:9px 11px}#bar .t{display:none}#cnt{min-width:52px}}
 </style>
 </head>
 <body>
@@ -131,13 +142,15 @@ html,body{margin:0;height:100%;background:#16251d;overflow:hidden;font-family:'N
 </div></div>
 <div id="menu"></div>
 <div id="bar">
-<button id="mb" title="목차 (M)">목차</button>
-<button id="pv" title="이전 (←)">◀</button>
-<button id="nx" title="다음 (→)">▶</button>
+<button id="hm" title="처음으로 (Home)" aria-label="처음으로">⏮<span class="t"> 처음으로</span></button>
+<button id="mb" title="목차 (M)" aria-label="목차">☰<span class="t"> 목차</span></button>
+<span class="sp"></span>
+<button id="pv" title="이전 (←)" aria-label="이전 슬라이드">←<span class="t"> 이전</span></button>
+<button id="nx" class="pri" title="다음 (→)" aria-label="다음 슬라이드"><span class="t">다음 </span>→</button>
 <span id="cnt">1 / 20</span>
 <div id="prog"><i></i></div>
 <span id="ch"></span>
-<button id="fb" title="전체화면 (F)">전체화면</button>
+<button id="fb" title="전체화면 (F)" aria-label="전체화면">⛶<span class="t"> 전체화면</span></button>
 </div>
 <script>
 var T={{TITLES}},CH={{CHAPTERS}};
@@ -147,20 +160,21 @@ function fit(){var w=view.clientWidth,h=view.clientHeight,s=Math.min(w/1920,h/10
 function chapterOf(i){var c=CH[0];for(var k=0;k<CH.length;k++)if(CH[k].start<=i)c=CH[k];return c.label}
 function mount(i,on){var fr=slides[i].querySelectorAll('iframe.embed');for(var k=0;k<fr.length;k++){if(on){if(!fr[k].getAttribute('srcdoc'))fr[k].setAttribute('srcdoc',fr[k].getAttribute('data-srcdoc'))}else fr[k].removeAttribute('srcdoc')}}
 function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);
-document.getElementById('cnt').textContent=(i+1)+' / '+n;document.querySelector('#prog i').style.width=((i+1)/n*100)+'%';document.getElementById('ch').textContent=chapterOf(i);
+document.getElementById('cnt').textContent=(i+1)+' / '+n;document.getElementById('hm').disabled=document.getElementById('pv').disabled=(i===0);document.getElementById('nx').disabled=(i===n-1);document.querySelector('#prog i').style.width=((i+1)/n*100)+'%';document.getElementById('ch').textContent=chapterOf(i);
 var cs=document.querySelectorAll('#menu a');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('cur',k===i);
 if(!noHash)history.replaceState(null,'','#'+(i+1))}
 var mn=document.getElementById('menu'),hh='';CH.forEach(function(c,ci){});
 (function(){var html='',ci=0;for(var i=0;i<n;i++){while(ci<CH.length&&CH[ci].start===i){html+='<div class="h">'+CH[ci].label+'</div>';ci++}html+='<a href="#'+(i+1)+'" data-i="'+i+'"><b>'+(i+1)+'</b>'+T[i]+'</a>'}mn.innerHTML=html})();
 mn.addEventListener('click',function(e){var a=e.target.closest('a');if(a){e.preventDefault();go(+a.getAttribute('data-i'));mn.classList.remove('open')}});
 document.getElementById('mb').onclick=function(){mn.classList.toggle('open')};
-document.getElementById('pv').onclick=function(){go(cur-1)};document.getElementById('nx').onclick=function(){go(cur+1)};
+document.getElementById('hm').onclick=function(){go(0);mn.classList.remove('open')};document.getElementById('pv').onclick=function(){go(cur-1)};document.getElementById('nx').onclick=function(){go(cur+1)};
 function fs(){var d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()}
 document.getElementById('fb').onclick=fs;
 document.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){go(cur+1);e.preventDefault()}else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){go(cur-1);e.preventDefault()}else if(k==='Home')go(0);else if(k==='End')go(n-1);else if(k==='f'||k==='F')fs();else if(k==='m'||k==='M')mn.classList.toggle('open');else if(k==='Escape')mn.classList.remove('open')});
 var sx=null;view.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});view.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));sx=null});
 view.addEventListener('click',function(e){mn.classList.remove('open');var r=view.getBoundingClientRect();if(e.clientX-r.left>r.width*0.5)go(cur+1);else go(cur-1)});
 window.addEventListener('resize',fit);window.addEventListener('hashchange',function(){var h=parseInt(location.hash.slice(1),10);if(h)go(h-1,true)});
+document.getElementById('bar').addEventListener('click',function(e){var b=e.target.closest('button');if(b)b.blur()});
 fit();var h0=parseInt(location.hash.slice(1),10);go(h0?h0-1:0,!h0);
 </script>
 </body>

@@ -1,0 +1,35 @@
+<section id="s07b-dashboard" data-transition="fade" style="background:#e0fbef">
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 3 · FlatWay 핵심 기술</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">관리자 웹 대시보드</h2>
+  <p style="position:absolute; top:244px; left:128px; width:800px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:800; text-align:center; color:#1f7a55">위험 핀을 누르면 상세 정보</p>
+  <p style="position:absolute; top:244px; left:992px; width:800px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:800; text-align:center; color:#1f7a55">히트맵으로 위험 밀집 구역 확인</p>
+  <img src="/_blob/6d1f0c8e4a2b47d9a3c5e7f81b2d4a60" alt="대시보드 지도에서 단차 위험 핀을 눌러 상세 정보를 본 화면" style="position:absolute; top:290px; left:128px; width:800px; height:450px; border:4px solid #3dd990; border-radius:20px">
+  <img src="/_blob/9b3e5a7c1d2f48e6b0a4c6d8e1f3a572" alt="대시보드 히트맵을 켜서 위험이 몰린 구역이 붉게 표시된 화면" style="position:absolute; top:290px; left:992px; width:800px; height:450px; border:4px solid #3dd990; border-radius:20px">
+  <x-embed style="position:absolute; top:290px; left:128px; width:800px; height:450px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
+.r{transform-box:fill-box;transform-origin:center;animation:ring 2.4s ease-out 1 forwards}
+.r2{animation-delay:1.2s}
+@keyframes ring{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.8);opacity:0}}</style>
+<svg viewBox="0 0 800 450"><g fill="none" stroke="#D6403A" stroke-width="4"><circle class="r" cx="480" cy="257" r="24"/><circle class="r r2" cx="480" cy="257" r="24"/></g></svg></x-embed>
+  <x-embed style="position:absolute; top:290px; left:992px; width:800px; height:450px"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
+.h{transform-box:fill-box;transform-origin:center;animation:pulse 3s ease-in-out 1 forwards}
+.h2{animation-delay:.8s}.h3{animation-delay:1.6s}
+@keyframes pulse{0%,100%{transform:scale(.85);opacity:.25}50%{transform:scale(1.2);opacity:.7}}</style>
+<svg viewBox="0 0 800 450"><g fill="#D6403A"><circle class="h" cx="640" cy="332" r="34"/><circle class="h h2" cx="696" cy="192" r="22"/><circle class="h h3" cx="480" cy="256" r="16"/></g></svg></x-embed>
+  <div style="position:absolute; top:782px; left:128px; width:1664px; display:flex; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">유형별 필터</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:27px; line-height:1.45; color:#24382f">단차·파손·적치물·급경사별로 골라 봐요</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">유지보수 현황</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:27px; line-height:1.45; color:#24382f">접수 → 조사중 → 보수예정 → 완료로 관리해요</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; background:#ffffff; border-radius:20px">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">앱과 실시간 연동</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:27px; line-height:1.45; color:#24382f">앱 제보가 대시보드에 바로 나타나요</p>
+    </div>
+  </div>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">08 / 21</p>
+  <aside>관리자 웹 대시보드 (약 30초). 앱에서 제보된 위험이 지도 위에 핀으로 나타난다. 핀을 누르면 위험 종류, 단차 높이, 제보 시각을 볼 수 있다. 히트맵을 켜면 위험이 몰린 구간이 붉게 보여서 어디부터 고쳐야 하는지 알 수 있다. 관리자는 접수, 조사중, 보수예정, 완료로 상태를 바꿔 유지보수 현황을 관리한다.</aside>
+</section>
