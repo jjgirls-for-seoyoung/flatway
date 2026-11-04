@@ -39,7 +39,13 @@ class OnboardingTour {
 
   /// 화면에 없는 대상(예: 웹에서 숨겨진 버튼)은 건너뛰고 튜토리얼을 시작한다.
   /// [allowDontShowAgain]이 false면 마지막 단계에 `다시 보지 않기` 버튼을 숨긴다.
-  static void show(BuildContext context, List<TourStep> allSteps, {bool allowDontShowAgain = true}) {
+  /// [allowClose]가 true면 말풍선 오른쪽 위에 X 버튼을 보여 줘, 중간에 그만 볼 수 있다.
+  static void show(
+    BuildContext context,
+    List<TourStep> allSteps, {
+    bool allowDontShowAgain = true,
+    bool allowClose = false,
+  }) {
     final steps = allSteps
         .where(
           (s) => s.targetKey == null || s.targetKey!.currentContext != null,
@@ -53,6 +59,7 @@ class OnboardingTour {
       builder: (_) => _TourOverlay(
         steps: steps,
         allowDontShowAgain: allowDontShowAgain,
+        allowClose: allowClose,
         // dontShowAgain=false(X 버튼)면 다음 접속 때 다시 안내한다.
         onClose: (dontShowAgain) {
           entry.remove();
@@ -68,8 +75,14 @@ class _TourOverlay extends StatefulWidget {
   final List<TourStep> steps;
   final void Function(bool dontShowAgain) onClose;
   final bool allowDontShowAgain;
+  final bool allowClose;
 
-  const _TourOverlay({required this.steps, required this.onClose, required this.allowDontShowAgain});
+  const _TourOverlay({
+    required this.steps,
+    required this.onClose,
+    required this.allowDontShowAgain,
+    required this.allowClose,
+  });
 
   @override
   State<_TourOverlay> createState() => _TourOverlayState();
@@ -196,6 +209,18 @@ class _TourOverlayState extends State<_TourOverlay> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (widget.allowClose) ...[
+                  const SizedBox(width: 2),
+                  // 중간에 그만 보기: 안내만 닫고, 아무것도 저장하지 않는다.
+                  IconButton(
+                    onPressed: () => widget.onClose(false),
+                    tooltip: '닫기',
+                    icon: const Icon(Icons.close_rounded, size: 20, color: Color(0xFF777777)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 10),

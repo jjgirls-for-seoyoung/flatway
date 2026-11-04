@@ -465,6 +465,7 @@ class _MapScreenState extends State<MapScreen> {
     final state = tracker.update(_currentLocation);
     final prevStep = _navState?.nextStepIndex;
     setState(() => _navState = state);
+        allowClose: detailed, // `?` 상세 안내는 길어서 중간에 닫을 수 있게 한다
 
     if (state.arrived) {
       if (!_announcedArrival) {
