@@ -1448,6 +1448,7 @@ class _MapScreenState extends State<MapScreen> {
       'severity': magnitude > 20.0 ? 'high' : 'medium',
       'description': '이동 중 가속도 센서로 자동 감지된 노면 충격/단차 (충격도: ${magnitude.toStringAsFixed(1)})',
       'is_verified': false,
+      'source': 'sensor', // 센서 자동 감지는 리워드 포인트 대상이 아님
       'reported_at': DateTime.now().toUtc().toIso8601String(),
     };
 

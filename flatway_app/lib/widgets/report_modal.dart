@@ -170,8 +170,10 @@ class _ReportModalState extends State<ReportModal> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('단차/노면 파손 제보가 Supabase DB에 성공적으로 등록되었습니다!'),
+          SnackBar(
+            content: Text(SupabaseService.isSignedInWithEmail
+                ? '제보가 등록되었습니다! 포인트 +1'
+                : '단차/노면 파손 제보가 Supabase DB에 성공적으로 등록되었습니다!'),
             backgroundColor: Colors.green,
           ),
         );
