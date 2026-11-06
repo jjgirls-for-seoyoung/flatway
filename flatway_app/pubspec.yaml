@@ -66,6 +66,16 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/fonts/OFL.txt
+
+  # 한글 글꼴을 앱에 포함한다. 포함하지 않으면 웹에서 글자 조각을 서버에서 내려받는 동안 네모(▯)로 깨져 보인다.
+  # FlatWaySans = Pretendard 1.3.9(SIL OFL 1.1)에서 필요한 글자만 남긴 것. 라이선스: assets/fonts/OFL.txt
+  fonts:
+    - family: FlatWaySans
+      fonts:
+        - asset: assets/fonts/FlatWaySans-Regular.otf
+        - asset: assets/fonts/FlatWaySans-Bold.otf
+          weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

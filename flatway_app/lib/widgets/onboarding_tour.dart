@@ -118,7 +118,7 @@ class _TourOverlayState extends State<_TourOverlay> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final target = _targetRect()?.inflate(6);
-    final bubbleWidth = (size.width - 32).clamp(0.0, 330.0);
+    final bubbleWidth = (size.width - 32).clamp(0.0, 350.0);
 
     Widget positioned;
     if (target == null) {
@@ -195,7 +195,7 @@ class _TourOverlayState extends State<_TourOverlay> {
                   child: Text(
                     _step.title,
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF111111),
                     ),
@@ -204,7 +204,7 @@ class _TourOverlayState extends State<_TourOverlay> {
                 Text(
                   '${_index + 1}/$total',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: Color(0xFF777777),
                     fontWeight: FontWeight.w600,
                   ),
@@ -223,16 +223,16 @@ class _TourOverlayState extends State<_TourOverlay> {
                 ],
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
               _step.description,
               style: const TextStyle(
-                fontSize: 13,
-                height: 1.45,
+                fontSize: 16,
+                height: 1.55,
                 color: Color(0xFF333333),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Row(
               children: [
                 if (_isLast && widget.allowDontShowAgain)
@@ -244,7 +244,7 @@ class _TourOverlayState extends State<_TourOverlay> {
                     ),
                     child: const Text(
                       '다시 보지 않기',
-                      style: TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
                 const Spacer(),
@@ -257,7 +257,7 @@ class _TourOverlayState extends State<_TourOverlay> {
                     child: const Text(
                       '이전',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -280,7 +280,7 @@ class _TourOverlayState extends State<_TourOverlay> {
                   child: Text(
                     _isLast ? '시작하기' : '다음',
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

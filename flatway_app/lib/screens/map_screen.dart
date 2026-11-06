@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +16,7 @@ import '../services/place_search_service.dart';
 import '../services/route_service.dart';
 import '../services/safe_route_planner.dart';
 import '../services/supabase_service.dart';
+import '../services/voice_guidance.dart';
 import '../services/web_compass_stub.dart'
     if (dart.library.js_interop) '../services/web_compass_web.dart';
 import '../widgets/auth_modal.dart';
@@ -206,17 +206,9 @@ class _MapScreenState extends State<MapScreen> {
   }
   
   // Voice Guidance (TTS)
-  final FlutterTts _flutterTts = FlutterTts();
+  final VoiceGuidance _voice = VoiceGuidance();
 
-  void _speakGuidance(String text) async {
-    try {
-      await _flutterTts.setLanguage("ko-KR");
-      await _flutterTts.setSpeechRate(0.5);
-      await _flutterTts.speak(text);
-    } catch (e) {
-      debugPrint('TTS speak error: $e');
-    }
-  }
+  void _speakGuidance(String text) => _voice.speak(text);
 
   // Map Tapped Location for reporting or navigation destination
   LatLng? _selectedTappedLocation;
@@ -339,31 +331,31 @@ class _MapScreenState extends State<MapScreen> {
         const TourStep(
           icon: Icons.accessible_forward_rounded,
           title: 'FlatWay에 오신 것을 환영해요',
-          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요.\n단차, 파손, 적치물 같은 위험 구간을 피해서 길을 안내해 드려요.\n핵심 기능을 소개할게요!',
+          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요. 단차, 파손, 적치물 같은 위험 구간을 피해서 길을 안내해 드려요. 핵심 기능을 소개할게요!',
         ),
         TourStep(
           targetKey: _tourDirectionsKey,
           icon: Icons.directions_rounded,
           title: '길찾기',
-          description: '출발지와 도착지를 정하면\n단차·파손·적치물 같은 위험 구간을 피한 안전 경로를 안내해요.\n이동 수단(보행자/전동·수동 휠체어)도 고를 수 있어요.',
+          description: '출발지와 도착지를 정하면 위험 구간을 피한 안전 경로를 안내해요. 이동 수단은 보행자, 전동·수동 휠체어 중 고를 수 있어요.',
         ),
         TourStep(
           targetKey: _tourReportKey,
           icon: Icons.report_problem_rounded,
           title: '현위치 제보',
-          description: '길에서 불편한 곳을 발견하면\n사진과 함께 제보해 주세요.\n지도를 눌러 원하는 위치를 제보할 수도 있어요.\n모두의 안전한 길이 됩니다.',
+          description: '길에서 불편한 곳을 발견하면 사진과 함께 제보해 주세요. 지도를 눌러 원하는 위치를 제보할 수도 있어요. 모두의 안전한 길이 됩니다.',
         ),
         TourStep(
           targetKey: _tourTrackKey,
           icon: Icons.directions_walk_rounded,
           title: '이동 수집',
-          description: '시작 버튼을 누르고 걸어가면\n폰 센서가 노면의 충격을 감지해요.\n큰 충격이 감지된 위치는 자동으로 제보돼요.\n다시 누르면 수집이 끝나요.',
+          description: '시작 버튼을 누르고 걸어가면 폰 센서가 노면의 충격을 감지해요. 큰 충격이 감지된 위치는 자동으로 제보돼요. 다시 누르면 수집이 끝나요.',
         ),
         TourStep(
           targetKey: _tourHelpKey,
           icon: Icons.help_outline_rounded,
           title: '더 자세히 알고 싶다면',
-          description: '? 버튼을 누르면\n검색, 지도 스타일, 계정 등\n모든 기능을 단계별로 자세히 안내해 드려요.\n언제든 다시 볼 수 있어요.',
+          description: '? 버튼을 누르면 검색, 지도 스타일, 계정 등 모든 기능을 단계별로 자세히 안내해 드려요. 언제든 다시 볼 수 있어요.',
         ),
       ];
 
@@ -371,43 +363,43 @@ class _MapScreenState extends State<MapScreen> {
         const TourStep(
           icon: Icons.accessible_forward_rounded,
           title: 'FlatWay에 오신 것을 환영해요',
-          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요.\n단차, 파손, 적치물, 경사 같은 위험 구간을 피해서 길을 안내해 드려요.\n주요 기능을 차례로 소개할게요!',
+          description: '휠체어·유모차·보행 약자를 위한 안전 경로 지도예요. 단차, 파손, 적치물, 경사 같은 위험 구간을 피해서 길을 안내해 드려요. 주요 기능을 차례로 소개할게요!',
         ),
         TourStep(
           targetKey: _tourSearchKey,
           icon: Icons.search_rounded,
           title: '장소 검색',
-          description: '가고 싶은 장소 이름을 입력하면 지도가 그 위치로 이동해요.\n검색창을 누르면 최근 검색 기록과 주요 장소도 볼 수 있어요.',
+          description: '가고 싶은 장소 이름을 입력하면 지도가 그 위치로 이동해요. 검색창을 누르면 최근 검색 기록과 주요 장소도 볼 수 있어요.',
         ),
         TourStep(
           targetKey: _tourDirectionsKey,
           icon: Icons.directions_rounded,
           title: '길찾기',
-          description: '출발지와 도착지를 정하면 위험 구간을 피한 안전 경로를 안내해요.\n지도를 눌러 출발지·도착지로 지정할 수도 있어요.\n출발지는 파란 마커, 도착지는 빨간 마커로 표시돼요.',
+          description: '출발지와 도착지를 정하면 위험 구간을 피한 안전 경로를 안내해요. 지도를 눌러 출발지·도착지로 지정할 수도 있어요. 출발지는 파란 마커, 도착지는 빨간 마커예요.',
         ),
         TourStep(
           targetKey: _tourChipsKey,
           icon: Icons.filter_list_rounded,
           title: '위험 정보 필터',
-          description: '단차, 파손, 적치물, 경사는 각각 다른 아이콘과 색으로 지도에 표시돼요.\n칩을 눌러 보고 싶은 종류만 골라볼 수 있어요.',
+          description: '단차, 파손, 적치물, 경사는 각각 다른 아이콘과 색으로 지도에 표시돼요. 칩을 눌러 보고 싶은 종류만 골라볼 수 있어요.',
         ),
         TourStep(
           targetKey: _tourReportKey,
           icon: Icons.report_problem_rounded,
           title: '현위치 제보',
-          description: '길에서 불편한 곳을 발견하면\n위험 유형과 심각도를 고르고 사진과 함께 제보해 주세요.\n지도를 눌러 원하는 위치를 제보할 수도 있어요.',
+          description: '길에서 불편한 곳을 발견하면 위험 유형과 심각도를 고르고 사진과 함께 제보해 주세요. 지도를 눌러 원하는 위치를 제보할 수도 있어요.',
         ),
         TourStep(
           targetKey: _tourTrackKey,
           icon: Icons.directions_walk_rounded,
           title: '이동 수집',
-          description: '시작 버튼을 누르고 걸어가면\n폰 센서가 노면의 충격을 감지해요.\n큰 충격이 감지된 위치는 자동으로 제보돼요.\n다시 누르면 수집이 끝나요.',
+          description: '시작 버튼을 누르고 걸어가면 폰 센서가 노면의 충격을 감지해요. 큰 충격이 감지된 위치는 자동으로 제보돼요. 다시 누르면 수집이 끝나요.',
         ),
         TourStep(
           targetKey: _tourCompassKey,
           icon: Icons.explore,
           title: '나침반 모드',
-          description: '켜면 내가 바라보는 방향으로 지도가 회전해서 길을 찾기 쉬워져요.\n다시 누르면 북쪽이 위인 기본 지도로 돌아가요.',
+          description: '켜면 내가 바라보는 방향으로 지도가 회전해서 길을 찾기 쉬워져요. 다시 누르면 북쪽이 위인 기본 지도로 돌아가요.',
         ),
         TourStep(
           targetKey: _tourLayersKey,
@@ -431,7 +423,7 @@ class _MapScreenState extends State<MapScreen> {
           targetKey: _tourHelpKey,
           icon: Icons.help_outline_rounded,
           title: '사용 방법 안내',
-          description: '이 안내는 ? 버튼을 눌러 언제든 다시 볼 수 있어요.\n이제 FlatWay와 함께 안전한 길을 찾아보세요!',
+          description: '이 안내는 ? 버튼을 눌러 언제든 다시 볼 수 있어요. 이제 FlatWay와 함께 안전한 길을 찾아보세요!',
         ),
       ];
 
@@ -1369,7 +1361,16 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // 이번 수집에서 실제 센서 값(0이 아닌 값)을 한 번이라도 받았는지
+  bool _sensorSawReading = false;
+
   void _startRouteTracking() {
+    if (!_hasRealLocation) {
+      // 기본 위치(작전역 부근)에서 경로 수집이 시작되면 엉뚱한 경로가 기록된다.
+      _showSearchSnackBar('내 위치를 확인하지 못해 이동 수집을 시작할 수 없어요. 위치 권한을 허용한 뒤 다시 시도해 주세요.');
+      return;
+    }
+    _sensorSawReading = false;
     setState(() {
       _isTrackingRoute = true;
       _trackedPoints.clear();
@@ -1400,11 +1401,14 @@ class _MapScreenState extends State<MapScreen> {
     _accelStreamSub = userAccelerometerEventStream().listen((UserAccelerometerEvent event) {
       if (!_isTrackingRoute) return;
       final magnitude = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+      if (magnitude > 0) _sensorSawReading = true;
       final now = DateTime.now();
       if (magnitude > 14.0 && now.difference(_lastBumpTime).inSeconds >= 4) {
         _lastBumpTime = now;
         _handleAutoDetectedBump(magnitude);
       }
+    }, onError: (Object e) {
+      debugPrint('Accelerometer unavailable: $e');
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1414,6 +1418,21 @@ class _MapScreenState extends State<MapScreen> {
         duration: Duration(seconds: 2),
       ),
     );
+
+    // 웹: 브라우저에 따라 충격 센서를 쓸 수 없다(안드로이드 크롬 등 일부만 지원).
+    // 센서 값이 전혀 오지 않으면 경로만 기록하고 단차 자동 제보는 하지 않는다는 점을 알린다.
+    if (kIsWeb) {
+      Future.delayed(const Duration(seconds: 5), () {
+        if (!mounted || !_isTrackingRoute || _sensorSawReading) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('이 브라우저에서는 충격 센서를 쓸 수 없어 이동 경로만 기록해요. 단차 자동 제보는 센서를 지원하는 브라우저(안드로이드 크롬 등)나 앱에서 동작해요.'),
+            backgroundColor: Colors.black87,
+            duration: Duration(seconds: 6),
+          ),
+        );
+      });
+    }
   }
 
   void _stopRouteTracking() {
@@ -2413,9 +2432,7 @@ class _MapScreenState extends State<MapScreen> {
                                   label: const Text('현위치 제보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                 ),
                               ),
-                              // 이동 수집은 가속도 센서 기반이라 웹에서는 숨김
-                              if (!kIsWeb) const SizedBox(width: 8),
-                              if (!kIsWeb)
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: ElevatedButton.icon(
                                   key: _tourTrackKey,
