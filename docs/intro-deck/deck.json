@@ -13,42 +13,41 @@
     "s05-existing",
     "s06-compare",
     "s07-arch",
-    "s08-sensor",
+    "s08-app",
     "s07b-dashboard",
-    "s11-upgrade",
-    "s11b-before-after",
+    "s10-upgrade-intro",
     "s12-qr",
-    "s11c-route-before-after",
     "s17-guide",
     "s14-category",
+    "s11c-route-before-after",
     "s15-algo",
-    "s16-modes2",
     "s16b-profile-table",
     "s17b-nav",
     "s18-test",
+    "s11-upgrade",
     "s19-next",
     "s20-team"
   ],
   "sections": {
     "ch1": {
-      "description": "1장. 왜 만들었나: 휠체어 사용자를 직접 목격한 경험과 사회적 규모",
+      "description": "1장. 왜 만들었나: 직접 본 장면과 사회적 규모",
       "start": "s01-cover"
     },
     "ch2": {
-      "description": "2장. 기존 서비스의 한계와 FlatWay의 차이",
+      "description": "2장. 사전 조사와 비교: 기존 서비스의 한계와 FlatWay의 차이",
       "start": "s05-existing"
     },
     "ch3": {
-      "description": "3장. FlatWay의 구조와 핵심 기술",
+      "description": "3장. FlatWay 소개: 구조와 앱, 대시보드",
       "start": "s07-arch"
     },
     "ch4": {
-      "description": "4장. 고도화: 웹 서비스, 카테고리, 위험 회피 길찾기, 첫 사용 가이드",
-      "start": "s11-upgrade"
+      "description": "4장. 고도화: 전후 비교와 다섯 가지 변화",
+      "start": "s10-upgrade-intro"
     },
     "ch5": {
-      "description": "5장. 검증과 앞으로의 계획, 팀 소개",
-      "start": "s18-test"
+      "description": "5장. 긍정적 영향과 앞으로의 계획",
+      "start": "s19-next"
     }
   },
   "faces": {

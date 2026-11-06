@@ -20,6 +20,24 @@ html:fullscreen #view{background:#111}
 .slide th{font-weight:700;border-bottom:3px solid #2F5645}
 .slide svg{display:block}
 .slide img{display:block}
+.slide .rise,.slide .pop,.slide .slide-r,.slide .fadein,.slide .draw,.slide .wipe{opacity:0}
+.slide .draw{stroke-dasharray:1;stroke-dashoffset:1}
+.slide.on .rise{animation:rise .5s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .slide-r{animation:slider .5s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .fadein{animation:fadein .9s ease both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .pop{animation:pop .4s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .draw{animation:draw 1s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .wipe{animation:wipe 1s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide .pop{transform-box:fill-box;transform-origin:center}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes slider{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes draw{from{opacity:1;stroke-dashoffset:1}to{opacity:1;stroke-dashoffset:0}}
+@keyframes wipe{from{opacity:1;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+.slide.on .nudge{animation:nudge 1.2s cubic-bezier(.45,0,.55,1) 1.6s 3 both}
+@keyframes nudge{0%,100%{transform:translateX(-6px)}50%{transform:translateX(12px)}}
+@media (prefers-reduced-motion:reduce){@keyframes rise{from{opacity:0}to{opacity:1}}@keyframes slider{from{opacity:0}to{opacity:1}}@keyframes pop{from{opacity:0}to{opacity:1}}}
 #bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#fff;border-top:1px solid #e5e7eb;color:#374151;font-size:14px}
 #bar button{font:inherit;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
 #bar button:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af}
@@ -73,14 +91,14 @@ html:fullscreen #view{background:#111}
 </section>
 
 <section class="slide" id="s02-motive" data-transition="fade" style="background:#f6fcf9">
-  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 1 · 왜 만들었나</p>
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55">CHAPTER 1 · 왜 만들었나</p>
   <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">개인적 동기</h2>
   <div style="position:absolute; top:300px; left:128px; width:800px; display:flex; flex-direction:column; gap:28px">
     <div style="display:flex; flex-direction:column; padding:30px 36px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; line-height:1.5; color:#24382f">학교 근처에서 휠체어 사용자가 <b>보도 단차</b>를&nbsp;<br>넘지 못해 멈춰 계신 모습을 목격했습니다.</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; line-height:1.5; color:#24382f">학교 근처에서 휠체어 사용자가 <b>보도 단차</b>를&nbsp;<br>넘지 못해 멈춰 계신 모습을 목격했습니다.</p>
     </div>
     <div style="display:flex; flex-direction:column; padding:30px 36px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; line-height:1.5; color:#24382f">다리를 다친 친구가&nbsp;<br><b>혼자 다니기 곤란해하는</b>&nbsp;<br>모습도 보았습니다.</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; line-height:1.5; color:#24382f">다리를 다친 친구가&nbsp;<br><b>혼자 다니기 곤란해하는</b>&nbsp;<br>모습도 보았습니다.</p>
     </div>
   </div>
   <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:260px; left:1000px; width:792px; height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
@@ -96,21 +114,19 @@ html:fullscreen #view{background:#111}
 &lt;g class=&quot;warn&quot;&gt;&lt;path d=&quot;M400 330 L440 392 L360 392 Z&quot; fill=&quot;#E8742A&quot; stroke=&quot;#E8742A&quot; stroke-width=&quot;6&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;rect x=&quot;396&quot; y=&quot;350&quot; width=&quot;8&quot; height=&quot;24&quot; fill=&quot;#fff&quot;/&gt;&lt;circle cx=&quot;400&quot; cy=&quot;382&quot; r=&quot;5&quot; fill=&quot;#fff&quot;/&gt;&lt;/g&gt;
 &lt;text x=&quot;396&quot; y=&quot;570&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;휠체어가 지나가기 불편한 단차&lt;/text&gt;&lt;/svg&gt;"></iframe>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">02 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">02 / 20</p>
   
 </section>
 
 <section class="slide" id="s03-scale" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 1 · 왜 만들었나</p>
+<p style="position:absolute;left:128px;top:80px;width:900px;font-size:30px;font-weight:700;color:#1F7A55;letter-spacing:1px">CHAPTER 1 · 왜 만들었나</p>
 <h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">사회적 규모</h2>
-<div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:28px">
-<div style="background:#FFFFFF;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
-<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#1F7A55">1,613만 명</p>
-<p style="font-size:34px;line-height:1.4;color:#24382F">국내 교통약자 · 전체 인구의 31.5%</p>
-</div>
-<div style="background:#FFFFFF;border-radius:20px;padding:30px 36px;display:flex;flex-direction:column;gap:6px">
-<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;line-height:1.1;color:#1F7A55">20~26만 명</p>
-<p style="font-size:34px;line-height:1.4;color:#24382F">일상적으로 휠체어를 사용하는 인구</p>
+<div style="position:absolute;left:128px;top:300px;width:800px;display:flex;flex-direction:column;gap:36px">
+<p style="font-size:50px;font-weight:700;line-height:1.5;color:#24382F">국내 교통약자는<br>전체 인구의 <span style="color:#1F7A55">31.5%</span>입니다.</p>
+<div style="width:120px;height:6px;background:#3DD990;border-radius:3px"></div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:60px;line-height:1.1;color:#4F6A5C">20~26만 명</p>
+<p style="font-size:32px;line-height:1.4;color:#4F6A5C">일상적으로 휠체어를 사용하는 인구</p>
 </div>
 </div>
 <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}&lt;/style&gt;
@@ -122,21 +138,21 @@ html:fullscreen #view{background:#111}
 &lt;script&gt;var C=2*Math.PI*190,arc=document.getElementById(&#x27;arc&#x27;),pct=document.getElementById(&#x27;pct&#x27;),cnt=document.getElementById(&#x27;cnt&#x27;);
 function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/2400),e=1-Math.pow(1-k,3);arc.setAttribute(&#x27;stroke-dasharray&#x27;,(C*0.315*e)+&#x27; &#x27;+C);pct.textContent=(31.5*e).toFixed(1)+&#x27;%&#x27;;cnt.textContent=Math.round(1613*e).toLocaleString()+&#x27;만 명&#x27;;if(k&lt;1)requestAnimationFrame(f)}requestAnimationFrame(f)}run();&lt;/script&gt;"></iframe>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">03 / 21</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">03 / 20</p>
 
 </section>
 
 <section class="slide" id="s05-existing" data-transition="fade" style="background:#e0fbef">
-  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 2 · 기존 서비스의 한계</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">기존 서비스</h2>
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55">CHAPTER 2 · 사전 조사와 비교</p>
+  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">사전 조사: 기존 서비스</h2>
   <div style="position:absolute; top:300px; left:128px; width:800px; display:flex; flex-direction:column; gap:28px">
     <div style="display:flex; flex-direction:column; gap:10px; padding:30px 36px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#2f5645">기존 길찾기 지도</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:33px; line-height:1.5; color:#24382f">지하철 내부와 건물 등의 장소 정보는 있지만, 실제 보도의 <b>단차·경사·파손</b> 정보는 없습니다.</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:41px; font-weight:700; line-height:1.3; color:#2f5645">기존 길찾기 지도</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; line-height:1.5; color:#24382f">지하철 내부와 건물 등의 장소 정보는 있지만, 실제 보도의 <b>단차·경사·파손</b> 정보는 없습니다.</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:10px; padding:30px 36px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#2f5645">기존의 장애인 전용 앱·공공 데이터</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:33px; line-height:1.5; color:#24382f">단차·파손·경사를 종합한 경로 안내가 없고, 지자체 편의시설 데이터는 <b>업데이트가 중단</b>되어 더 이상 이용하기 어렵습니다.</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:41px; font-weight:700; line-height:1.3; color:#2f5645">기존의 장애인 전용 앱·공공 데이터</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; line-height:1.5; color:#24382f">단차·파손·경사를 종합한 경로 안내가 없고, 지자체 편의시설 데이터는 <b>업데이트가 중단</b>되어 더 이상 이용하기 어렵습니다.</p>
     </div>
   </div>
   <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:260px; left:1000px; width:792px; height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
@@ -151,98 +167,67 @@ function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/2400
 &lt;circle r=&quot;16&quot; fill=&quot;#2F5645&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;5&quot;&gt;&lt;animateMotion dur=&quot;6s&quot; repeatCount=&quot;1&quot; fill=&quot;freeze&quot; path=&quot;M60 480 H200 V320 H420 V160 H730&quot;/&gt;&lt;/circle&gt;
 &lt;rect x=&quot;36&quot; y=&quot;548&quot; width=&quot;720&quot; height=&quot;68&quot; rx=&quot;34&quot; fill=&quot;#2F5645&quot;/&gt;&lt;text x=&quot;396&quot; y=&quot;594&quot; text-anchor=&quot;middle&quot; font-size=&quot;31&quot; font-weight=&quot;700&quot; fill=&quot;#E0FBEF&quot;&gt;위험 구간을 모른 채 최단 경로만 안내&lt;/text&gt;&lt;/svg&gt;"></iframe>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">04 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">04 / 20</p>
   
 </section>
 
 <section class="slide" id="s06-compare" data-transition="fade" style="background:#f6fcf9">
-  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 2 · 기존 서비스의 한계</p>
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55">CHAPTER 2 · 사전 조사와 비교</p>
   <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">FlatWay, 어떻게 다른가?</h2>
-  <table style="position:absolute; top:300px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:32px; color:#24382f">
-    <tr><th style="width:20%"></th><th style="width:20%; text-align:center">기존 길찾기 지도</th><th style="width:20%; text-align:center">보행안전 지도</th><th style="width:40%; text-align:center; color:#1f7a55">FlatWay</th></tr>
-    <tr style="background:#ffffff"><td style="color:#1f7a55">단차·파손 반영</td><td style="text-align:center">없음</td><td style="text-align:center">표시만, 우회 불가</td><td style="text-align:center">위험 정보 기반 자동 우회</td></tr>
-    <tr style="background:#eaf6f0"><td style="color:#1f7a55">이동수단별 경로</td><td style="text-align:center">미분리</td><td style="text-align:center">미분리</td><td style="text-align:center">보행·전동·수동 휠체어 분리</td></tr>
-    <tr style="background:#ffffff"><td style="color:#1f7a55">건물 내부 연계</td><td style="text-align:center">미지원</td><td style="text-align:center">미지원</td><td style="text-align:center; color:#b4500f">개발 계획 중</td></tr>
-    <tr style="background:#eaf6f0"><td style="color:#1f7a55">실시간 반영</td><td style="text-align:center">미지원</td><td style="text-align:center">미지원</td><td style="text-align:center">앱·웹 즉시 동기화</td></tr>
+  <table style="position:absolute; top:300px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:34px; color:#24382f; table-layout:fixed; white-space:nowrap">
+    <tr><th style="padding-top:.8em; padding-bottom:.8em; width:20%"></th><th style="padding-top:.8em; padding-bottom:.8em; width:21%; text-align:center">기존 길찾기 지도</th><th style="padding-top:.8em; padding-bottom:.8em; width:21%; text-align:center">보행안전 지도</th><th style="padding-top:.8em; padding-bottom:.8em; width:38%; text-align:center; color:#1f7a55">FlatWay</th></tr>
+    <tr style="background:#ffffff"><td style="padding-top:.8em; padding-bottom:.8em; color:#1f7a55">단차·파손 반영</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; color:#8a9a90">없음</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; color:#8a9a90">표시만, 우회 불가</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; font-weight:700; font-size:38px">위험 정보 기반 자동 우회</td></tr>
+    <tr style="background:#eaf6f0"><td style="padding-top:.8em; padding-bottom:.8em; color:#1f7a55">이동수단별 경로</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; color:#8a9a90">미분리</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; color:#8a9a90">미분리</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; font-weight:700; font-size:38px">보행·전동·수동 휠체어 분리</td></tr>
+    <tr style="background:#eaf6f0"><td style="padding-top:.8em; padding-bottom:.8em; color:#1f7a55">실시간 반영</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; color:#8a9a90">미지원</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; color:#8a9a90">미지원</td><td style="padding-top:.8em; padding-bottom:.8em; text-align:center; font-weight:700; font-size:38px">앱·웹 즉시 동기화</td></tr>
   </table>
-  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:290px; left:1126px; width:666px; height:370px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
+  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:290px; left:1150px; width:652px; height:470px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
 .g{animation:glow 2.4s ease-in-out 1 forwards}
 @keyframes glow{0%,100%{stroke-opacity:.55;filter:drop-shadow(0 0 2px #3DD990)}50%{stroke-opacity:1;filter:drop-shadow(0 0 14px #3DD990)}}&lt;/style&gt;
-&lt;svg viewBox=&quot;0 0 666 370&quot;&gt;&lt;rect class=&quot;g&quot; x=&quot;5&quot; y=&quot;5&quot; width=&quot;656&quot; height=&quot;360&quot; rx=&quot;18&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;7&quot;/&gt;
+&lt;svg viewBox=&quot;0 0 652 470&quot;&gt;&lt;rect class=&quot;g&quot; x=&quot;5&quot; y=&quot;5&quot; width=&quot;642&quot; height=&quot;460&quot; rx=&quot;18&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;7&quot;/&gt;
 &lt;/svg&gt;"></iframe>
-  <p style="position:absolute; top:716px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:28px; color:#4f6a5c">※ 건물 내부 연계는 현재 개발 계획 중입니다.</p>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">05 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">05 / 20</p>
   
 </section>
 
-<section class="slide" id="s07-arch" data-transition="fade" style="background:#e0fbef">
-  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 3 · FlatWay 핵심 기술</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">시스템 구조</h2>
-  <div style="position:absolute; top:300px; left:128px; width:800px; display:flex; flex-direction:column; gap:22px">
-    <div style="display:flex; flex-direction:column; gap:6px; padding:24px 34px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#1f7a55">FlatWay 앱 (안드로이드·웹)</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.45; color:#24382f">지도 · 위험 제보 · 안전 길찾기</p>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:6px; padding:24px 34px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#1f7a55">관리자 웹 대시보드</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.45; color:#24382f">위험도·유형별 필터와 히트맵으로 유지보수 현황 파악</p>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:6px; padding:24px 34px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:700; line-height:1.3; color:#1f7a55">실시간 클라우드 데이터베이스(Supabase)</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.45; color:#24382f">제보·사진·사용자 계정을 저장하고 앱과 웹에 즉시 반영</p>
-    </div>
-  </div>
-  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:260px; left:1000px; width:792px; height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}&lt;/style&gt;
-&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;g stroke=&quot;#8AA89A&quot; stroke-width=&quot;5&quot; stroke-dasharray=&quot;10 8&quot; fill=&quot;none&quot;&gt;&lt;path d=&quot;M150 230 L330 420&quot;/&gt;&lt;path d=&quot;M642 230 L462 420&quot;/&gt;&lt;/g&gt;
-&lt;rect x=&quot;30&quot; y=&quot;90&quot; width=&quot;240&quot; height=&quot;140&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;150&quot; y=&quot;147&quot; text-anchor=&quot;middle&quot; font-size=&quot;34&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;FlatWay&lt;/text&gt;&lt;text x=&quot;150&quot; y=&quot;192&quot; text-anchor=&quot;middle&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;앱&lt;/text&gt;
-&lt;rect x=&quot;522&quot; y=&quot;90&quot; width=&quot;240&quot; height=&quot;140&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;642&quot; y=&quot;147&quot; text-anchor=&quot;middle&quot; font-size=&quot;34&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;관리자 웹&lt;/text&gt;&lt;text x=&quot;642&quot; y=&quot;192&quot; text-anchor=&quot;middle&quot; font-size=&quot;32&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;대시보드&lt;/text&gt;
-&lt;g&gt;&lt;ellipse cx=&quot;396&quot; cy=&quot;450&quot; rx=&quot;130&quot; ry=&quot;36&quot; fill=&quot;#2F5645&quot;/&gt;&lt;path d=&quot;M266 450 V540 A130 36 0 0 0 526 540 V450&quot; fill=&quot;#2F5645&quot;/&gt;&lt;ellipse cx=&quot;396&quot; cy=&quot;450&quot; rx=&quot;130&quot; ry=&quot;36&quot; fill=&quot;#3E6F59&quot;/&gt;&lt;text x=&quot;396&quot; y=&quot;512&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;Cloud&lt;/text&gt;&lt;text x=&quot;396&quot; y=&quot;552&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;Database&lt;/text&gt;&lt;/g&gt;
-&lt;circle r=&quot;13&quot; fill=&quot;#E8742A&quot;&gt;&lt;animateMotion dur=&quot;3s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M150 230 L330 420&quot;/&gt;&lt;/circle&gt;
-&lt;circle r=&quot;13&quot; fill=&quot;#3DD990&quot; visibility=&quot;hidden&quot;&gt;&lt;set attributeName=&quot;visibility&quot; to=&quot;visible&quot; begin=&quot;1s&quot;/&gt;&lt;animateMotion dur=&quot;3s&quot; begin=&quot;1s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M462 420 L642 230&quot;/&gt;&lt;/circle&gt;
-&lt;circle r=&quot;13&quot; fill=&quot;#3DD990&quot; visibility=&quot;hidden&quot;&gt;&lt;set attributeName=&quot;visibility&quot; to=&quot;visible&quot; begin=&quot;2s&quot;/&gt;&lt;animateMotion dur=&quot;3s&quot; begin=&quot;2s&quot; repeatCount=&quot;indefinite&quot; path=&quot;M330 420 L150 230&quot;/&gt;&lt;/circle&gt;
-&lt;text x=&quot;96&quot; y=&quot;300&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#B4500F&quot;&gt;제보&lt;/text&gt;&lt;text x=&quot;612&quot; y=&quot;300&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;현황&lt;/text&gt;&lt;/svg&gt;"></iframe>
+<section class="slide" id="s07-arch" data-transition="fade" style="background:#f6fcf9">
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 3 · FlatWay 소개</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:0.05s">FlatWay, 이렇게 만들었어요</h2>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" style="position:absolute; left:0; top:0; width:1920px; height:1080px"><path class="draw" pathLength="1" d="M-20 610 C 180 610, 200 540, 340 540 C 560 540, 740 450, 960 450 C 1180 450, 1360 540, 1580 540 C 1720 540, 1740 610, 1940 610" fill="none" stroke="#3dd990" stroke-width="14" stroke-linecap="round" style="--d:.2s"/><g transform="translate(340 540)"><g class="pop" style="--d:0.5s"><circle r="104" fill="#ffffff" stroke="#3dd990" stroke-width="9"/><rect x="-26" y="-46" width="52" height="92" rx="11" fill="none" stroke="#2f5645" stroke-width="7"/><path d="M-10 32 H10" stroke="#2f5645" stroke-width="7" stroke-linecap="round"/></g></g><g transform="translate(960 450)"><g class="pop" style="--d:0.9s"><circle r="104" fill="#2f5645" stroke="#2f5645" stroke-width="9"/><ellipse cx="0" cy="-32" rx="38" ry="13" fill="none" stroke="#3dd990" stroke-width="7"/><path d="M-38 -32 V32 a38 13 0 0 0 76 0 V-32 M-38 0 a38 13 0 0 0 76 0" fill="none" stroke="#3dd990" stroke-width="7"/></g></g><g transform="translate(1580 540)"><g class="pop" style="--d:1.3s"><circle r="104" fill="#ffffff" stroke="#3dd990" stroke-width="9"/><rect x="-48" y="-38" width="96" height="62" rx="7" fill="none" stroke="#2f5645" stroke-width="7"/><path d="M-18 44 H18 M0 24 V44" stroke="#2f5645" stroke-width="7" stroke-linecap="round"/><rect x="-30" y="-6" width="13" height="20" fill="#3dd990"/><rect x="-6" y="-18" width="13" height="32" fill="#3dd990"/><rect x="18" y="-28" width="13" height="42" fill="#3dd990"/></g></g></svg>
+  <div class="rise" style="position:absolute; top:668px; left:70px; width:540px; text-align:center; --d:0.8s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:700; color:#1f7a55">안드로이드 · 웹</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#2f5645; margin-top:2px">FlatWay 앱</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.5; color:#4f6a5c; margin-top:8px">단차·파손 위험을 지도에서 보고, 안전한 길을 안내받고, 바로 제보해요</p></div>
+  <div class="rise" style="position:absolute; top:578px; left:690px; width:540px; text-align:center; --d:1.2s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:700; color:#1f7a55">Supabase</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#2f5645; margin-top:2px">실시간 데이터베이스</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.5; color:#4f6a5c; margin-top:8px">제보·사진·계정을 저장하고, 앱과 대시보드에 바로 반영해요</p></div>
+  <div class="rise" style="position:absolute; top:668px; left:1310px; width:540px; text-align:center; --d:1.6s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:700; color:#1f7a55">웹</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#2f5645; margin-top:2px">관리자 대시보드</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.5; color:#4f6a5c; margin-top:8px">위험이 몰린 곳을 히트맵으로 보고, 수리 현황을 관리해요</p></div>
+  <p class="fadein" style="position:absolute; top:884px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.5; color:#5b7566; --d:2.0s">만든 도구  Flutter · Next.js · Supabase　|　길 계산  오픈스트리트맵 + 오픈소스 경로 엔진(OSRM)</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">06 / 20</p>
+  
+</section>
+
+<section class="slide" id="s08-app" data-transition="fade" style="background:#e0fbef">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" style="position:absolute; left:0; top:0; width:1920px; height:1080px"><circle cx="298" cy="640" r="400" fill="#bdf0d5"/></svg>
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 3 · FlatWay 소개</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:0.05s">앱은 이렇게 생겼어요</h2>
+  <img class="rise" src="img/map.jpg" alt="FlatWay 앱 지도 화면: 위험 핀과 유형별 필터, 현위치 제보 버튼" style="position:absolute; top:268px; left:128px; width:340px; height:680px; object-fit:cover; border:6px solid #2f5645; border-radius:34px; filter:drop-shadow(0 26px 30px rgba(31,90,64,.28)); --d:.3s">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" style="position:absolute; left:0; top:0; width:1920px; height:1080px"><path class="draw" pathLength="1" d="M700 330 V790" stroke="#3dd990" stroke-width="8" stroke-linecap="round" fill="none" style="--d:.4s"/><g transform="translate(700 330)"><g class="pop" style="--d:0.6s"><circle r="38" fill="#2f5645" stroke="#e0fbef" stroke-width="7"/><text y="14" text-anchor="middle" font-size="40" fill="#3dd990" style="font-family:'Black Han Sans',sans-serif">1</text></g></g><g transform="translate(700 490)"><g class="pop" style="--d:0.85s"><circle r="38" fill="#2f5645" stroke="#e0fbef" stroke-width="7"/><text y="14" text-anchor="middle" font-size="40" fill="#3dd990" style="font-family:'Black Han Sans',sans-serif">2</text></g></g><g transform="translate(700 640)"><g class="pop" style="--d:1.1s"><circle r="38" fill="#2f5645" stroke="#e0fbef" stroke-width="7"/><text y="14" text-anchor="middle" font-size="40" fill="#3dd990" style="font-family:'Black Han Sans',sans-serif">3</text></g></g><g transform="translate(700 790)"><g class="pop" style="--d:1.35s"><circle r="38" fill="#2f5645" stroke="#e0fbef" stroke-width="7"/><text y="14" text-anchor="middle" font-size="40" fill="#3dd990" style="font-family:'Black Han Sans',sans-serif">4</text></g></g></svg>
+  <p class="rise" style="position:absolute; top:296px; left:776px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.2; color:#2f5645; --d:0.7s">위험 지도 보기</p>
+  <p class="rise" style="position:absolute; top:354px; left:776px; width:1010px; font-family:'Noto Sans KR', sans-serif; font-size:34px; line-height:1.45; color:#4f6a5c; --d:0.7799999999999999s">단차·파손·적치물·경사 핀을 보고 종류별로 골라 봐요</p>
+  <p class="rise" style="position:absolute; top:456px; left:776px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.2; color:#2f5645; --d:0.95s">안전 길찾기</p>
+  <p class="rise" style="position:absolute; top:514px; left:776px; width:1010px; font-family:'Noto Sans KR', sans-serif; font-size:34px; line-height:1.45; color:#4f6a5c; --d:1.03s">위험을 피해 가는 길을 이동 수단에 맞게 안내해요</p>
+  <p class="rise" style="position:absolute; top:606px; left:776px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.2; color:#2f5645; --d:1.2s">현위치 제보</p>
+  <p class="rise" style="position:absolute; top:664px; left:776px; width:1010px; font-family:'Noto Sans KR', sans-serif; font-size:34px; line-height:1.45; color:#4f6a5c; --d:1.28s">지금 있는 곳의 위험을 사진과 함께 바로 제보해요</p>
+  <p class="rise" style="position:absolute; top:756px; left:776px; font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.2; color:#2f5645; --d:1.45s">이동 수집 (센서)</p>
+  <p class="pop" style="position:absolute; top:762px; left:1090px; padding:4px 20px; background:#2f5645; border-radius:22px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:700; color:#3dd990; --d:1.65s">모바일 앱 전용</p>
+  <p class="rise" style="position:absolute; top:814px; left:776px; width:1010px; font-family:'Noto Sans KR', sans-serif; font-size:34px; line-height:1.45; color:#4f6a5c; --d:1.53s">켜고 걸으면 가속도 센서가 노면 충격을 감지하고, 기준을 넘으면 GPS 위치와 함께 단차 후보로 자동 기록해요</p>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">06 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">07 / 20</p>
   
 </section>
 
-<section class="slide" id="s08-sensor" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:900px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 3 · FlatWay 핵심 기술</p>
-<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">센서 기반 데이터 수집</h2>
-<p style="position:absolute;left:128px;top:236px;width:280px;font-size:26px;font-weight:700;color:#8A3F0B;background:#FFE6D2;padding:6px 18px;border-radius:30px">모바일 앱 전용</p>
-<div style="position:absolute;left:128px;top:320px;width:800px;display:flex;flex-direction:column;gap:28px">
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:20px;padding:28px 36px">
-<p style="font-size:35px;line-height:1.5;color:#24382F">이동 수집을 켜고 걸으면 스마트폰 <b>가속도 센서</b>가 노면 충격을 감지합니다.</p>
-</div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:20px;padding:28px 36px">
-<p style="font-size:35px;line-height:1.5;color:#24382F">충격이 기준을 넘으면 <b>GPS 좌표와 함께</b> 단차 후보로 자동 기록합니다.</p>
-</div>
-</div>
-<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1000px;top:260px;width:792px;height:640px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
-.rv{animation:rev 7s linear 1 forwards}
-@keyframes rev{0%{width:0}86%,100%{width:792px}}
-.pa,.pb{animation:pop 7s ease-out 1 forwards}
-.pa{transform-origin:330px 520px;animation-name:popa}.pb{transform-origin:570px 520px;animation-name:popb}
-@keyframes popa{0%,34%{opacity:0;transform:translateY(-40px)}38%,100%{opacity:1;transform:translateY(0)}}
-@keyframes popb{0%,56%{opacity:0;transform:translateY(-40px)}60%,100%{opacity:1;transform:translateY(0)}}&lt;/style&gt;
-&lt;svg viewBox=&quot;0 0 792 640&quot;&gt;&lt;defs&gt;&lt;clipPath id=&quot;k&quot;&gt;&lt;rect class=&quot;rv&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;792&quot; height=&quot;460&quot;/&gt;&lt;/clipPath&gt;&lt;/defs&gt;
-&lt;rect x=&quot;0&quot; y=&quot;40&quot; width=&quot;792&quot; height=&quot;420&quot; rx=&quot;24&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#CFEBDD&quot; stroke-width=&quot;3&quot;/&gt;
-&lt;path d=&quot;M0 210 H792&quot; stroke=&quot;#D6403A&quot; stroke-width=&quot;4&quot; stroke-dasharray=&quot;14 10&quot;/&gt;&lt;text x=&quot;772&quot; y=&quot;196&quot; text-anchor=&quot;end&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#B3302B&quot;&gt;충격 기준&lt;/text&gt;
-&lt;g clip-path=&quot;url(#k)&quot;&gt;&lt;path d=&quot;M0 360 L40 352 L70 368 L100 355 L130 366 L160 358 L190 300 L205 400 L220 360 L260 354 L290 366 L315 358 L330 110 L345 430 L362 360 L400 352 L440 368 L480 356 L520 364 L550 358 L570 150 L585 420 L602 360 L650 355 L700 366 L792 360&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;6&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
-&lt;g class=&quot;pa&quot;&gt;&lt;circle cx=&quot;330&quot; cy=&quot;520&quot; r=&quot;30&quot; fill=&quot;#E8742A&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M318 530 h10 v-10 h10 v-10 h8&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
-&lt;g class=&quot;pb&quot;&gt;&lt;circle cx=&quot;570&quot; cy=&quot;520&quot; r=&quot;30&quot; fill=&quot;#E8742A&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M558 530 h10 v-10 h10 v-10 h8&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;
-&lt;text x=&quot;396&quot; y=&quot;610&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#2F5645&quot;&gt;기준을 넘는 충격 → 위치와 함께 자동 기록&lt;/text&gt;&lt;/svg&gt;"></iframe>
-<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">07 / 21</p>
-
-</section>
-
-<section class="slide" id="s07b-dashboard" data-transition="fade" style="background:#e0fbef">
-  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 3 · FlatWay 핵심 기술</p>
+<section class="slide" id="s07b-dashboard" data-transition="fade" style="background:#f6fcf9">
+  <p style="position:absolute; top:80px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55">CHAPTER 3 · FlatWay 소개</p>
   <h2 style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">관리자 웹 대시보드</h2>
-  <p style="position:absolute; top:244px; left:128px; width:800px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:800; text-align:center; color:#1f7a55">위험 핀을 누르면 상세 정보</p>
-  <p style="position:absolute; top:244px; left:992px; width:800px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:800; text-align:center; color:#1f7a55">히트맵으로 위험 밀집 구역 확인</p>
+  <p style="position:absolute; top:244px; left:128px; width:800px; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; text-align:center; color:#1f7a55">위험 핀을 누르면 상세 정보</p>
+  <p style="position:absolute; top:244px; left:992px; width:800px; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; text-align:center; color:#1f7a55">히트맵으로 위험 밀집 구역 확인</p>
   <img src="img/dash_pin.jpg" alt="대시보드 지도에서 단차 위험 핀을 눌러 상세 정보를 본 화면" style="position:absolute; top:290px; left:128px; width:800px; height:450px; border:4px solid #3dd990; border-radius:20px">
   <img src="img/dash_heat.jpg" alt="대시보드 히트맵을 켜서 위험이 몰린 구역이 붉게 표시된 화면" style="position:absolute; top:290px; left:992px; width:800px; height:450px; border:4px solid #3dd990; border-radius:20px">
   <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:290px; left:128px; width:800px; height:450px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
@@ -256,139 +241,71 @@ function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/2400
 @keyframes pulse{0%,100%{transform:scale(.85);opacity:.25}50%{transform:scale(1.2);opacity:.7}}&lt;/style&gt;
 &lt;svg viewBox=&quot;0 0 800 450&quot;&gt;&lt;g fill=&quot;#D6403A&quot;&gt;&lt;circle class=&quot;h&quot; cx=&quot;640&quot; cy=&quot;332&quot; r=&quot;34&quot;/&gt;&lt;circle class=&quot;h h2&quot; cx=&quot;696&quot; cy=&quot;192&quot; r=&quot;22&quot;/&gt;&lt;circle class=&quot;h h3&quot; cx=&quot;480&quot; cy=&quot;256&quot; r=&quot;16&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
   <div style="position:absolute; top:782px; left:128px; width:1664px; display:flex; gap:24px">
-    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">유형별 필터</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:27px; line-height:1.45; color:#24382f">단차·파손·적치물·급경사별로 골라 봐요</p>
+    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; ">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:37px; font-weight:800; line-height:1.3; color:#1f7a55">유형별 필터</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f">단차·파손·적치물·급경사별로 골라 봐요</p>
     </div>
-    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">유지보수 현황</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:27px; line-height:1.45; color:#24382f">접수 → 조사중 → 보수예정 → 완료로 관리해요</p>
+    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; ">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:37px; font-weight:800; line-height:1.3; color:#1f7a55">유지보수 현황</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f">접수 → 조사중 → 보수예정 → 완료로 관리해요</p>
     </div>
-    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">앱과 실시간 연동</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:27px; line-height:1.45; color:#24382f">앱 제보가 대시보드에 바로 나타나요</p>
+    <div style="display:flex; flex-direction:column; gap:6px; width:538px; padding:22px 30px; ">
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:37px; font-weight:800; line-height:1.3; color:#1f7a55">앱과 실시간 연동</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f">앱 제보가 대시보드에 바로 나타나요</p>
     </div>
   </div>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">08 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">08 / 20</p>
   
 </section>
 
-<section class="slide" id="s11-upgrade" data-transition="fade" style="background:#f6fcf9">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">고도화 한눈에 보기</h2>
-  <div style="position:absolute; top:262px; left:128px; width:1664px; display:flex; flex-direction:row; gap:32px">
-    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
-      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#1f7a55">179개</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#24382f">전체 작업 횟수 (8/19~)</p>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
-      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#1f7a55">4명</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#24382f">함께 만든 팀원</p>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#ffffff; border:2px solid #cfebdd; border-radius:20px">
-      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#1f7a55">25개</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#24382f">알고리즘 테스트 통과</p>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:2px; flex:1; padding:22px 28px; background:#2f5645; border-radius:20px">
-      <p style="font-family:'Black Han Sans', sans-serif; font-size:76px; line-height:1.1; color:#3dd990">5가지</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.35; color:#e0fbef">핵심 개선</p>
-    </div>
-  </div>
-  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:520px; left:128px; width:1664px; height:380px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
-.ln{stroke-dasharray:1700;animation:draw 6s ease-in-out 1 forwards}
-@keyframes draw{0%{stroke-dashoffset:1700}60%,100%{stroke-dashoffset:0}}
-.d{transform-box:fill-box;transform-origin:center;animation:pop 6s ease-out 1 both}
-.t{animation:fade 6s ease-out 1 both}
-.d0,.t0{animation-delay:0.0s}.d1,.t1{animation-delay:0.7s}.d2,.t2{animation-delay:1.4s}.d3,.t3{animation-delay:2.1s}.d4,.t4{animation-delay:2.8s}.d5,.t5{animation-delay:3.5s}
-@keyframes pop{0%{transform:scale(0)}12%{transform:scale(1.3)}20%,100%{transform:scale(1)}}
-@keyframes fade{0%{opacity:0}16%,100%{opacity:1}}&lt;/style&gt;
-&lt;svg viewBox=&quot;0 0 1664 380&quot;&gt;&lt;path class=&quot;ln&quot; d=&quot;M40 112 H1624&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; fill=&quot;none&quot;/&gt;
-&lt;g class=&quot;d d0&quot;&gt;&lt;circle cx=&quot;139&quot; cy=&quot;112&quot; r=&quot;28&quot; fill=&quot;#E8742A&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;/g&gt;
-&lt;g class=&quot;d d1&quot;&gt;&lt;circle cx=&quot;416&quot; cy=&quot;112&quot; r=&quot;36&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;text x=&quot;416&quot; y=&quot;125&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;1&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;d d2&quot;&gt;&lt;circle cx=&quot;693&quot; cy=&quot;112&quot; r=&quot;36&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;text x=&quot;693&quot; y=&quot;125&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;2&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;d d3&quot;&gt;&lt;circle cx=&quot;971&quot; cy=&quot;112&quot; r=&quot;36&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;text x=&quot;971&quot; y=&quot;125&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;3&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;d d4&quot;&gt;&lt;circle cx=&quot;1248&quot; cy=&quot;112&quot; r=&quot;36&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;text x=&quot;1248&quot; y=&quot;125&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;4&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;d d5&quot;&gt;&lt;circle cx=&quot;1525&quot; cy=&quot;112&quot; r=&quot;36&quot; fill=&quot;#2F5645&quot; stroke=&quot;#F6FCF9&quot; stroke-width=&quot;8&quot;/&gt;&lt;text x=&quot;1525&quot; y=&quot;125&quot; text-anchor=&quot;middle&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#3DD990&quot;&gt;5&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t1&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;416&quot; y=&quot;52&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;10/18&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t3&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;971&quot; y=&quot;52&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;10/23&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t5&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;1525&quot; y=&quot;52&quot; font-size=&quot;36&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;11/03&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t0&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;139&quot; y=&quot;204&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;고도화&lt;/text&gt;&lt;text x=&quot;139&quot; y=&quot;244&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;시작&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t1&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;416&quot; y=&quot;204&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;웹으로 바로&lt;/text&gt;&lt;text x=&quot;416&quot; y=&quot;244&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;접속&lt;/text&gt;&lt;text x=&quot;416&quot; y=&quot;292&quot; font-size=&quot;26&quot; font-weight=&quot;500&quot; fill=&quot;#4F6A5C&quot;&gt;설치·가입 없이&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t2&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;693&quot; y=&quot;204&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;위험 4종&lt;/text&gt;&lt;text x=&quot;693&quot; y=&quot;244&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;카테고리&lt;/text&gt;&lt;text x=&quot;693&quot; y=&quot;292&quot; font-size=&quot;26&quot; font-weight=&quot;500&quot; fill=&quot;#4F6A5C&quot;&gt;아이콘·색 통일&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t3&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;971&quot; y=&quot;204&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;첫 사용&lt;/text&gt;&lt;text x=&quot;971&quot; y=&quot;244&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;가이드&lt;/text&gt;&lt;text x=&quot;971&quot; y=&quot;292&quot; font-size=&quot;26&quot; font-weight=&quot;500&quot; fill=&quot;#4F6A5C&quot;&gt;말풍선·10단계&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t4&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;1248&quot; y=&quot;204&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;위험 회피&lt;/text&gt;&lt;text x=&quot;1248&quot; y=&quot;244&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;길찾기&lt;/text&gt;&lt;text x=&quot;1248&quot; y=&quot;292&quot; font-size=&quot;26&quot; font-weight=&quot;500&quot; fill=&quot;#4F6A5C&quot;&gt;이동 수단별 포함&lt;/text&gt;&lt;/g&gt;
-&lt;g class=&quot;t t5&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;1525&quot; y=&quot;204&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;실시간&lt;/text&gt;&lt;text x=&quot;1525&quot; y=&quot;244&quot; font-size=&quot;32&quot; font-weight=&quot;800&quot; fill=&quot;#24382F&quot;&gt;길안내&lt;/text&gt;&lt;text x=&quot;1525&quot; y=&quot;292&quot; font-size=&quot;26&quot; font-weight=&quot;500&quot; fill=&quot;#4F6A5C&quot;&gt;음성·남은 시간&lt;/text&gt;&lt;/g&gt;
-&lt;/svg&gt;"></iframe>
+<section class="slide" id="s10-upgrade-intro" data-transition="fade" style="background:#f6fcf9">
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 4 · 고도화</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:0.05s">고도화로 이렇게 달라졌어요</h2>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" style="position:absolute; left:0; top:0; width:1920px; height:1080px"><g transform="translate(278 335)"><g class="pop" style="--d:0.3s"><circle r="68" fill="#ffffff" stroke="#3dd990" stroke-width="7"/><rect x="-34" y="-34" width="28" height="28" rx="4" fill="none" stroke="#2f5645" stroke-width="6"/><rect x="6" y="-34" width="28" height="28" rx="4" fill="none" stroke="#2f5645" stroke-width="6"/><rect x="-34" y="6" width="28" height="28" rx="4" fill="none" stroke="#2f5645" stroke-width="6"/><rect x="10" y="10" width="8" height="8" fill="#3dd990"/><rect x="24" y="24" width="8" height="8" fill="#3dd990"/></g></g><g transform="translate(619 335)"><g class="pop" style="--d:0.5s"><circle r="68" fill="#ffffff" stroke="#3dd990" stroke-width="7"/><path d="M-38 -26 H38 a8 8 0 0 1 8 8 V14 a8 8 0 0 1 -8 8 H-8 L-26 40 V22 H-38 a8 8 0 0 1 -8 -8 V-18 a8 8 0 0 1 8 -8Z" fill="none" stroke="#2f5645" stroke-width="6" stroke-linejoin="round"/><circle cx="-18" cy="-2" r="4" fill="#3dd990"/><circle cx="0" cy="-2" r="4" fill="#3dd990"/><circle cx="18" cy="-2" r="4" fill="#3dd990"/></g></g><g transform="translate(960 335)"><g class="pop" style="--d:0.7s"><circle r="68" fill="#ffffff" stroke="#3dd990" stroke-width="7"/><circle cx="-20" cy="-20" r="14" fill="#E8742A"/><circle cx="20" cy="-20" r="14" fill="#d33a32"/><circle cx="-20" cy="20" r="14" fill="#8a5cf0"/><circle cx="20" cy="20" r="14" fill="#2f8fd8"/></g></g><g transform="translate(1301 335)"><g class="pop" style="--d:0.9000000000000001s"><circle r="68" fill="#ffffff" stroke="#3dd990" stroke-width="7"/><circle cx="-34" cy="30" r="8" fill="#2f5645"/><path d="M-34 30 C-34 -10, 10 20, 20 -18" fill="none" stroke="#3dd990" stroke-width="7" stroke-linecap="round"/><circle cx="26" cy="-26" r="13" fill="#E8742A"/><circle cx="26" cy="-26" r="5" fill="#fff"/></g></g><g transform="translate(1642 335)"><g class="pop" style="--d:1.1s"><circle r="68" fill="#ffffff" stroke="#3dd990" stroke-width="7"/><path d="M-36 -12 H-18 L4 -32 V32 L-18 12 H-36Z" fill="#2f5645"/><path d="M16 -18 a22 22 0 0 1 0 36 M28 -32 a40 40 0 0 1 0 64" fill="none" stroke="#3dd990" stroke-width="6" stroke-linecap="round"/></g></g></svg>
+  <p class="rise" style="position:absolute; top:424px; left:128px; width:300px; text-align:center; font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; color:#2f5645; --d:0.4s">접속</p>
+  <div class="rise" style="position:absolute; top:488px; left:128px; width:300px; height:150px; display:flex; align-items:center; justify-content:center; padding:20px 18px 0; box-sizing:border-box; background:#ecece8; border-radius:24px; --d:0.44999999999999996s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.4; text-align:center; color:#5c5c56">앱을 설치해야 해요</p></div>
+  <p class="fadein" style="position:absolute; top:474px; left:144px; padding:2px 18px; background:#8a8a82; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#ffffff; --d:0.6s">전</p>
+  <svg class="rise" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 44" style="position:absolute; left:248px; top:648px; width:60px; height:44px; --d:0.6s"><path d="M30 4 V36 M12 20 L30 38 L48 20" fill="none" stroke="#3dd990" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="rise" style="position:absolute; top:704px; left:128px; width:300px; height:250px; display:flex; align-items:center; justify-content:center; padding:12px 14px 0; box-sizing:border-box; background:#2f5645; border-radius:24px; box-shadow:0 18px 30px rgba(31,90,64,.25); --d:0.7s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:800; line-height:1.4; text-align:center; color:#ffffff">링크·QR로 바로 접속<br><span style='font-size:28px;font-weight:500'>(설치·가입 없음)</span></p></div>
+  <p class="fadein" style="position:absolute; top:690px; left:144px; padding:2px 18px; background:#3dd990; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#2f5645; --d:0.8s">후</p>
+  <p class="rise" style="position:absolute; top:424px; left:469px; width:300px; text-align:center; font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; color:#2f5645; --d:0.6s">첫 사용</p>
+  <div class="rise" style="position:absolute; top:488px; left:469px; width:300px; height:150px; display:flex; align-items:center; justify-content:center; padding:20px 18px 0; box-sizing:border-box; background:#ecece8; border-radius:24px; --d:0.65s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.4; text-align:center; color:#5c5c56">설명 없이 지도만 열려요</p></div>
+  <p class="fadein" style="position:absolute; top:474px; left:485px; padding:2px 18px; background:#8a8a82; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#ffffff; --d:0.8s">전</p>
+  <svg class="rise" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 44" style="position:absolute; left:589px; top:648px; width:60px; height:44px; --d:0.8s"><path d="M30 4 V36 M12 20 L30 38 L48 20" fill="none" stroke="#3dd990" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="rise" style="position:absolute; top:704px; left:469px; width:300px; height:250px; display:flex; align-items:center; justify-content:center; padding:12px 14px 0; box-sizing:border-box; background:#2f5645; border-radius:24px; box-shadow:0 18px 30px rgba(31,90,64,.25); --d:0.9s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:800; line-height:1.4; text-align:center; color:#ffffff">말풍선 안내와<br>10단계 가이드</p></div>
+  <p class="fadein" style="position:absolute; top:690px; left:485px; padding:2px 18px; background:#3dd990; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#2f5645; --d:1.0s">후</p>
+  <p class="rise" style="position:absolute; top:424px; left:810px; width:300px; text-align:center; font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; color:#2f5645; --d:0.7999999999999999s">위험 종류</p>
+  <div class="rise" style="position:absolute; top:488px; left:810px; width:300px; height:150px; display:flex; align-items:center; justify-content:center; padding:20px 18px 0; box-sizing:border-box; background:#ecece8; border-radius:24px; --d:0.85s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.4; text-align:center; color:#5c5c56">항목이 제각각, 건물 분류까지 섞여 있어요</p></div>
+  <p class="fadein" style="position:absolute; top:474px; left:826px; padding:2px 18px; background:#8a8a82; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#ffffff; --d:1.0s">전</p>
+  <svg class="rise" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 44" style="position:absolute; left:930px; top:648px; width:60px; height:44px; --d:1.0s"><path d="M30 4 V36 M12 20 L30 38 L48 20" fill="none" stroke="#3dd990" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="rise" style="position:absolute; top:704px; left:810px; width:300px; height:250px; display:flex; align-items:center; justify-content:center; padding:12px 14px 0; box-sizing:border-box; background:#2f5645; border-radius:24px; box-shadow:0 18px 30px rgba(31,90,64,.25); --d:1.1s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:800; line-height:1.4; text-align:center; color:#ffffff">단차·파손<br>적치물·경사<br>4종으로 통일</p></div>
+  <p class="fadein" style="position:absolute; top:690px; left:826px; padding:2px 18px; background:#3dd990; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#2f5645; --d:1.2s">후</p>
+  <p class="rise" style="position:absolute; top:424px; left:1151px; width:300px; text-align:center; font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; color:#2f5645; --d:1.0000000000000002s">길찾기</p>
+  <div class="rise" style="position:absolute; top:488px; left:1151px; width:300px; height:150px; display:flex; align-items:center; justify-content:center; padding:20px 18px 0; box-sizing:border-box; background:#ecece8; border-radius:24px; --d:1.05s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.4; text-align:center; color:#5c5c56">최단 경로만, 누구나 같은 길이에요</p></div>
+  <p class="fadein" style="position:absolute; top:474px; left:1167px; padding:2px 18px; background:#8a8a82; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#ffffff; --d:1.2000000000000002s">전</p>
+  <svg class="rise" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 44" style="position:absolute; left:1271px; top:648px; width:60px; height:44px; --d:1.2000000000000002s"><path d="M30 4 V36 M12 20 L30 38 L48 20" fill="none" stroke="#3dd990" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="rise" style="position:absolute; top:704px; left:1151px; width:300px; height:250px; display:flex; align-items:center; justify-content:center; padding:12px 14px 0; box-sizing:border-box; background:#2f5645; border-radius:24px; box-shadow:0 18px 30px rgba(31,90,64,.25); --d:1.3000000000000003s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:800; line-height:1.4; text-align:center; color:#ffffff">위험을 피해<br>이동 수단별로<br>다른 길</p></div>
+  <p class="fadein" style="position:absolute; top:690px; left:1167px; padding:2px 18px; background:#3dd990; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#2f5645; --d:1.4000000000000001s">후</p>
+  <p class="rise" style="position:absolute; top:424px; left:1492px; width:300px; text-align:center; font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; color:#2f5645; --d:1.2000000000000002s">길안내</p>
+  <div class="rise" style="position:absolute; top:488px; left:1492px; width:300px; height:150px; display:flex; align-items:center; justify-content:center; padding:20px 18px 0; box-sizing:border-box; background:#ecece8; border-radius:24px; --d:1.25s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.4; text-align:center; color:#5c5c56">경로선만 보여요</p></div>
+  <p class="fadein" style="position:absolute; top:474px; left:1508px; padding:2px 18px; background:#8a8a82; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#ffffff; --d:1.4000000000000001s">전</p>
+  <svg class="rise" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 44" style="position:absolute; left:1612px; top:648px; width:60px; height:44px; --d:1.4000000000000001s"><path d="M30 4 V36 M12 20 L30 38 L48 20" fill="none" stroke="#3dd990" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="rise" style="position:absolute; top:704px; left:1492px; width:300px; height:250px; display:flex; align-items:center; justify-content:center; padding:12px 14px 0; box-sizing:border-box; background:#2f5645; border-radius:24px; box-shadow:0 18px 30px rgba(31,90,64,.25); --d:1.5s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:36px; font-weight:800; line-height:1.4; text-align:center; color:#ffffff">내 위치를 따라<br>음성으로 안내</p></div>
+  <p class="fadein" style="position:absolute; top:690px; left:1508px; padding:2px 18px; background:#3dd990; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:800; color:#2f5645; --d:1.6s">후</p>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">09 / 21</p>
-  
-</section>
-
-<section class="slide" id="s11b-before-after" data-transition="fade" style="background:#f6fcf9">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">고도화 전 → 후, 이렇게 달라졌어요</h2>
-  <p style="position:absolute; top:244px; left:368px; width:640px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:800; text-align:center; color:#7a7a74">고도화 전</p>
-  <p style="position:absolute; top:244px; left:1100px; width:692px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:800; text-align:center; color:#1f7a55">고도화 후</p>
-  <p style="position:absolute; top:292px; left:128px; width:220px; height:96px; display:flex; align-items:center; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#2f5645">접속</p>
-  <div style="position:absolute; top:292px; left:368px; width:640px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ecece8; border:2px solid #d6d6d0; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.35; color:#66665f">앱을 설치해야 쓸 수 있었어요</p>
-  </div>
-  <div style="position:absolute; top:292px; left:1100px; width:692px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ffffff; border:3px solid #3dd990; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; line-height:1.35; color:#24382f">링크나 QR로 설치·가입 없이 바로 써요</p>
-  </div>
-  <p style="position:absolute; top:400px; left:128px; width:220px; height:96px; display:flex; align-items:center; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#2f5645">첫 사용</p>
-  <div style="position:absolute; top:400px; left:368px; width:640px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ecece8; border:2px solid #d6d6d0; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.35; color:#66665f">설명 없이 바로 지도가 열렸어요</p>
-  </div>
-  <div style="position:absolute; top:400px; left:1100px; width:692px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ffffff; border:3px solid #3dd990; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; line-height:1.35; color:#24382f">말풍선 안내와 10단계 가이드가 있어요</p>
-  </div>
-  <p style="position:absolute; top:508px; left:128px; width:220px; height:96px; display:flex; align-items:center; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#2f5645">위험 종류</p>
-  <div style="position:absolute; top:508px; left:368px; width:640px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ecece8; border:2px solid #d6d6d0; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.35; color:#66665f">필터와 제보 항목이 제각각이고 건물 분류까지 섞여 있었어요</p>
-  </div>
-  <div style="position:absolute; top:508px; left:1100px; width:692px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ffffff; border:3px solid #3dd990; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; line-height:1.35; color:#24382f">단차·파손·적치물·경사 4종으로 통일했어요</p>
-  </div>
-  <p style="position:absolute; top:616px; left:128px; width:220px; height:96px; display:flex; align-items:center; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#2f5645">길찾기</p>
-  <div style="position:absolute; top:616px; left:368px; width:640px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ecece8; border:2px solid #d6d6d0; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.35; color:#66665f">최단 경로만 안내해서 위험은 알 수 없었어요</p>
-  </div>
-  <div style="position:absolute; top:616px; left:1100px; width:692px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ffffff; border:3px solid #3dd990; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; line-height:1.35; color:#24382f">위험 점수를 계산해 위험을 피해 돌아가요</p>
-  </div>
-  <p style="position:absolute; top:724px; left:128px; width:220px; height:96px; display:flex; align-items:center; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#2f5645">이동 수단</p>
-  <div style="position:absolute; top:724px; left:368px; width:640px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ecece8; border:2px solid #d6d6d0; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.35; color:#66665f">누구에게나 같은 길이었어요</p>
-  </div>
-  <div style="position:absolute; top:724px; left:1100px; width:692px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ffffff; border:3px solid #3dd990; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; line-height:1.35; color:#24382f">보행자·전동·수동 휠체어별로 길이 달라요</p>
-  </div>
-  <p style="position:absolute; top:832px; left:128px; width:220px; height:96px; display:flex; align-items:center; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#2f5645">안내 방식</p>
-  <div style="position:absolute; top:832px; left:368px; width:640px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ecece8; border:2px solid #d6d6d0; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:29px; line-height:1.35; color:#66665f">경로선만 지도에 보였어요</p>
-  </div>
-  <div style="position:absolute; top:832px; left:1100px; width:692px; height:96px; display:flex; align-items:center; padding:0 32px; background:#ffffff; border:3px solid #3dd990; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; line-height:1.35; color:#24382f">내 위치를 따라 거리·방향을 음성으로 안내해요</p>
-  </div>
-  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:292px; left:1016px; width:76px; height:648px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
-.a{animation:go 5s ease-in-out 1 forwards}
-.a1{animation-delay:.3s}.a2{animation-delay:.6s}.a3{animation-delay:.9s}.a4{animation-delay:1.2s}.a5{animation-delay:1.5s}
-@keyframes go{0%,100%{transform:translateX(-6px);opacity:.4}25%{transform:translateX(6px);opacity:1}50%{transform:translateX(-6px);opacity:.4}}&lt;/style&gt;
-&lt;svg viewBox=&quot;0 0 76 648&quot;&gt;&lt;g class=&quot;a a0&quot;&gt;&lt;path d=&quot;M10 48 H58 M44 34 L58 48 L44 62&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;g class=&quot;a a1&quot;&gt;&lt;path d=&quot;M10 156 H58 M44 142 L58 156 L44 170&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;g class=&quot;a a2&quot;&gt;&lt;path d=&quot;M10 264 H58 M44 250 L58 264 L44 278&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;g class=&quot;a a3&quot;&gt;&lt;path d=&quot;M10 372 H58 M44 358 L58 372 L44 386&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;g class=&quot;a a4&quot;&gt;&lt;path d=&quot;M10 480 H58 M44 466 L58 480 L44 494&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;g class=&quot;a a5&quot;&gt;&lt;path d=&quot;M10 588 H58 M44 574 L58 588 L44 602&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
-  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">10 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">09 / 20</p>
   
 </section>
 
 <section class="slide" id="s12-qr" data-transition="fade" style="background:#2F5645;color:#E0FBEF;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#8FE8BE;letter-spacing:2px">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:30px;font-weight:700;color:#8FE8BE;letter-spacing:1px">CHAPTER 4 · 고도화 ① 바로 접속</p>
 <h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:96px;font-weight:400;line-height:1.1;color:#3DD990">직접 써 보세요</h2>
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#3DD990;color:#2F5645;border:3px solid #3DD990">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8FE8BE;border:3px solid #4F7A67">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8FE8BE;border:3px solid #4F7A67">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8FE8BE;border:3px solid #4F7A67">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8FE8BE;border:3px solid #4F7A67">5</span></div>
 <div style="position:absolute;left:128px;top:340px;width:880px;display:flex;flex-direction:column;gap:30px">
 <p style="font-size:46px;font-weight:500;line-height:1.5;color:#E0FBEF">휴대폰 카메라로 QR을 스캔하면<br><b>설치 없이 바로</b> 열립니다.</p>
-<p style="font-size:30px;font-weight:500;line-height:1.5;color:#BFE9D4">temporary-express-flint-jxi3l4g.vercel.app</p>
-<p style="font-size:32px;font-weight:700;line-height:1.5;color:#3DD990">다음 슬라이드부터는 오른쪽 위 QR로<br>언제든 접속할 수 있어요.</p>
+<p style="font-size:34px;font-weight:500;line-height:1.5;color:#BFE9D4">temporary-express-flint-jxi3l4g.vercel.app</p>
+<p style="font-size:37px;font-weight:700;line-height:1.5;color:#3DD990">마지막 장에도 QR이 있어요.<br>언제든 접속해 볼 수 있어요.</p>
 </div>
 <svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;left:1160px;top:300px;width:481px;height:481px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
 <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1130px;top:270px;width:541px;height:541px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
@@ -399,56 +316,26 @@ function run(){var s=performance.now();function f(t){var k=Math.min(1,(t-s)/2400
 &lt;svg viewBox=&quot;0 0 541 541&quot;&gt;&lt;g fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;10&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path class=&quot;c&quot; d=&quot;M20 90 V20 H90&quot;/&gt;&lt;path class=&quot;c&quot; d=&quot;M451 20 H521 V90&quot;/&gt;&lt;path class=&quot;c&quot; d=&quot;M521 451 V521 H451&quot;/&gt;&lt;path class=&quot;c&quot; d=&quot;M90 521 H20 V451&quot;/&gt;&lt;/g&gt;
 &lt;rect class=&quot;sc&quot; x=&quot;40&quot; y=&quot;46&quot; width=&quot;461&quot; height=&quot;10&quot; rx=&quot;5&quot; fill=&quot;#3DD990&quot; opacity=&quot;0.8&quot;/&gt;&lt;/svg&gt;"></iframe>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#8FE8BE">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#8FE8BE;text-align:right">11 / 21</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#8FE8BE;text-align:right">10 / 20</p>
 
-</section>
-
-<section class="slide" id="s11c-route-before-after" data-transition="fade" style="background:#e0fbef">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">같은 출발지, 같은 도착지</h2>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 37 37" aria-label="FlatWay 접속 QR 코드" style="position:absolute; top:56px; right:128px; width:170px; height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
-  <p style="position:absolute; top:232px; right:128px; width:170px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:700; text-align:center; color:#2f5645">직접 써보기</p>
-  <p style="position:absolute; top:244px; left:128px; width:272px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:800; text-align:center; color:#7a7a74">고도화 전</p>
-  <img src="img/pair_ped.jpg" alt="고도화 전: 최단 경로 356m, 위험 1건" style="position:absolute;left:128px;top:300px;width:272px;height:590px;object-fit:cover;border-radius:24px;border:5px solid #E8742A">
-  <div style="position:absolute; top:300px; left:430px; width:360px; display:flex; flex-direction:column; gap:14px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:800; line-height:1.35; color:#7a7a74">최단 경로만 안내해요</p>
-    <p style="font-family:'Black Han Sans', sans-serif; font-size:110px; line-height:1.05; color:#C25B16">356m</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:700; line-height:1.4; color:#B4500F">위험 1건을 지나가요</p>
-  </div>
-  <p style="position:absolute; top:244px; left:930px; width:272px; font-family:'Noto Sans KR', sans-serif; font-size:28px; font-weight:800; text-align:center; color:#1f7a55">고도화 후</p>
-  <img src="img/pair_elec.jpg" alt="고도화 후: 단차를 피해 돌아가는 548m 경로, 위험 0건" style="position:absolute;left:930px;top:300px;width:272px;height:590px;object-fit:cover;border-radius:24px;border:5px solid #3DD990">
-  <div style="position:absolute; top:300px; left:1232px; width:560px; display:flex; flex-direction:column; gap:14px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:800; line-height:1.35; color:#1f7a55">위험을 피해 돌아가요</p>
-    <p style="font-family:'Black Han Sans', sans-serif; font-size:110px; line-height:1.05; color:#3DD990">548m</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:700; line-height:1.4; color:#1f7a55">위험 0건, 점수가 가장 낮은 길</p>
-  </div>
-  <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:520px; left:790px; width:110px; height:130px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}
-.a{animation:go 2.4s ease-in-out 1 forwards}
-@keyframes go{0%,100%{transform:translateX(-8px);opacity:.5}50%{transform:translateX(8px);opacity:1}}&lt;/style&gt;
-&lt;svg viewBox=&quot;0 0 110 130&quot;&gt;&lt;g class=&quot;a&quot;&gt;&lt;path d=&quot;M14 65 H92 M68 38 L94 65 L68 92&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;14&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
-  <p style="position:absolute; top:918px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">※ 전 = 보행자 모드(최단 경로), 후 = 휠체어 모드. 출발지·도착지는 같고 이동 수단만 다릅니다.</p>
-  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">12 / 21</p>
-  
 </section>
 
 <section class="slide" id="s17-guide" data-transition="fade" style="background:#e0fbef">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화 ① 첫 사용 가이드</p>
+  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55">CHAPTER 4 · 고도화 ② 첫 사용 가이드</p>
   <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">FlatWay 첫 사용자도 쉽게</h2>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 37 37" aria-label="FlatWay 접속 QR 코드" style="position:absolute; top:56px; right:128px; width:170px; height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
-  <p style="position:absolute; top:232px; right:128px; width:170px; font-family:'Noto Sans KR', sans-serif; font-size:24px; font-weight:700; text-align:center; color:#2f5645">직접 써보기</p>
-  <div style="position:absolute; top:300px; left:128px; width:600px; display:flex; flex-direction:column; gap:20px">
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#2F5645;color:#3DD990;border:3px solid #2F5645">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">5</span></div>
+      <div style="position:absolute; top:300px; left:128px; width:600px; display:flex; flex-direction:column; gap:20px">
     <div style="display:flex; flex-direction:column; gap:4px; padding:22px 28px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">처음 접속하면 말풍선 안내</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.45; color:#24382f">소개 → 길찾기 → 현위치 제보 순서로 4단계</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:37px; font-weight:800; line-height:1.3; color:#1f7a55">처음 접속하면 말풍선 안내</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.45; color:#24382f">소개 → 길찾기 → 현위치 제보 순서로 4단계</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:4px; padding:22px 28px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">? 버튼으로 언제든 다시</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.45; color:#24382f">10단계 상세 가이드로 모든 기능 설명</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:37px; font-weight:800; line-height:1.3; color:#1f7a55">? 버튼으로 언제든 다시</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.45; color:#24382f">10단계 상세 가이드로 모든 기능 설명</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:4px; padding:22px 28px; background:#ffffff; border-radius:20px">
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; line-height:1.3; color:#1f7a55">‘다시 보지 않기’ 선택</p>
-      <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.45; color:#24382f">익숙해지면 안내를 끌 수 있어요</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:37px; font-weight:800; line-height:1.3; color:#1f7a55">‘다시 보지 않기’ 선택</p>
+      <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.45; color:#24382f">익숙해지면 안내를 끌 수 있어요</p>
     </div>
   </div>
   <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:300px; left:770px; width:330px; height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
@@ -464,31 +351,30 @@ function go(){var s=S[i];sp.setAttribute(&#x27;y&#x27;,s.y);sp.setAttribute(&#x2
   <img src="img/tour2.jpg" alt="첫 사용 가이드 2단계 길찾기 말풍선" style="position:absolute; top:300px; left:1130px; width:295px; height:590px; border:6px solid #2f5645; border-radius:28px">
   <img src="img/tour3.jpg" alt="첫 사용 가이드 3단계 현위치 제보 말풍선" style="position:absolute; top:300px; left:1490px; width:295px; height:590px; border:6px solid #2f5645; border-radius:28px">
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#4f6a5c">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">13 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#4f6a5c">11 / 20</p>
   
 </section>
 
 <section class="slide" id="s14-category" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ② 카테고리</p>
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:30px;font-weight:700;color:#1F7A55;letter-spacing:1px">CHAPTER 4 · 고도화 ③ 위험 카테고리</p>
 <h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">카테고리별로 한눈에</h2>
-<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
-<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#2F5645;color:#3DD990;border:3px solid #2F5645">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">5</span></div>
 <div style="position:absolute;left:128px;top:300px;width:700px;display:flex;flex-direction:column;gap:18px">
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #EA580C;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">위험 4종을 아이콘·색으로 구분</p>
-<p style="font-size:28px;line-height:1.4;color:#4F6A5C">단차 · 파손 · 적치물 · 경사</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:6px solid #EA580C;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:37px;font-weight:700;line-height:1.3;color:#24382F">위험 4종을 아이콘·색으로 구분</p>
+<p style="font-size:32px;line-height:1.4;color:#4F6A5C">단차 · 파손 · 적치물 · 경사</p>
 </div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #DC2626;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">보고 싶은 종류만 골라 보기</p>
-<p style="font-size:28px;line-height:1.4;color:#4F6A5C">칩을 누르면 지도 마커가 바로 걸러져요</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:6px solid #DC2626;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:37px;font-weight:700;line-height:1.3;color:#24382F">보고 싶은 종류만 골라 보기</p>
+<p style="font-size:32px;line-height:1.4;color:#4F6A5C">칩을 누르면 지도 마커가 바로 걸러져요</p>
 </div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #7C3AED;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">제보 화면과 같은 선택지</p>
-<p style="font-size:28px;line-height:1.4;color:#4F6A5C">이름과 아이콘을 하나로 통일했어요</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:6px solid #7C3AED;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:37px;font-weight:700;line-height:1.3;color:#24382F">제보 화면과 같은 선택지</p>
+<p style="font-size:32px;line-height:1.4;color:#4F6A5C">이름과 아이콘을 하나로 통일했어요</p>
 </div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #0284C7;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:32px;font-weight:700;line-height:1.3;color:#24382F">건물 분류는 삭제</p>
-<p style="font-size:28px;line-height:1.4;color:#4F6A5C">위험 정보에 집중하도록 단순화했어요</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:6px solid #0284C7;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:37px;font-weight:700;line-height:1.3;color:#24382F">건물 분류는 삭제</p>
+<p style="font-size:32px;line-height:1.4;color:#4F6A5C">위험 정보에 집중하도록 단순화했어요</p>
 </div>
 </div>
 <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:860px;top:300px;width:580px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
@@ -497,7 +383,7 @@ svg[data-a=step] .m:not(.step),svg[data-a=damage] .m:not(.damage),svg[data-a=obs
 .c rect{fill:#FFFFFF;stroke-width:5;transition:fill .3s}
 .cs rect{stroke:#EA580C}.cd rect{stroke:#DC2626}.co rect{stroke:#7C3AED}.cl rect{stroke:#0284C7}
 .cs .ic{color:#EA580C}.cd .ic{color:#DC2626}.co .ic{color:#7C3AED}.cl .ic{color:#0284C7}
-.c text{fill:#24382F;font-size:28px;font-weight:800}
+.c text{fill:#24382F;font-size:32px;font-weight:800}
 svg[data-a=step] .cs rect{fill:#EA580C}svg[data-a=damage] .cd rect{fill:#DC2626}svg[data-a=obstacle] .co rect{fill:#7C3AED}svg[data-a=slope] .cl rect{fill:#0284C7}
 svg[data-a=step] .cs text,svg[data-a=damage] .cd text,svg[data-a=obstacle] .co text,svg[data-a=slope] .cl text{fill:#FFFFFF}
 svg[data-a=step] .cs .ic,svg[data-a=damage] .cd .ic,svg[data-a=obstacle] .co .ic,svg[data-a=slope] .cl .ic{color:#FFFFFF}&lt;/style&gt;
@@ -527,40 +413,65 @@ svg[data-a=step] .cs .ic,svg[data-a=damage] .cd .ic,svg[data-a=obstacle] .co .ic
 &lt;script&gt;var s=document.getElementById(&#x27;s&#x27;),a=[&#x27;all&#x27;,&#x27;step&#x27;,&#x27;damage&#x27;,&#x27;obstacle&#x27;,&#x27;slope&#x27;],i=0,t=setInterval(function(){i=(i+1)%a.length;s.setAttribute(&#x27;data-a&#x27;,a[i]);if(i===0)clearInterval(t)},1700);&lt;/script&gt;"></iframe>
 <img src="img/filter_step.jpg" alt="단차 카테고리를 선택한 FlatWay 지도 화면" style="position:absolute;left:1490px;top:300px;width:295px;height:590px;object-fit:cover;border-radius:28px;border:6px solid #2F5645">
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">14 / 21</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">12 / 20</p>
 
 </section>
 
+<section class="slide" id="s11c-route-before-after" data-transition="fade" style="background:#e0fbef">
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 4 · 고도화 ④ 위험 회피 길찾기</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:0.05s">같은 출발지, 같은 도착지</h2>
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#2F5645;color:#3DD990;border:3px solid #2F5645">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">5</span></div>
+  <p class="fadein" style="position:absolute; top:262px; left:128px; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#7a7a74; --d:0.2s">고도화 전</p>
+  <img class="rise" src="img/pair_ped.jpg" alt="고도화 전: 최단 경로 356m, 위험 1건" style="position:absolute; left:128px; top:312px; width:302px; height:654px; object-fit:cover; border-radius:26px; border:5px solid #E8742A; --d:.3s">
+  <p class="rise" style="position:absolute; top:340px; left:480px; width:400px; font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.35; color:#7a7a74; --d:0.5s">최단 경로만<br>안내해요</p>
+  <p class="rise" style="position:absolute; top:480px; left:474px; font-family:'Black Han Sans', sans-serif; font-size:150px; line-height:1.05; color:#C25B16; --d:0.6s">356m</p>
+  <p class="rise" style="position:absolute; top:680px; left:480px; width:420px; font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.4; color:#B4500F; --d:0.8s">위험 1건을<br>지나가요</p>
+  <div class="nudge" style="position:absolute; left:900px; top:600px; width:100px; height:80px">
+  <svg class="fadein" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" style="position:absolute; left:0; top:0; width:100px; height:80px; --d:0.9s"><path d="M6 40 H84 M58 14 L88 40 L58 66" fill="none" stroke="#8a8a82" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <p class="fadein" style="position:absolute; top:262px; left:1040px; font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:800; color:#1f7a55; --d:0.2s">고도화 후</p>
+  <img class="rise" src="img/pair_elec.jpg" alt="고도화 후: 단차를 피해 돌아가는 548m 경로, 위험 0건" style="position:absolute; left:1040px; top:312px; width:302px; height:654px; object-fit:cover; border-radius:26px; border:5px solid #3dd990; --d:.9s">
+  <p class="rise" style="position:absolute; top:340px; left:1392px; width:420px; font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.35; color:#1f7a55; --d:1.1s">위험을 피해<br>돌아가요</p>
+  <p class="rise" style="position:absolute; top:480px; left:1386px; font-family:'Black Han Sans', sans-serif; font-size:150px; line-height:1.05; color:#1f9a6a; --d:1.2s">548m</p>
+  <p class="rise" style="position:absolute; top:680px; left:1392px; width:420px; font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.4; color:#1f7a55; --d:1.4s">위험 0건,<br>점수가 가장 낮은 길</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">13 / 20</p>
+  
+</section>
+
 <section class="slide" id="s15-algo" data-transition="fade" style="background:#E0FBEF;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ③ 길찾기 기능</p>
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:30px;font-weight:700;color:#1F7A55;letter-spacing:1px">CHAPTER 4 · 고도화 ④ 위험 회피 길찾기</p>
 <h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">위험을 피하는 길찾기</h2>
-<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
-<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#2F5645;color:#3DD990;border:3px solid #2F5645">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">5</span></div>
 <div style="position:absolute;left:128px;top:300px;width:660px;display:flex;flex-direction:column;gap:22px">
 <div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
-<p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">1. 후보 경로 모으기</p>
-<p style="font-size:29px;line-height:1.45;color:#24382F">최단 경로와 대안 경로를 가져와요</p>
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">1. 후보 경로 모으기</p>
+<p style="font-size:30px;line-height:1.4;color:#24382F">최단 경로와 대안 경로를 가져와요</p>
 </div>
 <div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
-<p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">2. 점수 매기기</p>
-<p style="font-size:29px;line-height:1.45;color:#24382F">거리에 지나는 위험의 페널티를 더해요<br>(종류·심각도·단차 높이 반영)</p>
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">2. 점수 매기기</p>
+<p style="font-size:30px;line-height:1.4;color:#24382F">거리에 지나는 위험의 페널티를 더해요<br>(종류·심각도·단차 높이 반영)</p>
 </div>
 <div style="background:#FFFFFF;border-radius:20px;padding:22px 30px;display:flex;flex-direction:column;gap:4px">
-<p style="font-size:34px;font-weight:800;line-height:1.3;color:#1F7A55">3. 우회로 만들어 비교</p>
-<p style="font-size:29px;line-height:1.45;color:#24382F">가장 위험한 곳의 옆길을 경유해 다시 계산하고, 점수가 가장 낮은 길을 골라요</p>
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">3. 우회로 만들어 비교</p>
+<p style="font-size:30px;line-height:1.4;color:#24382F">가장 위험한 곳의 옆길을 경유해 다시 계산하고, 점수가 가장 낮은 길을 골라요</p>
 </div>
 </div>
 <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:830px;top:300px;width:962px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
-.e1,.e2,.pen,.r2,.rb2,.via{transition:opacity .5s}
-svg[data-p=&quot;0&quot;] .e1,svg[data-p=&quot;0&quot;] .pen,svg[data-p=&quot;0&quot;] .r2,svg[data-p=&quot;0&quot;] .rb2,svg[data-p=&quot;0&quot;] .via{opacity:0}
-svg[data-p=&quot;1&quot;] .r2,svg[data-p=&quot;1&quot;] .rb2,svg[data-p=&quot;1&quot;] .via{opacity:0}
-svg[data-p=&quot;2&quot;] .r1{opacity:.35}
-.r1{transition:opacity .5s}&lt;/style&gt;
-&lt;svg id=&quot;s&quot; viewBox=&quot;0 0 962 590&quot; data-p=&quot;2&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;560&quot; height=&quot;500&quot; rx=&quot;24&quot; fill=&quot;#F4FAF7&quot;/&gt;
+.r1,.r2{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .8s cubic-bezier(.23,1,.32,1),opacity .4s}
+.pen,.rb2,.via,.haz{opacity:0;transition:opacity .35s cubic-bezier(.23,1,.32,1)}
+.haz{opacity:1}
+svg[data-p=&quot;0&quot;] .r1,svg[data-p=&quot;1&quot;] .r1,svg[data-p=&quot;2&quot;] .r1,svg[data-p=&quot;3&quot;] .r1{stroke-dashoffset:0}
+svg[data-p=&quot;1&quot;] .pen,svg[data-p=&quot;2&quot;] .pen,svg[data-p=&quot;3&quot;] .pen{opacity:1}
+svg[data-p=&quot;2&quot;] .r2,svg[data-p=&quot;3&quot;] .r2{stroke-dashoffset:0}
+svg[data-p=&quot;2&quot;] .rb2,svg[data-p=&quot;2&quot;] .via,svg[data-p=&quot;3&quot;] .rb2,svg[data-p=&quot;3&quot;] .via{opacity:1}
+svg[data-p=&quot;2&quot;] .r1,svg[data-p=&quot;3&quot;] .r1{opacity:.3}
+#cap{transition:opacity .18s}&lt;/style&gt;
+&lt;svg id=&quot;s&quot; viewBox=&quot;0 0 962 590&quot; data-p=&quot;-1&quot;&gt;&lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;560&quot; height=&quot;500&quot; rx=&quot;24&quot; fill=&quot;#F4FAF7&quot;/&gt;
 &lt;path d=&quot;M0 120H560M0 300H560M0 460H560M60 0V500M280 0V500M500 0V500&quot; stroke=&quot;#FFFFFF&quot; stroke-width=&quot;22&quot; fill=&quot;none&quot;/&gt;
-&lt;path class=&quot;r2&quot; d=&quot;M60 460 V120 H500&quot; fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
-&lt;path class=&quot;r1&quot; d=&quot;M60 460 H280 V120 H500&quot; fill=&quot;none&quot; stroke=&quot;#2B8FD6&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
-&lt;rect x=&quot;258&quot; y=&quot;278&quot; width=&quot;44&quot; height=&quot;44&quot; rx=&quot;10&quot; fill=&quot;#EA580C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M270 312 h9 v-9 h9 v-9 h7&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;path class=&quot;r2&quot; pathLength=&quot;1&quot; d=&quot;M60 460 V120 H500&quot; fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;path class=&quot;r1&quot; pathLength=&quot;1&quot; d=&quot;M60 460 H280 V120 H500&quot; fill=&quot;none&quot; stroke=&quot;#2B8FD6&quot; stroke-width=&quot;12&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+&lt;rect class=&quot;haz&quot; x=&quot;258&quot; y=&quot;278&quot; width=&quot;44&quot; height=&quot;44&quot; rx=&quot;10&quot; fill=&quot;#EA580C&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot;/&gt;&lt;path d=&quot;M270 312 h9 v-9 h9 v-9 h7&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
 &lt;g class=&quot;via&quot;&gt;&lt;circle cx=&quot;60&quot; cy=&quot;300&quot; r=&quot;14&quot; fill=&quot;#fff&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;6&quot;/&gt;&lt;/g&gt;
 &lt;circle cx=&quot;60&quot; cy=&quot;460&quot; r=&quot;26&quot; fill=&quot;#2F5645&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;60&quot; y=&quot;471&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;A&lt;/text&gt;
 &lt;circle cx=&quot;500&quot; cy=&quot;120&quot; r=&quot;26&quot; fill=&quot;#D6403A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;6&quot;/&gt;&lt;text x=&quot;500&quot; y=&quot;131&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#fff&quot;&gt;B&lt;/text&gt;
@@ -573,101 +484,63 @@ svg[data-p=&quot;2&quot;] .r1{opacity:.35}
 &lt;rect x=&quot;590&quot; y=&quot;356&quot; width=&quot;215&quot; height=&quot;42&quot; rx=&quot;10&quot; fill=&quot;#2F9E6C&quot;/&gt;
 &lt;text x=&quot;590&quot; y=&quot;438&quot; font-size=&quot;26&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;조금 더 걸어도 점수가 낮음&lt;/text&gt;&lt;/g&gt;
 &lt;rect x=&quot;0&quot; y=&quot;526&quot; width=&quot;962&quot; height=&quot;64&quot; rx=&quot;32&quot; fill=&quot;#2F5645&quot;/&gt;&lt;text id=&quot;cap&quot; x=&quot;481&quot; y=&quot;569&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#E0FBEF&quot;&gt;점수가 가장 낮은 안전한 경로를 선택&lt;/text&gt;&lt;/svg&gt;
-&lt;script&gt;var s=document.getElementById(&#x27;s&#x27;),cap=document.getElementById(&#x27;cap&#x27;),T=[&#x27;① 최단 경로가 위험 구간을 지나요&#x27;,&#x27;② 위험 페널티를 더해 점수를 매겨요&#x27;,&#x27;③ 위험을 비켜 가는 경로가 더 낮은 점수&#x27;],p=-1,t;
-function step(){p=(p+1)%4;if(p==3){s.setAttribute(&#x27;data-p&#x27;,&#x27;2&#x27;);cap.textContent=&#x27;점수가 가장 낮은 안전한 경로를 선택&#x27;;clearInterval(t);return}s.setAttribute(&#x27;data-p&#x27;,String(p));cap.textContent=T[p]}
-step();t=setInterval(step,2600);&lt;/script&gt;"></iframe>
-<p style="position:absolute;left:128px;top:872px;width:700px;font-size:26px;line-height:1.45;color:#4F6A5C">※ 길 계산에는 오픈스트리트맵(OpenStreetMap)<br>도로 데이터를 쓰는 오픈소스 경로 엔진(OSRM)을 사용했어요.</p>
+&lt;script&gt;var s=document.getElementById(&#x27;s&#x27;),cap=document.getElementById(&#x27;cap&#x27;),T=[&#x27;① 최단 경로가 위험 구간을 지나요&#x27;,&#x27;② 위험 페널티를 더해 점수를 매겨요&#x27;,&#x27;③ 위험을 비켜 가는 경로가 더 낮은 점수&#x27;,&#x27;점수가 가장 낮은 안전한 경로를 선택&#x27;];
+function go(p){cap.style.opacity=0;setTimeout(function(){s.setAttribute(&#x27;data-p&#x27;,String(p));cap.textContent=T[p];cap.style.opacity=1},160)}
+setTimeout(function(){go(0)},250);setTimeout(function(){go(1)},1500);setTimeout(function(){go(2)},2800);setTimeout(function(){go(3)},4300);&lt;/script&gt;"></iframe>
+<p style="position:absolute;left:128px;top:900px;width:900px;font-size:26px;line-height:1.4;color:#4F6A5C">※ 길 계산: 오픈스트리트맵 도로 데이터 + 오픈소스 경로 엔진(OSRM)</p>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#4F6A5C">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">15 / 21</p>
-
-</section>
-
-<section class="slide" id="s16-modes2" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 4 · 고도화 ③ 길찾기 기능</p>
-<h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">이동 수단별 회피 강도</h2>
-<svg viewBox="-2 -2 37 37" width="37" height="37" aria-label="FlatWay 접속 QR 코드" style="position:absolute;right:128px;top:56px;width:170px;height:170px"><rect x="-2" y="-2" width="37" height="37" fill="#FFFFFF"/><path fill="#1F3A2D" d="M0 0h7v1h-7zM9 0h1v1h-1zM11 0h1v1h-1zM16 0h1v1h-1zM19 0h5v1h-5zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h3v1h-3zM15 1h2v1h-2zM18 1h1v1h-1zM21 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h5v1h-5zM14 2h2v1h-2zM21 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h5v1h-5zM20 4h2v1h-2zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h4v1h-4zM13 5h2v1h-2zM17 5h3v1h-3zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h2v1h-2zM12 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h5v1h-5zM3 9h1v1h-1zM8 9h1v1h-1zM13 9h2v1h-2zM16 9h5v1h-5zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h2v1h-2zM4 10h1v1h-1zM6 10h2v1h-2zM9 10h7v1h-7zM17 10h1v1h-1zM21 10h2v1h-2zM24 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h1v1h-1zM5 11h1v1h-1zM9 11h1v1h-1zM12 11h2v1h-2zM15 11h4v1h-4zM21 11h1v1h-1zM24 11h3v1h-3zM28 11h3v1h-3zM32 11h1v1h-1zM2 12h3v1h-3zM6 12h1v1h-1zM10 12h1v1h-1zM12 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM27 12h3v1h-3zM32 12h1v1h-1zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h2v1h-2zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM31 13h2v1h-2zM0 14h8v1h-8zM10 14h1v1h-1zM14 14h3v1h-3zM20 14h2v1h-2zM24 14h4v1h-4zM30 14h2v1h-2zM3 15h3v1h-3zM9 15h1v1h-1zM11 15h1v1h-1zM14 15h2v1h-2zM19 15h8v1h-8zM29 15h2v1h-2zM0 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h2v1h-2zM22 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM7 17h1v1h-1zM10 17h5v1h-5zM16 17h1v1h-1zM19 17h2v1h-2zM22 17h2v1h-2zM25 17h3v1h-3zM29 17h2v1h-2zM32 17h1v1h-1zM2 18h3v1h-3zM6 18h4v1h-4zM12 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM0 19h6v1h-6zM7 19h1v1h-1zM9 19h4v1h-4zM16 19h1v1h-1zM20 19h2v1h-2zM26 19h6v1h-6zM3 20h4v1h-4zM12 20h2v1h-2zM15 20h1v1h-1zM18 20h1v1h-1zM22 20h2v1h-2zM25 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM12 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h1v1h-1zM23 21h1v1h-1zM25 21h3v1h-3zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h3v1h-3zM11 22h3v1h-3zM17 22h2v1h-2zM25 22h1v1h-1zM27 22h1v1h-1zM29 22h3v1h-3zM0 23h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM8 23h2v1h-2zM12 23h1v1h-1zM16 23h1v1h-1zM21 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM0 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM22 24h1v1h-1zM24 24h6v1h-6zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h2v1h-2zM19 25h4v1h-4zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h3v1h-3zM15 26h3v1h-3zM20 26h2v1h-2zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h1v1h-1zM12 27h7v1h-7zM20 27h5v1h-5zM28 27h3v1h-3zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h4v1h-4zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h5v1h-5zM14 29h2v1h-2zM18 29h3v1h-3zM22 29h4v1h-4zM28 29h1v1h-1zM30 29h3v1h-3zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM12 30h1v1h-1zM15 30h4v1h-4zM21 30h1v1h-1zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM14 31h2v1h-2zM21 31h2v1h-2zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h5v1h-5zM17 32h2v1h-2zM23 32h2v1h-2zM26 32h2v1h-2zM31 32h1v1h-1z"/></svg>
-<p style="position:absolute;right:128px;top:232px;width:170px;font-size:24px;font-weight:700;text-align:center;color:#2F5645">직접 써보기</p>
-<div style="position:absolute;left:128px;top:300px;width:700px;display:flex;flex-direction:column;gap:18px">
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #E8742A;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:33px;font-weight:800;line-height:1.3;color:#8A3F0B">보행자</p>
-<p style="font-size:28px;line-height:1.4;color:#24382F">중간 정도 위험은 감수하고 멀리 돌아가지 않아요</p>
-</div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #2B8FD6;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:33px;font-weight:800;line-height:1.3;color:#0B4F82">전동휠체어</p>
-<p style="font-size:28px;line-height:1.4;color:#24382F">단차는 피하고, 완만한 경사는 괜찮아요</p>
-</div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #2F9E6C;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:33px;font-weight:800;line-height:1.3;color:#1B5E3C">수동휠체어</p>
-<p style="font-size:28px;line-height:1.4;color:#24382F">단차, 가파른 경사, 파손은 피해요</p>
-</div>
-<p style="font-size:26px;line-height:1.45;font-weight:700;color:#8A3F0B">이 구간에는 단차만 있어서 전동·수동 경로가 같아요. <span style="white-space:nowrap">파손·경사가</span> 있으면 수동휠체어가 더 돌아가요.</p>
-
-</div>
-<p style="position:absolute;left:1029px;top:898px;width:272px;font-size:26px;font-weight:800;text-align:center;color:#8A3F0B">보행자</p>
-<img src="img/pair_ped.jpg" alt="보행자 모드 길찾기: 최단 경로 356m, 위험 1건" style="position:absolute;left:1029px;top:300px;width:272px;height:590px;object-fit:cover;border-radius:24px;border:5px solid #E8742A">
-<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1029px;top:300px;width:272px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}&lt;/style&gt;&lt;svg viewBox=&quot;0 0 272 590&quot;&gt;&lt;circle r=&quot;11&quot; fill=&quot;#E8742A&quot; stroke=&quot;#fff&quot; stroke-width=&quot;4&quot;&gt;&lt;animateMotion dur=&quot;4s&quot; repeatCount=&quot;1&quot; fill=&quot;freeze&quot; path=&quot;M139 178 L139 242 L144 253 L144 350&quot;/&gt;&lt;/circle&gt;&lt;/svg&gt;"></iframe>
-<p style="position:absolute;left:1421px;top:898px;width:272px;font-size:26px;font-weight:800;text-align:center;color:#0B4F82">전동·수동휠체어</p>
-<img src="img/pair_elec.jpg" alt="전동휠체어·수동휠체어 모드 길찾기: 단차를 피해 돌아가는 548m 경로, 위험 0건" style="position:absolute;left:1421px;top:300px;width:272px;height:590px;object-fit:cover;border-radius:24px;border:5px solid #2B8FD6">
-<iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1421px;top:300px;width:272px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}&lt;/style&gt;&lt;svg viewBox=&quot;0 0 272 590&quot;&gt;&lt;circle r=&quot;11&quot; fill=&quot;#2B8FD6&quot; stroke=&quot;#fff&quot; stroke-width=&quot;4&quot;&gt;&lt;animateMotion dur=&quot;4s&quot; repeatCount=&quot;1&quot; fill=&quot;freeze&quot; path=&quot;M139 178 L139 242 L91 242 L91 282 L145 282 L145 350&quot;/&gt;&lt;/circle&gt;&lt;/svg&gt;"></iframe>
-<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">16 / 21</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#4F6A5C;text-align:right">14 / 20</p>
 
 </section>
 
 <section class="slide" id="s16b-profile-table" data-transition="fade" style="background:#f6fcf9">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화 ③ 길찾기 기능</p>
+  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55">CHAPTER 4 · 고도화 ④ 위험 회피 길찾기</p>
   <h2 style="position:absolute; top:134px; left:128px; width:1600px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">이동 수단마다 기준이 달라요</h2>
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#2F5645;color:#3DD990;border:3px solid #2F5645">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">5</span></div>
   <div style="position:absolute; top:262px; left:128px; width:528px; height:384px; display:flex; flex-direction:column; padding:22px 32px; background:#ffffff; border:2px solid #cfebdd; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; line-height:1.3; color:#2f5645">보행자</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:24px; line-height:1.4; color:#66786e">넘을 수 있는 단차</p>
-    <div style="display:flex; align-items:center; height:112px"><p style="font-family:'Black Han Sans', sans-serif; font-size:64px; line-height:1.1; color:#4f6a5c">제한 없음</p></div>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f; margin-top:14px">경사 · 거의 무시</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f">우회 · 최대 2.5배</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f">속도 · 4.0km/h</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.3; color:#2f5645">보행자</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#66786e">넘을 수 있는 단차</p>
+    <div style="display:flex; align-items:center; height:100px"><p style="font-family:'Black Han Sans', sans-serif; font-size:64px; line-height:1.1; color:#4f6a5c">제한 없음</p></div>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f; margin-top:6px">경사 · 거의 무시</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f">우회 · 최대 2.5배</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f">속도 · 4.0km/h</p>
   </div>
   <div style="position:absolute; top:262px; left:696px; width:528px; height:384px; display:flex; flex-direction:column; padding:22px 32px; background:#ffffff; border:2px solid #cfebdd; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; line-height:1.3; color:#2f5645">전동휠체어</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:24px; line-height:1.4; color:#66786e">넘을 수 있는 단차</p>
-    <div style="display:flex; align-items:center; height:112px"><p style="font-family:'Black Han Sans', sans-serif; font-size:96px; line-height:1.1; color:#1f7a55">2cm</p></div>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f; margin-top:14px">경사 · 완만하면 괜찮아요</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f">우회 · 최대 2.5배</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f">속도 · 4.5km/h</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.3; color:#2f5645">전동휠체어</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#66786e">넘을 수 있는 단차</p>
+    <div style="display:flex; align-items:center; height:100px"><p style="font-family:'Black Han Sans', sans-serif; font-size:96px; line-height:1.1; color:#1f7a55">2cm</p></div>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f; margin-top:6px">경사 · 완만하면 괜찮아요</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f">우회 · 최대 2.5배</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f">속도 · 4.5km/h</p>
   </div>
   <div style="position:absolute; top:262px; left:1264px; width:528px; height:384px; display:flex; flex-direction:column; padding:22px 32px; background:#ffffff; border:2px solid #cfebdd; border-radius:16px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; line-height:1.3; color:#2f5645">수동휠체어</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:24px; line-height:1.4; color:#66786e">넘을 수 있는 단차</p>
-    <div style="display:flex; align-items:center; height:112px"><p style="font-family:'Black Han Sans', sans-serif; font-size:96px; line-height:1.1; color:#b4500f">1.3cm</p></div>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f; margin-top:14px">경사 · 가파르면 피해요</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f">우회 · 최대 2배</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.55; color:#24382f">속도 · 3.0km/h</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.3; color:#2f5645">수동휠체어</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#66786e">넘을 수 있는 단차</p>
+    <div style="display:flex; align-items:center; height:100px"><p style="font-family:'Black Han Sans', sans-serif; font-size:96px; line-height:1.1; color:#b4500f">1.3cm</p></div>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f; margin-top:6px">경사 · 가파르면 피해요</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f">우회 · 최대 2배</p>
+    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.4; color:#24382f">속도 · 3.0km/h</p>
   </div>
   <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:656px; left:128px; width:1664px; height:250px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
 .w{animation:go 5s ease-in-out 1 forwards}
 @keyframes go{0%{transform:translate(0,0)}45%{transform:translate(236px,0)}55%{transform:translate(300px,calc(-1 * var(--h)))}100%{transform:translate(400px,calc(-1 * var(--h)))}}
 .w0{--h:0px}.w1{--h:40px}.w2{--h:26px}&lt;/style&gt;
 &lt;svg viewBox=&quot;0 0 1664 250&quot;&gt;&lt;path d=&quot;M20 190 H508&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;8&quot; stroke-linejoin=&quot;round&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;g class=&quot;w w0&quot;&gt;&lt;circle cx=&quot;60&quot; cy=&quot;156&quot; r=&quot;30&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;6&quot;/&gt;&lt;circle cx=&quot;60&quot; cy=&quot;156&quot; r=&quot;6&quot; fill=&quot;#2F5645&quot;/&gt;&lt;/g&gt;&lt;text x=&quot;264&quot; y=&quot;236&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;높이 제한 없음&lt;/text&gt;&lt;path d=&quot;M588 190 H868 V150 H1076&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;8&quot; stroke-linejoin=&quot;round&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;g class=&quot;w w1&quot;&gt;&lt;circle cx=&quot;628&quot; cy=&quot;156&quot; r=&quot;30&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;6&quot;/&gt;&lt;circle cx=&quot;628&quot; cy=&quot;156&quot; r=&quot;6&quot; fill=&quot;#2F5645&quot;/&gt;&lt;/g&gt;&lt;text x=&quot;832&quot; y=&quot;236&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;2cm까지&lt;/text&gt;&lt;path d=&quot;M1156 190 H1436 V164 H1644&quot; fill=&quot;none&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;8&quot; stroke-linejoin=&quot;round&quot; stroke-linecap=&quot;round&quot;/&gt;&lt;g class=&quot;w w2&quot;&gt;&lt;circle cx=&quot;1196&quot; cy=&quot;156&quot; r=&quot;30&quot; fill=&quot;#FFFFFF&quot; stroke=&quot;#2F5645&quot; stroke-width=&quot;6&quot;/&gt;&lt;circle cx=&quot;1196&quot; cy=&quot;156&quot; r=&quot;6&quot; fill=&quot;#2F5645&quot;/&gt;&lt;/g&gt;&lt;text x=&quot;1400&quot; y=&quot;236&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;1.3cm까지&lt;/text&gt;&lt;/svg&gt;"></iframe>
-  <p style="position:absolute; top:930px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:23px; line-height:1.4; color:#5b7566">근거: 장애인등편의법 시행규칙(접근로 기울기 1/18~1/12), 미국 ADA 지침(1.3cm), 전동휠체어 제조사 사양, 휠체어 이동 속도 연구</p>
+  <p style="position:absolute; top:930px; left:128px; width:1664px; font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#5b7566">근거: 장애인등편의법 시행규칙(접근로 기울기 1/18~1/12), 미국 ADA 지침(1.3cm), 전동휠체어 제조사 사양, 휠체어 이동 속도 연구</p>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">17 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">15 / 20</p>
   
 </section>
 
 <section class="slide" id="s17b-nav" data-transition="fade" style="background:#e0fbef">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 4 · 고도화: 우리가 바꾼 것</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1600px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">걷는 대로 안내해요</h2>
-  <div style="position:absolute; top:290px; left:128px; width:1020px; display:flex; flex-direction:column; gap:8px; padding:26px 36px; background:#ffffff; border-radius:20px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.3; color:#1f7a55">1. 장소 이름으로 검색</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.45; color:#24382f">출발지·도착지를 이름으로 찾고, 최근 검색은 저장돼요</p>
-  </div>
-  <div style="position:absolute; top:500px; left:128px; width:1020px; display:flex; flex-direction:column; gap:8px; padding:26px 36px; background:#ffffff; border-radius:20px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.3; color:#1f7a55">2. 실시간 길안내</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.45; color:#24382f">내 위치를 따라 “90m 앞 우회전”처럼 알려줘요</p>
-  </div>
-  <div style="position:absolute; top:710px; left:128px; width:1020px; display:flex; flex-direction:column; gap:8px; padding:26px 36px; background:#ffffff; border-radius:20px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:40px; font-weight:800; line-height:1.3; color:#1f7a55">3. 음성 안내와 남은 시간</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; line-height:1.45; color:#24382f">소리로 안내하고, 남은 거리와 시간을 보여줘요</p>
-  </div>
-  <img src="img/pair_elec.jpg" alt="길안내 화면: 다음 안내 문구와 남은 거리·시간" style="position:absolute; top:290px; left:1492px; width:300px; height:650px; object-fit:cover; border-radius:24px; border:5px solid #3dd990">
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 4 · 고도화 ⑤ 실시간 길안내</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:0.05s">걷는 대로 안내해요</h2>
+  <div class="fadein" style="position:absolute;top:66px;right:128px;display:flex;align-items:center;gap:14px;--d:.3s"><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">1</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">2</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">3</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:transparent;color:#8AA89A;border:3px solid #BFE9D4">4</span><span style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;box-sizing:border-box;font-family:'Noto Sans KR',sans-serif;font-size:28px;font-weight:800;background:#2F5645;color:#3DD990;border:3px solid #2F5645">5</span></div>
+  <div class="rise" style="position:absolute; top:268px; left:128px; width:1030px; padding:18px 34px; box-sizing:border-box; background:#ffffff; border-radius:20px; --d:0.3s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#1f7a55">1. 장소 이름으로 검색</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f; margin-top:4px">출발지·도착지를 이름으로 찾고, 최근 검색을 저장해요</p></div>
+  <div class="rise" style="position:absolute; top:436px; left:128px; width:1030px; padding:18px 34px; box-sizing:border-box; background:#ffffff; border-radius:20px; --d:0.5s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#1f7a55">2. 길찾기 오류 수정</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f; margin-top:4px">검색할 때 화면이 유지되고, 튀어나온 경로와 먼 우회로를 없앴어요</p></div>
+  <div class="rise" style="position:absolute; top:604px; left:128px; width:1030px; padding:18px 34px; box-sizing:border-box; background:#ffffff; border-radius:20px; --d:0.7s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#1f7a55">3. 나침반으로 방향 맞추기</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f; margin-top:4px">나침반을 켜면 지도가 내가 보는 방향에 맞춰 돌아가요</p></div>
+  <div class="rise" style="position:absolute; top:772px; left:128px; width:1030px; padding:18px 34px; box-sizing:border-box; background:#ffffff; border-radius:20px; --d:0.9000000000000001s"><p style="font-family:'Noto Sans KR', sans-serif; font-size:42px; font-weight:800; line-height:1.3; color:#1f7a55">4. 음성 길안내</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:31px; line-height:1.45; color:#24382f; margin-top:4px">“90m 앞 우회전”을 소리로도 알려 주고, 남은 시간을 보여줘요</p></div>
+  <img class="rise" src="img/pair_elec.jpg" alt="길안내 화면: 다음 안내 문구와 남은 거리·시간" style="position:absolute; top:290px; left:1492px; width:300px; height:650px; object-fit:cover; border-radius:24px; border:5px solid #3dd990; --d:.4s">
   <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute; top:290px; left:1192px; width:600px; height:650px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
 .p{animation:pulse 2.2s ease-in-out 1 forwards}.p2{animation-delay:1.1s}
 @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}&lt;/style&gt;
@@ -676,29 +549,29 @@ step();t=setInterval(step,2600);&lt;/script&gt;"></iframe>
 &lt;g fill=&quot;#E0FBEF&quot; font-size=&quot;30&quot; font-weight=&quot;800&quot;&gt;&lt;text x=&quot;105&quot; y=&quot;94&quot; text-anchor=&quot;middle&quot;&gt;다음 안내&lt;/text&gt;&lt;text x=&quot;135&quot; y=&quot;602&quot; text-anchor=&quot;middle&quot;&gt;남은 거리·시간&lt;/text&gt;&lt;/g&gt;
 &lt;g stroke=&quot;#2F5645&quot; stroke-width=&quot;5&quot; stroke-dasharray=&quot;10 8&quot; stroke-linecap=&quot;round&quot;&gt;&lt;path d=&quot;M214 84 H300&quot;/&gt;&lt;path d=&quot;M274 592 H300&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">18 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">16 / 20</p>
   
 </section>
 
 <section class="slide" id="s18-test" data-transition="fade" style="background:#F6FCF9;color:#24382F;font-family:'Noto Sans KR', 'Malgun Gothic', sans-serif;display:flex;flex-direction:column;padding:128px 128px 160px">
-<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:26px;font-weight:700;color:#1F7A55;letter-spacing:2px">CHAPTER 5 · 검증과 앞으로</p>
+<p style="position:absolute;left:128px;top:80px;width:1000px;font-size:30px;font-weight:700;color:#1F7A55;letter-spacing:1px">CHAPTER 4 · 고도화 · 확인</p>
 <h2 style="position:absolute;left:128px;top:134px;width:1300px;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:84px;font-weight:400;line-height:1.1;color:#2F5645">테스트와 개선 과정</h2>
 <div style="position:absolute;left:128px;top:300px;width:940px;display:flex;flex-direction:column;gap:18px">
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">현장 테스트</p>
-<p style="font-size:27px;line-height:1.45;color:#24382F">학교~역 구간을 직접 걸으며 단차·파손·급경사 수집 확인</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:2px solid #CFEBDD;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">현장 테스트</p>
+<p style="font-size:31px;line-height:1.45;color:#24382F">학교~역 구간을 직접 걸으며 단차·파손·급경사 수집 확인</p>
 </div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">알고리즘 테스트 25개 통과</p>
-<p style="font-size:27px;line-height:1.45;color:#24382F">이동 수단별 회피, 너무 먼 우회 제한 등을 코드로 검증했어요</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:2px solid #CFEBDD;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">자동 테스트 21개 작성</p>
+<p style="font-size:31px;line-height:1.45;color:#24382F">이동 수단별 회피, 너무 먼 우회 제한 등을 코드로 검증했어요</p>
 </div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">실제 도로·제보 데이터로 확인</p>
-<p style="font-size:27px;line-height:1.45;color:#24382F">작전역에서 계양구청까지 경로에서 위험 요소 1건을 피했어요</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:2px solid #CFEBDD;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">실제 도로·제보 데이터로 확인</p>
+<p style="font-size:31px;line-height:1.45;color:#24382F">작전역에서 계양구청까지 경로에서 위험 요소 1건을 피했어요</p>
 </div>
-<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:12px solid #3DD990;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
-<p style="font-size:31px;font-weight:800;line-height:1.3;color:#1F7A55">발견한 문제는 바로 개선</p>
-<p style="font-size:27px;line-height:1.45;color:#24382F">방향 혼동 → 나침반 모드 추가<br>안내 문구가 팝업에 가려짐 → 즉시 닫히게 수정</p>
+<div style="background:#FFFFFF;border:2px solid #CFEBDD;border-left:2px solid #CFEBDD;border-radius:18px;padding:18px 28px;display:flex;flex-direction:column;gap:2px">
+<p style="font-size:36px;font-weight:800;line-height:1.3;color:#1F7A55">발견한 문제는 바로 개선</p>
+<p style="font-size:31px;line-height:1.45;color:#24382F">방향 혼동 → 나침반 모드 추가<br>안내 문구가 팝업에 가려짐 → 즉시 닫히게 수정</p>
 </div>
 </div>
 <iframe class="embed" sandbox="allow-scripts" title="모션 그래픽" style="position:absolute;left:1100px;top:300px;width:692px;height:590px;border:0;background:transparent" data-srcdoc="&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;html,body{margin:0;height:100%;overflow:hidden;background:transparent;font-family:&#x27;Malgun Gothic&#x27;,&#x27;Apple SD Gothic Neo&#x27;,sans-serif}svg{display:block;width:100%;height:100%}
@@ -709,47 +582,38 @@ step();t=setInterval(step,2600);&lt;/script&gt;"></iframe>
 @keyframes sp{0%{transform:scale(.85);opacity:.3}20%,100%{transform:scale(1);opacity:1}}&lt;/style&gt;
 &lt;svg viewBox=&quot;0 0 692 590&quot;&gt;&lt;circle cx=&quot;346&quot; cy=&quot;250&quot; r=&quot;170&quot; fill=&quot;none&quot; stroke=&quot;#DDF3E8&quot; stroke-width=&quot;40&quot;/&gt;
 &lt;circle class=&quot;ar&quot; cx=&quot;346&quot; cy=&quot;250&quot; r=&quot;170&quot; fill=&quot;none&quot; stroke=&quot;#3DD990&quot; stroke-width=&quot;40&quot; stroke-linecap=&quot;round&quot;/&gt;
-&lt;text x=&quot;346&quot; y=&quot;272&quot; text-anchor=&quot;middle&quot; font-size=&quot;84&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;25/25&lt;/text&gt;
-&lt;text x=&quot;346&quot; y=&quot;336&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;테스트 통과&lt;/text&gt;
+&lt;text x=&quot;346&quot; y=&quot;272&quot; text-anchor=&quot;middle&quot; font-size=&quot;84&quot; font-weight=&quot;800&quot; fill=&quot;#2F5645&quot;&gt;21개&lt;/text&gt;
+&lt;text x=&quot;346&quot; y=&quot;336&quot; text-anchor=&quot;middle&quot; font-size=&quot;30&quot; font-weight=&quot;700&quot; fill=&quot;#1F7A55&quot;&gt;자동 테스트&lt;/text&gt;
 &lt;g fill=&quot;none&quot; stroke=&quot;#2F9E6C&quot; stroke-width=&quot;14&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;
 &lt;path class=&quot;ck&quot; d=&quot;M96 500 l24 26 l44 -52&quot;/&gt;&lt;path class=&quot;ck k2&quot; d=&quot;M256 500 l24 26 l44 -52&quot;/&gt;&lt;path class=&quot;ck k3&quot; d=&quot;M416 500 l24 26 l44 -52&quot;/&gt;&lt;path class=&quot;ck k4&quot; d=&quot;M576 500 l24 26 l44 -52&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
 <p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B7566">FlatWay · 작전여자고등학교</p>
-<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">19 / 21</p>
+<p style="position:absolute;right:128px;bottom:64px;width:240px;font-size:24px;color:#5B7566;text-align:right">17 / 20</p>
 
 </section>
 
-<section class="slide" id="s19-next" data-transition="fade" style="background:#E0FBEF">
-  <p style="position:absolute; top:80px; left:128px; width:1000px; font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:700; letter-spacing:2px; color:#1f7a55">CHAPTER 5 · 검증과 앞으로</p>
-  <h2 style="position:absolute; top:134px; left:128px; width:1300px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645">앞으로의 계획</h2>
-  <p style="position:absolute; top:256px; left:128px; width:640px; height:64px; display:flex; align-items:center; justify-content:center; background:#2f5645; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:800; color:#3dd990">곧 적용 · 준비 완료</p>
-  <p style="position:absolute; top:256px; left:792px; width:1000px; height:64px; display:flex; align-items:center; justify-content:center; background:#E8742A; border-radius:16px; font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:800; color:#ffffff">다음 개발 · 개발 계획 중</p>
-  <div style="position:absolute; top:344px; left:128px; width:640px; height:276px; display:flex; flex-direction:column; gap:10px; padding:26px 32px; background:#ffffff; border:4px solid #3dd990; border-radius:20px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:800; line-height:1.3; color:#1f7a55; background:#CFF3E1; padding:2px 16px; border-radius:20px; align-self:flex-start">메일 설정만 하면 공개</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.25; color:#24382f">이메일 로그인과 내 제보</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.4; color:#4f6a5c">계정별 검색 기록, 게스트 제보 가져오기</p>
-  </div>
-  <div style="position:absolute; top:644px; left:128px; width:640px; height:276px; display:flex; flex-direction:column; gap:10px; padding:26px 32px; background:#ffffff; border:4px solid #3dd990; border-radius:20px">
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:26px; font-weight:800; line-height:1.3; color:#1f7a55; background:#CFF3E1; padding:2px 16px; border-radius:20px; align-self:flex-start">서버 설정 적용 예정</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:44px; font-weight:800; line-height:1.25; color:#24382f">삭제는 관리자만</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; line-height:1.4; color:#4f6a5c">제보는 누구나, 삭제·수정은 관리자 계정만</p>
-  </div>
-  <div style="position:absolute; top:344px; left:792px; width:488px; height:276px; display:flex; flex-direction:column; gap:10px; padding:26px 32px; background:#ffffff; border-radius:20px">
-    <p style="font-family:'Black Han Sans', sans-serif; font-size:56px; line-height:1.1; color:#E8742A">1</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; line-height:1.25; color:#24382f">실제 경사도 반영</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#4f6a5c">고도 데이터로 %를 계산</p>
-  </div>
-  <div style="position:absolute; top:344px; left:1304px; width:488px; height:276px; display:flex; flex-direction:column; gap:10px; padding:26px 32px; background:#ffffff; border-radius:20px">
-    <p style="font-family:'Black Han Sans', sans-serif; font-size:56px; line-height:1.1; color:#E8742A">2</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; line-height:1.25; color:#24382f">건물 내부 연계</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#4f6a5c">경사로·엘리베이터·화장실 정보</p>
-  </div>
-  <div style="position:absolute; top:644px; left:792px; width:1000px; height:276px; display:flex; flex-direction:column; gap:10px; padding:26px 32px; background:#ffffff; border-radius:20px">
-    <p style="font-family:'Black Han Sans', sans-serif; font-size:56px; line-height:1.1; color:#E8742A">3</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:38px; font-weight:800; line-height:1.25; color:#24382f">나에게 맞춘 기준</p>
-    <p style="font-family:'Noto Sans KR', sans-serif; font-size:28px; line-height:1.4; color:#4f6a5c">허용 단차·경사를 직접 설정</p>
-  </div>
+<section class="slide" id="s11-upgrade" data-transition="fade" style="background:#f6fcf9">
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 4 · 고도화 · 한눈에 보기</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:.05s">고도화 한눈에 보기</h2>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" style="position:absolute; left:0; top:0; width:1920px; height:1080px"><g transform="translate(500 640)"><g class="pop" style="--d:0.3s"><circle r="170" fill="#bdf0d5" stroke="#f6fcf9" stroke-width="8"/></g></g><g transform="translate(960 600)"><g class="pop" style="--d:0.1s"><circle r="225" fill="#2f5645" stroke="#f6fcf9" stroke-width="8"/></g></g><g transform="translate(1420 640)"><g class="pop" style="--d:0.5s"><circle r="170" fill="#3dd990" stroke="#f6fcf9" stroke-width="8"/></g></g></svg>
+  <div class="fadein" style="position:absolute; left:330px; top:560px; width:340px; text-align:center; --d:0.6s"><p data-count="4" data-suffix="명" style="font-family:'Black Han Sans', sans-serif; font-size:104px; line-height:1.1; color:#2f5645">4명</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:700; color:#2f5645; margin-top:8px">함께 만든 팀원</p></div>
+  <div class="fadein" style="position:absolute; left:735px; top:520px; width:450px; text-align:center; --d:0.4s"><p data-count="180" data-suffix="회" style="font-family:'Black Han Sans', sans-serif; font-size:140px; line-height:1.1; color:#3dd990">180회</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; color:#bfe9d4; margin-top:8px">작업 기록 (8/19부터)</p></div>
+  <div class="fadein" style="position:absolute; left:1250px; top:560px; width:340px; text-align:center; --d:0.8s"><p data-count="21" data-suffix="개" style="font-family:'Black Han Sans', sans-serif; font-size:104px; line-height:1.1; color:#2f5645">21개</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:32px; font-weight:700; color:#2f5645; margin-top:8px">자동 테스트</p></div>
+  <p class="fadein" style="position:absolute; left:128px; top:900px; width:1664px; text-align:center; font-family:'Noto Sans KR', sans-serif; font-size:28px; color:#4f6a5c; --d:1.2s">※ 작업 횟수는 작업 기록 기준</p>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">20 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">18 / 20</p>
+  
+</section>
+
+<section class="slide" id="s19-next" data-transition="fade" style="background:#f6fcf9">
+  <p class="fadein" style="position:absolute; top:80px; left:128px; width:1200px; font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; letter-spacing:1px; color:#1f7a55; --d:0s">CHAPTER 5 · 긍정적 영향과 앞으로의 계획</p>
+  <h2 class="rise" style="position:absolute; top:134px; left:128px; width:1500px; font-family:'Black Han Sans', sans-serif; font-size:84px; font-weight:400; line-height:1.1; color:#2f5645; --d:0.05s">긍정적 영향과 앞으로의 계획</h2>
+  <p class="rise" style="position:absolute; top:268px; left:128px; width:1010px; font-family:'Noto Sans KR', sans-serif; font-size:52px; font-weight:700; line-height:1.5; color:#24382f; --d:.3s">제보한 위험이 실제로 <span style="color:#1f7a55">고쳐질 때까지</span><br>이어지는 길을 만들고 싶습니다.</p>
+  <div class="rise" style="position:absolute; top:570px; left:128px; width:520px; height:370px; padding:36px 40px; background:#d4f5e4; border-radius:32px 32px 0 0; box-sizing:border-box; --d:0.3s"><p style="font-family:'Black Han Sans', sans-serif; font-size:52px; line-height:1.1; color:#1f7a55">곧 적용</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; color:#1f7a55; opacity:.9; margin-top:6px">준비 완료, 설정만 하면 돼요</p><div style="margin-top:26px"><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#24382f; margin-top:14px">· 이메일 로그인 · 내 제보</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#24382f; margin-top:14px">· 삭제·수정은 관리자만</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#24382f; margin-top:14px">· 제보 포인트 적립</p></div></div>
+  <div class="rise" style="position:absolute; top:470px; left:688px; width:520px; height:470px; padding:36px 40px; background:#3dd990; border-radius:32px 32px 0 0; box-sizing:border-box; --d:0.7s"><p style="font-family:'Black Han Sans', sans-serif; font-size:52px; line-height:1.1; color:#2f5645">다음 개발</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; color:#2f5645; opacity:.9; margin-top:6px">개발 계획 중</p><div style="margin-top:26px"><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#1f3a2d; margin-top:14px">· 교차 검증 (제보 점수)</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#1f3a2d; margin-top:14px">· 실제 경사도 반영</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#1f3a2d; margin-top:14px">· 건물 내부 연계</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#1f3a2d; margin-top:14px">· 나에게 맞춘 기준</p></div></div>
+  <div class="rise" style="position:absolute; top:330px; left:1248px; width:544px; height:610px; padding:36px 40px; background:#2f5645; border-radius:32px 32px 0 0; box-sizing:border-box; --d:1.1s"><p style="font-family:'Black Han Sans', sans-serif; font-size:52px; line-height:1.1; color:#3dd990">사회와 함께</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:30px; font-weight:700; color:#3dd990; opacity:.9; margin-top:6px">구상 중</p><div style="margin-top:26px"><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#e0fbef; margin-top:14px">· 지자체 보도 수리 체계와 연계</p><p style="font-family:'Noto Sans KR', sans-serif; font-size:34px; font-weight:700; line-height:1.35; color:#e0fbef; margin-top:14px">· 포인트를 보상으로 연결</p></div></div>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" style="position:absolute; left:0; top:0; width:1920px; height:1080px"><path class="draw" pathLength="1" d="M128 940 H1792" stroke="#2f5645" stroke-width="6" stroke-linecap="round" fill="none" style="--d:.2s"/></svg>
+  <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#5b7566">FlatWay · 작전여자고등학교</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#5b7566">19 / 20</p>
   
 </section>
 
@@ -775,7 +639,7 @@ step();t=setInterval(step,2600);&lt;/script&gt;"></iframe>
 &lt;g fill=&quot;#3DD990&quot;&gt;&lt;circle class=&quot;cf&quot; cx=&quot;470&quot; cy=&quot;60&quot; r=&quot;9&quot;/&gt;&lt;circle class=&quot;cf c2&quot; cx=&quot;570&quot; cy=&quot;140&quot; r=&quot;8&quot;/&gt;&lt;circle class=&quot;cf c3&quot; cx=&quot;440&quot; cy=&quot;130&quot; r=&quot;7&quot;/&gt;&lt;/g&gt;
 &lt;g fill=&quot;#E0FBEF&quot;&gt;&lt;circle class=&quot;cf c2&quot; cx=&quot;500&quot; cy=&quot;20&quot; r=&quot;7&quot;/&gt;&lt;circle class=&quot;cf c3&quot; cx=&quot;590&quot; cy=&quot;30&quot; r=&quot;9&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;"></iframe>
   <p style="position:absolute; bottom:64px; left:128px; width:900px; font-family:'Noto Sans KR', sans-serif; font-size:24px; color:#8fe8be">FlatWay · 작전여자고등학교</p>
-  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#8fe8be">21 / 21</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:240px; font-family:'Noto Sans KR', sans-serif; font-size:24px; text-align:right; color:#8fe8be">20 / 20</p>
   
 </section>
 
@@ -793,13 +657,14 @@ step();t=setInterval(step,2600);&lt;/script&gt;"></iframe>
 <button id="fb" title="전체화면 (F)" aria-label="전체화면">⛶<span class="t"> 전체화면</span></button>
 </div>
 <script>
-var T=["FlatWay", "개인적 동기", "사회적 규모", "기존 서비스", "FlatWay, 어떻게 다른가?", "시스템 구조", "센서 기반 데이터 수집", "관리자 웹 대시보드", "고도화 한눈에 보기", "고도화 전 → 후, 이렇게 달라졌어요", "직접 써 보세요", "같은 출발지, 같은 도착지", "FlatWay 첫 사용자도 쉽게", "카테고리별로 한눈에", "위험을 피하는 길찾기", "이동 수단별 회피 강도", "이동 수단마다 기준이 달라요", "걷는 대로 안내해요", "테스트와 개선 과정", "앞으로의 계획", "FlatWay"],CH=[{"label": "1장. 왜 만들었나", "start": 0}, {"label": "2장. 기존 서비스의 한계와 FlatWay의 차이", "start": 3}, {"label": "3장. FlatWay의 구조와 핵심 기술", "start": 5}, {"label": "4장. 고도화", "start": 8}, {"label": "5장. 검증과 앞으로의 계획, 팀 소개", "start": 18}];
+var T=["FlatWay", "개인적 동기", "사회적 규모", "사전 조사: 기존 서비스", "FlatWay, 어떻게 다른가?", "FlatWay, 이렇게 만들었어요", "앱은 이렇게 생겼어요", "관리자 웹 대시보드", "고도화로 이렇게 달라졌어요", "직접 써 보세요", "FlatWay 첫 사용자도 쉽게", "카테고리별로 한눈에", "같은 출발지, 같은 도착지", "위험을 피하는 길찾기", "이동 수단마다 기준이 달라요", "걷는 대로 안내해요", "테스트와 개선 과정", "고도화 한눈에 보기", "긍정적 영향과 앞으로의 계획", "FlatWay"],CH=[{"label": "1장. 왜 만들었나", "start": 0}, {"label": "2장. 사전 조사와 비교", "start": 3}, {"label": "3장. FlatWay 소개", "start": 5}, {"label": "4장. 고도화", "start": 8}, {"label": "5장. 긍정적 영향과 앞으로의 계획", "start": 18}];
 var slides=[].slice.call(document.querySelectorAll('.slide')),n=slides.length,cur=-1;
 var stage=document.getElementById('stage'),view=document.getElementById('view');
 function fit(){var w=view.clientWidth,h=view.clientHeight,s=Math.min(w/1920,h/1080);stage.style.transform='scale('+s+')';stage.style.left=((w-1920*s)/2)+'px';stage.style.top=((h-1080*s)/2)+'px'}
 function chapterOf(i){var c=CH[0];for(var k=0;k<CH.length;k++)if(CH[k].start<=i)c=CH[k];return c.label}
 function mount(i,on){var fr=slides[i].querySelectorAll('iframe.embed');for(var k=0;k<fr.length;k++){if(on){if(!fr[k].getAttribute('srcdoc'))fr[k].setAttribute('srcdoc',fr[k].getAttribute('data-srcdoc'))}else fr[k].removeAttribute('srcdoc')}}
-function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);
+function countUp(s){var els=s.querySelectorAll('[data-count]');for(var k=0;k<els.length;k++)(function(e){var to=+e.getAttribute('data-count'),suf=e.getAttribute('data-suffix')||'',t0=performance.now();(function f(t){var p=Math.min(1,(t-t0)/1100);e.textContent=Math.round(to*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(f)})(t0)})(els[k])}
+function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);countUp(slides[i]);
 document.getElementById('cnt').textContent=(i+1)+' / '+n;document.getElementById('hm').disabled=document.getElementById('pv').disabled=(i===0);document.getElementById('nx').disabled=(i===n-1);document.querySelector('#prog i').style.width=((i+1)/n*100)+'%';document.getElementById('ch').textContent=chapterOf(i);
 var cs=document.querySelectorAll('#menu a');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('cur',k===i);
 if(!noHash)history.replaceState(null,'','#'+(i+1))}
