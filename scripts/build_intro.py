@@ -129,6 +129,15 @@ html:fullscreen #view{background:#111}
 @keyframes wipe{from{opacity:1;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
 .slide.on .nudge{animation:nudge 1.2s cubic-bezier(.45,0,.55,1) 1.6s 3 both}
 @keyframes nudge{0%,100%{transform:translateX(-6px)}50%{transform:translateX(12px)}}
+.slide.on .pkt1{animation:pkt1 4.4s cubic-bezier(.45,0,.2,1) .8s 3 both}
+.slide.on .pkt2{animation:pkt2 4.4s cubic-bezier(.45,0,.2,1) .8s 3 both}
+.slide.on .dbpulse{animation:dbp 4.4s ease-out .8s 3}
+.slide.on .pinpop{animation:pinp 4.4s cubic-bezier(.3,1.4,.5,1) .8s 3 both}
+.slide .dbpulse,.slide .pinpop{transform-box:fill-box;transform-origin:center}
+@keyframes pkt1{0%{transform:translateX(0);opacity:0}6%{opacity:1}34%{transform:translateX(372px);opacity:1}38%,100%{transform:translateX(372px);opacity:0}}
+@keyframes pkt2{0%,40%{transform:translateX(0);opacity:0}46%{opacity:1}74%{transform:translateX(372px);opacity:1}78%,100%{transform:translateX(372px);opacity:0}}
+@keyframes dbp{0%,32%{transform:scale(1)}38%{transform:scale(1.09)}48%,100%{transform:scale(1)}}
+@keyframes pinp{0%,74%{opacity:0;transform:scale(.3)}82%{opacity:1;transform:scale(1.2)}90%,100%{opacity:1;transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){@keyframes rise{from{opacity:0}to{opacity:1}}@keyframes slider{from{opacity:0}to{opacity:1}}@keyframes pop{from{opacity:0}to{opacity:1}}}
 #bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#fff;border-top:1px solid #e5e7eb;color:#374151;font-size:14px}
 #bar button{font:inherit;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
