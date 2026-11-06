@@ -278,11 +278,13 @@ class _MapScreenState extends State<MapScreen> {
     if (mounted && _isLocating) setState(() => _isLocating = false);
   }
 
-  // 발표 소개 슬라이드(/intro/)를 새 탭(웹) 또는 브라우저(앱)로 연다
+  // 발표 소개 슬라이드를 새 탭(웹) 또는 브라우저(앱)로 연다.
+  // 웹·앱 모두 GitHub Pages 에 배포된 최신 소개 페이지를 연다.
+  static const String _introUrl =
+      'https://jjgirls-for-seoyoung.github.io/flatway/flatway_app/web/intro/';
+
   Future<void> _openIntro() async {
-    final uri = kIsWeb
-        ? Uri.base.resolve('intro/')
-        : Uri.parse('https://temporary-express-flint-jxi3l4g.vercel.app/intro/');
+    final uri = Uri.parse(_introUrl);
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
