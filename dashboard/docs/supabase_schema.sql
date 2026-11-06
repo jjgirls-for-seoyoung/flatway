@@ -64,3 +64,57 @@ CREATE POLICY "Allow public all on hazards" ON public.hazards FOR ALL TO public 
 DROP POLICY IF EXISTS "Allow public all on buildings" ON public.buildings;
 CREATE POLICY "Allow public all on buildings" ON public.buildings FOR ALL TO public USING (true) WITH CHECK (true);
 
+
+-- 6. 제보 리워드 포인트 (계정별 포인트: 제보 1회당 1점)
+-- 이 블록을 Supabase SQL Editor 에서 실행해야 적용된다. (앱 코드는 미적용 상태에서도 동작함)
+-- 규칙: 이메일로 로그인한 계정이 '직접 제보'하면 포인트 +1.
+--       익명(게스트) 제보와 센서 자동 감지(source = 'sensor')는 포인트가 쌓이지 않는다.
+
+-- 6-1. hazards 에 제보자·출처 컬럼 추가
+ALTER TABLE public.hazards ADD COLUMN IF NOT EXISTS reporter_id UUID;
+ALTER TABLE public.hazards ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'manual' NOT NULL; -- 'manual' (직접 제보), 'sensor' (센서 자동)
+
+-- 6-2. 계정별 포인트 테이블
+CREATE TABLE IF NOT EXISTS public.profiles (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  points INTEGER DEFAULT 0 NOT NULL CHECK (points >= 0),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+-- 본인 포인트만 조회 가능. 클라이언트의 직접 INSERT/UPDATE/DELETE 정책은 만들지 않는다. (포인트는 아래 트리거로만 변경)
+DROP POLICY IF EXISTS "Read own profile" ON public.profiles;
+CREATE POLICY "Read own profile" ON public.profiles FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- 6-3. 제보자 ID 는 클라이언트가 보낸 값을 믿지 않고 로그인 정보로 덮어쓴다.
+CREATE OR REPLACE FUNCTION public.set_hazard_reporter() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.reporter_id := auth.uid();
+  RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS trg_set_hazard_reporter ON public.hazards;
+CREATE TRIGGER trg_set_hazard_reporter BEFORE INSERT ON public.hazards
+  FOR EACH ROW EXECUTE FUNCTION public.set_hazard_reporter();
+
+-- 6-4. 제보가 등록되면 제보자 계정의 포인트를 1 올린다.
+CREATE OR REPLACE FUNCTION public.award_report_point() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NEW.reporter_id IS NULL OR NEW.source = 'sensor' THEN
+    RETURN NEW;
+  END IF;
+  -- 익명(게스트) 계정은 제외
+  IF COALESCE((SELECT is_anonymous FROM auth.users WHERE id = NEW.reporter_id), true) THEN
+    RETURN NEW;
+  END IF;
+  INSERT INTO public.profiles (user_id, points) VALUES (NEW.reporter_id, 1)
+  ON CONFLICT (user_id) DO UPDATE
+    SET points = public.profiles.points + 1, updated_at = timezone('utc'::text, now());
+  RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS trg_award_report_point ON public.hazards;
+CREATE TRIGGER trg_award_report_point AFTER INSERT ON public.hazards
+  FOR EACH ROW EXECUTE FUNCTION public.award_report_point();

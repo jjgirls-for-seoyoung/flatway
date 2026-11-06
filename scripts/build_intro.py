@@ -112,6 +112,24 @@ html:fullscreen #view{background:#111}
 .slide th{font-weight:700;border-bottom:3px solid #2F5645}
 .slide svg{display:block}
 .slide img{display:block}
+.slide .rise,.slide .pop,.slide .slide-r,.slide .fadein,.slide .draw,.slide .wipe{opacity:0}
+.slide .draw{stroke-dasharray:1;stroke-dashoffset:1}
+.slide.on .rise{animation:rise .5s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .slide-r{animation:slider .5s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .fadein{animation:fadein .9s ease both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .pop{animation:pop .4s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .draw{animation:draw 1s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide.on .wipe{animation:wipe 1s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--d,0s)*.5)}
+.slide .pop{transform-box:fill-box;transform-origin:center}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes slider{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes draw{from{opacity:1;stroke-dashoffset:1}to{opacity:1;stroke-dashoffset:0}}
+@keyframes wipe{from{opacity:1;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+.slide.on .nudge{animation:nudge 1.2s cubic-bezier(.45,0,.55,1) 1.6s 3 both}
+@keyframes nudge{0%,100%{transform:translateX(-6px)}50%{transform:translateX(12px)}}
+@media (prefers-reduced-motion:reduce){@keyframes rise{from{opacity:0}to{opacity:1}}@keyframes slider{from{opacity:0}to{opacity:1}}@keyframes pop{from{opacity:0}to{opacity:1}}}
 #bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#fff;border-top:1px solid #e5e7eb;color:#374151;font-size:14px}
 #bar button{font:inherit;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
 #bar button:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af}
@@ -159,7 +177,8 @@ var stage=document.getElementById('stage'),view=document.getElementById('view');
 function fit(){var w=view.clientWidth,h=view.clientHeight,s=Math.min(w/1920,h/1080);stage.style.transform='scale('+s+')';stage.style.left=((w-1920*s)/2)+'px';stage.style.top=((h-1080*s)/2)+'px'}
 function chapterOf(i){var c=CH[0];for(var k=0;k<CH.length;k++)if(CH[k].start<=i)c=CH[k];return c.label}
 function mount(i,on){var fr=slides[i].querySelectorAll('iframe.embed');for(var k=0;k<fr.length;k++){if(on){if(!fr[k].getAttribute('srcdoc'))fr[k].setAttribute('srcdoc',fr[k].getAttribute('data-srcdoc'))}else fr[k].removeAttribute('srcdoc')}}
-function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);
+function countUp(s){var els=s.querySelectorAll('[data-count]');for(var k=0;k<els.length;k++)(function(e){var to=+e.getAttribute('data-count'),suf=e.getAttribute('data-suffix')||'',t0=performance.now();(function f(t){var p=Math.min(1,(t-t0)/1100);e.textContent=Math.round(to*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(f)})(t0)})(els[k])}
+function go(i,noHash){i=Math.max(0,Math.min(n-1,i));if(i===cur)return;if(cur>=0){slides[cur].classList.remove('on');mount(cur,false)}cur=i;slides[i].classList.add('on');mount(i,true);countUp(slides[i]);
 document.getElementById('cnt').textContent=(i+1)+' / '+n;document.getElementById('hm').disabled=document.getElementById('pv').disabled=(i===0);document.getElementById('nx').disabled=(i===n-1);document.querySelector('#prog i').style.width=((i+1)/n*100)+'%';document.getElementById('ch').textContent=chapterOf(i);
 var cs=document.querySelectorAll('#menu a');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('cur',k===i);
 if(!noHash)history.replaceState(null,'','#'+(i+1))}

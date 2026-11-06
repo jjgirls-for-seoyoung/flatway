@@ -82,13 +82,45 @@ class SupabaseService {
   // Submit a new hazard report to Supabase with offline queue fallback
   static Future<bool> insertHazard(Map<String, dynamic> hazardData) async {
     try {
-      await client.from('hazards').insert(hazardData);
+      await _insertHazardRow(hazardData);
       syncPendingHazards();
       return true;
     } catch (e) {
       debugPrint('Error inserting hazard to Supabase. Saving to offline queue: $e');
       await _savePendingOfflineHazard(hazardData);
       return true; // Saved locally
+    }
+  }
+
+  /// hazards 행을 넣는다. 리워드용 `source` 컬럼이 아직 DB에 없으면(스키마 6번 미적용)
+  /// 그 필드만 빼고 다시 시도해서 기존 제보 기능이 깨지지 않게 한다.
+  static Future<void> _insertHazardRow(Map<String, dynamic> hazardData) async {
+    try {
+      await client.from('hazards').insert(hazardData);
+    } on PostgrestException catch (e) {
+      if (hazardData.containsKey('source') && e.message.contains('source')) {
+        final fallback = Map<String, dynamic>.from(hazardData)..remove('source');
+        await client.from('hazards').insert(fallback);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  /// 내 포인트 (이메일 로그인 계정만 조회 가능). 로그인 전이거나 스키마 6번 미적용이면 null.
+  static Future<int?> fetchMyPoints() async {
+    final user = client.auth.currentUser;
+    if (user == null || user.isAnonymous) return null;
+    try {
+      final row = await client
+          .from('profiles')
+          .select('points')
+          .eq('user_id', user.id)
+          .maybeSingle();
+      return (row?['points'] as num?)?.toInt() ?? 0;
+    } catch (e) {
+      debugPrint('Error fetching points: $e');
+      return null;
     }
   }
 
@@ -115,7 +147,7 @@ class SupabaseService {
       for (final itemStr in list) {
         try {
           final Map<String, dynamic> map = jsonDecode(itemStr);
-          await client.from('hazards').insert(map);
+          await _insertHazardRow(map);
         } catch (e) {
           debugPrint('Failed to sync item, keeping in offline queue: $e');
           remaining.add(itemStr);

@@ -395,6 +395,18 @@ class _AuthModalState extends State<AuthModal> {
                       'Supabase 데이터베이스 실시간 계정 연동 완료',
                       style: TextStyle(fontSize: 11, color: Color(0xFF777777)),
                     ),
+                    const SizedBox(height: 6),
+                    FutureBuilder<int?>(
+                      future: SupabaseService.fetchMyPoints(),
+                      builder: (context, snap) {
+                        final points = snap.data;
+                        if (points == null) return const SizedBox.shrink();
+                        return Text(
+                          '내 제보 포인트  $points점',
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
