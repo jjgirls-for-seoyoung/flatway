@@ -54,6 +54,75 @@ void main() {
     });
   });
 
+  group('유도리 있는 검색 (이름 + 종류)', () {
+    test('이름 부분과 종류로 나눈다', () {
+      final sp = PlaceSearchService.splitNameAndType('된밭공원')!;
+      expect((sp.stem, sp.type), ('된밭', '공원'));
+      final school = PlaceSearchService.splitNameAndType('작전여자 고등학교')!;
+      expect((school.stem, school.type), ('작전', '여자고등학교'));
+      expect(PlaceSearchService.splitNameAndType('계양구청')!.type, '구청');
+      expect(PlaceSearchService.splitNameAndType('공원'), isNull); // 이름 부분이 없다
+    });
+
+    test('공원은 근린공원/어린이공원과 이름 부분만으로도 찾는다', () {
+      expect(PlaceSearchService.fuzzyVariants('된밭공원'), ['된밭근린공원', '된밭어린이공원', '된밭']);
+      expect(PlaceSearchService.fuzzyVariants('작전초등학교'), ['작전']);
+      expect(PlaceSearchService.fuzzyVariants('한양'), isEmpty);
+    });
+
+    test('된밭공원은 된밭근린공원을 먼저 보여 준다 (이름과 종류가 모두 들어 있으면 일치로 본다)', () {
+      final ranked = PlaceSearchService.rankResults('된밭공원', [
+        _p('된밭마을', 37.5300, 126.7280),
+        _p('된밭근린공원', 37.5325, 126.7287),
+        _p('작전근린공원', 37.5290, 126.7260),
+      ], _me);
+      expect(ranked.first.name, '된밭근린공원');
+    });
+
+    test('1단계에서 못 찾으면 이름 부분으로 한 번 더 찾아 된밭근린공원을 찾는다', () async {
+      final queries = <String>[];
+      PlaceSearchService.client = MockClient((req) async {
+        final q = req.url.queryParameters['q']!;
+        queries.add(q);
+        final features = (q == '된밭' || q == '된밭근린공원')
+            ? [
+                {
+                  'properties': {'name': '된밭근린공원', 'countrycode': 'KR', 'city': '인천광역시'},
+                  'geometry': {'coordinates': [126.7287, 37.5325]},
+                },
+              ]
+            : [];
+        return http.Response.bytes(utf8.encode(jsonEncode({'features': features})), 200,
+            headers: {'content-type': 'application/json; charset=utf-8'});
+      });
+
+      final r = await PlaceSearchService.search('된밭공원', near: _me);
+      expect(r!.first.name, '된밭근린공원');
+      expect(queries, contains('된밭')); // 2단계 보조 검색을 했다
+    });
+
+    test('이미 이름과 종류가 모두 맞는 결과가 있으면 보조 검색을 하지 않는다', () async {
+      final queries = <String>[];
+      PlaceSearchService.client = MockClient((req) async {
+        queries.add(req.url.queryParameters['q']!);
+        return http.Response.bytes(
+          utf8.encode(jsonEncode({
+            'features': [
+              {
+                'properties': {'name': '작전여자고등학교', 'countrycode': 'KR'},
+                'geometry': {'coordinates': [126.7298, 37.532]},
+              },
+            ],
+          })),
+          200,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        );
+      });
+      await PlaceSearchService.search('작전여자고등학교', near: _me);
+      expect(queries, isNot(contains('작전'))); // 이름 부분만의 넓은 검색은 하지 않았다
+    });
+  });
+
   group('결과 정렬/필터', () {
     test('한글로 검색하면 영어로만 된 결과는 버린다', () {
       final r = PlaceSearchService.rankResults('작전여자고등학교', [

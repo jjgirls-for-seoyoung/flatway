@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:latlong2/latlong.dart';
 import '../models/hazard_types.dart';
+import 'mobility_profile.dart';
 import 'route_service.dart';
 
 /// 지도에 제보된 위험 요소 하나.
@@ -35,8 +36,17 @@ class SafeRouteResult {
   /// 최종 선택된 경로
   final PedestrianRouteResult route;
 
-  /// 최종 경로가 여전히 지나가는 위험 요소
+  /// 최종 경로가 지나가는 위험 요소 전체 (= 통과 불가 + 주의)
   final List<RouteHazard> hazardsOnRoute;
+
+  /// 이 이동 수단이 지나기 어려운 위험(통과 불가). 피할 길이 없어서 남은 것이다.
+  final List<RouteHazard> impassableOnRoute;
+
+  /// 지나갈 수는 있지만 조심해야 하는 위험(주의)
+  final List<RouteHazard> cautionOnRoute;
+
+  /// 가장 짧은 경로에 있던 통과 불가 위험 중, 돌아가서 피한 수. (왜 돌아갔는지 설명하는 데 쓴다)
+  final int avoidedImpassableCount;
 
   /// 최단 경로 대비 피한 위험 요소 수
   final int avoidedCount;
@@ -53,6 +63,9 @@ class SafeRouteResult {
     required this.avoidedCount,
     required this.detourMeters,
     this.unavoidableHardCount = 0,
+    this.impassableOnRoute = const [],
+    this.cautionOnRoute = const [],
+    this.avoidedImpassableCount = 0,
   });
 }
 
@@ -64,29 +77,24 @@ class SafeRouteResult {
 ///    다시 평가하는 과정을 몇 차례 반복한다.
 /// 4. 비용이 가장 낮은 경로를 고른다. (우회가 위험 페널티보다 비싸면 우회하지 않는다)
 ///
-/// 이동 수단별로 위험을 피하는 정도가 다르다.
+/// 이동 수단별 기준은 [MobilityProfile]에 있다.
 /// - 보행자: 위험 요소를 거의 신경 쓰지 않는다(심각한 것만 약하게 피함).
-/// - 전동휠체어: 단차는 절대 지나지 않는다(수동휠체어와 같은 엄격 회피). 파손·적치물은
-///   잘 피하고, 경사는 덜 피한다.
-/// - 수동휠체어: 위험 요소를 지나지 않는 경로를 우선한다. 아무리 멀리 돌아가더라도
-///   위험이 없는 경로가 있으면 그것을 고르고, 우회로 자체가 없을 때만 위험이 남는다.
+/// - 전동휠체어: 2cm를 넘는 단차, 심한 파손, 길을 막는 적치물은 지나지 않는다.
+///   완만한 경사는 허용하고 우회 허용 거리도 더 길다.
+/// - 수동휠체어: 1.3cm를 넘는 단차, 중간 이상의 파손·적치물, 가파른 경사는 지나지 않는다.
+///   체력이 들기 때문에 우회 허용 거리는 더 짧다.
+/// 피할 길이 없을 때만 위험이 경로에 남는다.
 class SafeRoutePlanner {
-  /// 경로와 이 거리 이내면 위험 요소를 "지나간다"고 본다.
+  /// 경로와 이 거리 이내면 위험 요소를 "지나간다"고 본다. 모든 이동 수단·위험 종류에 똑같이 적용한다.
+  /// (제보 위치 오차를 감안해 경로 위로 볼 수 있는 거리. 이동 수단마다 다르게 하면
+  ///  같은 경로인데 화면의 위험 개수가 달라져서 비교할 수 없다.)
   static const double hazardFullRadius = 15; // m, 이 안에서는 페널티 100%
-  static const double hazardMaxRadius = 35; // m, 이 밖에서는 0%, 사이는 선형 감소
+  static const double hazardMaxRadius = 25; // m, 이 밖에서는 0%, 사이는 선형 감소
   // 우회 경유점의 옆 거리(m). 가까운 곳이 같은 도로로 붙어버리면 더 먼 곳을 시도한다.
   static const _detourOffsets = [80.0, 160.0, 260.0];
 
-  // 이동 수단별 우회 탐색 횟수
-  static const _maxRoundsByMode = {'pedestrian': 1, 'electric': 8, 'manual': 8};
-
   // 위험이 이 값(m 환산)보다 작으면 우회로 얻는 이득이 없어 우회 탐색을 건너뛴다(엄격 회피 제외)
   static const double _negligiblePenalty = 60;
-
-  // 우회 경로는 최단 경로의 이 배수 + 여유 거리를 넘으면 쓰지 않는다. (절대 회피 모드라도
-  // 몇 km씩 돌아가는 비현실적인 경로는 걸러낸다)
-  static const double _maxDetourFactor = 2.5;
-  static const double _maxDetourExtraMeters = 500;
 
   // 같은 길을 갔다가 되돌아오는 구간이 이 길이(m)를 넘으면 불필요한 곁길 왕복으로 보고 버린다.
   static const double _maxRetraceMeters = 40;
@@ -94,10 +102,8 @@ class SafeRoutePlanner {
   // 수동휠체어: 경로에 위험 요소 1건이 있을 때마다 붙는 사실상 통과 불가 페널티(m 환산)
   static const double _hardBlockPenalty = 1000000;
 
-  /// 이 이동 수단이 [type] 위험을 절대 지나면 안 되는지.
-  /// 수동휠체어는 모든 위험, 전동휠체어는 단차만 해당한다.
-  static bool isHardAvoid(String mode, String type) =>
-      mode == 'manual' || (mode == 'electric' && type == 'step');
+  /// 이 이동 수단이 [h]를 절대 지나면 안 되는지. 기준은 [MobilityProfile]에 있다.
+  static bool isHardAvoid(String mode, RouteHazard h) => MobilityProfile.of(mode).isHard(h);
 
   // 출발/도착지에 이만큼 가까운 위험 요소는 우회로 피할 수 없으므로 우회 대상에서 제외
   static const double _unavoidableRadius = 40;
@@ -110,27 +116,16 @@ class SafeRoutePlanner {
     'slope': 300.0,
   };
 
-  // 이동 수단별 종류 가중치. 휠체어일수록 단차·경사에 민감하다.
-  static const _modeWeight = {
-    'pedestrian': {'step': 0.1, 'damage': 0.1, 'obstacle': 0.15, 'slope': 0.05},
-    'electric': {'step': 2.0, 'damage': 1.3, 'obstacle': 1.3, 'slope': 0.4},
-    'manual': {'step': 3.0, 'damage': 1.6, 'obstacle': 1.3, 'slope': 2.5},
-  };
-
   static const _severityWeight = {'high': 3.0, 'medium': 1.5, 'low': 0.7};
 
   /// 위험 요소 1건의 페널티(m 환산, 근접도 반영 전).
   static double hazardPenalty(RouteHazard h, String mode) {
     var base = _basePenalty[h.type] ?? 80.0;
     if (h.type == HazardType.step.key) base += h.stepHeightCm * 40; // 10cm 단차 = +400
-    final modeW = (_modeWeight[mode] ?? _modeWeight['pedestrian']!)[h.type] ?? 1.0;
+    final modeW = MobilityProfile.of(mode).weights[h.type] ?? 1.0;
     final sevW = _severityWeight[h.severity] ?? 1.0;
     return base * modeW * sevW;
   }
-
-  // 수동휠체어는 위험 요소 25m 안을 지나면 "통과"로 본다. (옆 도로에 있는 위험까지 막으면
-  // 우회로가 없어지는 경우가 많다. 제보 위치 오차를 감안해 경로 위로 볼 수 있는 거리.)
-  static const double _strictMaxRadius = 25;
 
   static double _proximityWeight(double distanceMeters, double maxRadius) {
     if (distanceMeters <= hazardFullRadius) return 1;
@@ -142,9 +137,9 @@ class SafeRoutePlanner {
   static List<_Exposure> _exposures(List<LatLng> path, List<RouteHazard> hazards, String mode) {
     final result = <_Exposure>[];
     for (final h in hazards) {
-      final hard = isHardAvoid(mode, h.type);
+      final hard = isHardAvoid(mode, h);
       final d = _distanceToPolyline(h.point, path);
-      final w = _proximityWeight(d.distance, hard ? _strictMaxRadius : hazardMaxRadius);
+      final w = _proximityWeight(d.distance, hazardMaxRadius);
       if (w > 0) {
         result.add(_Exposure(h, w * hazardPenalty(h, mode), d.segmentIndex, hard));
       }
@@ -168,6 +163,7 @@ class SafeRoutePlanner {
               alternatives: alternatives,
             );
 
+    final profile = MobilityProfile.of(mode);
     const dist = Distance();
     bool nearEndpoint(LatLng p) =>
         dist.as(LengthUnit.Meter, p, origin) < _unavoidableRadius ||
@@ -205,11 +201,12 @@ class SafeRoutePlanner {
       );
     }
     final baseline = candidates.first; // OSRM의 첫 경로 = 최단 경로
-    maxAllowedDistance = baseline.route.distanceMeters * _maxDetourFactor + _maxDetourExtraMeters;
+    maxAllowedDistance =
+        baseline.route.distanceMeters * profile.maxDetourFactor + profile.maxDetourExtraMeters;
 
     // 2) 가장 비싼 위험 요소를 좌우로 비켜 가는 우회 후보 추가 반복
     final triedVia = <String>{};
-    final maxRounds = _maxRoundsByMode[mode] ?? 3;
+    final maxRounds = profile.maxRounds;
     for (var round = 0; round < maxRounds; round++) {
       final current = _best(candidates);
       if (current.exposures.isEmpty) break;
@@ -258,7 +255,7 @@ class SafeRoutePlanner {
       if (candidates.length == before) break;
     }
 
-    final best = _best(candidates);
+    final best = _pickFinal(candidates);
     final baselineSet = baseline.exposures.map((e) => e.hazard).toSet();
     final bestSet = best.exposures.map((e) => e.hazard).toSet();
 
@@ -268,6 +265,14 @@ class SafeRoutePlanner {
       avoidedCount: baselineSet.difference(bestSet).length,
       detourMeters: max(0, best.route.distanceMeters - baseline.route.distanceMeters),
       unavoidableHardCount: best.exposures.where((e) => e.hard).length,
+      impassableOnRoute: best.exposures.where((e) => e.hard).map((e) => e.hazard).toList(),
+      cautionOnRoute: best.exposures.where((e) => !e.hard).map((e) => e.hazard).toList(),
+      avoidedImpassableCount: baseline.exposures
+          .where((e) => e.hard)
+          .map((e) => e.hazard)
+          .toSet()
+          .difference(bestSet)
+          .length,
     );
   }
 
@@ -308,6 +313,20 @@ class SafeRoutePlanner {
       }
     }
     return revisits * step;
+  }
+
+  /// 최종 후보 선택.
+  /// 비용이 가장 낮은 후보를 기준으로 삼되, 그 후보보다 **짧으면서 통과 불가 위험 수와 전체 위험 수가
+  /// 더 많지 않은** 후보가 있으면 그중 가장 짧은 것을 쓴다.
+  /// (비용은 위험까지의 거리 같은 세부 값도 반영해서, 위험 개수는 그대로인데 더 돌아가는 경로가
+  ///  뽑힐 수 있다. 더 길게 돌아가는 값을 치르고도 지나는 위험이 줄지 않으면 의미가 없다.)
+  static _Candidate _pickFinal(List<_Candidate> list) {
+    final best = _best(list);
+    int hard(_Candidate c) => c.exposures.where((e) => e.hard).length;
+    final bestHard = hard(best);
+    final bestCount = best.exposures.length;
+    final notWorse = list.where((c) => hard(c) <= bestHard && c.exposures.length <= bestCount);
+    return notWorse.reduce((a, b) => a.route.distanceMeters <= b.route.distanceMeters ? a : b);
   }
 
   static _Candidate _best(List<_Candidate> list) =>

@@ -176,6 +176,46 @@ class PlaceSearchService {
     return out.take(4).toList();
   }
 
+  // 장소 이름 끝에 붙는 종류. 긴 것이 앞에 와야 한다. (예: 근린공원이 공원보다 먼저)
+  static const _typeWords = [
+    '여자고등학교', '남자고등학교', '초등학교', '중학교', '고등학교', '대학교',
+    '근린공원', '어린이공원', '공원',
+    '학교', '병원', '약국', '시장', '아파트', '교회', '성당', '도서관', '체육관',
+    '주민센터', '구청', '시청', '우체국', '경찰서', '소방서', '마트', '편의점', '역',
+  ];
+
+  /// 검색어를 이름 부분과 종류로 나눈다. 예) "된밭공원" -> (stem: 된밭, type: 공원). 못 나누면 null.
+  @visibleForTesting
+  static ({String stem, String type})? splitNameAndType(String query) {
+    final compact = query.replaceAll(RegExp(r'\s+'), '');
+    for (final t in _typeWords) {
+      if (compact.length >= t.length + 2 && compact.endsWith(t)) {
+        return (stem: compact.substring(0, compact.length - t.length), type: t);
+      }
+    }
+    return null;
+  }
+
+  /// 처음 검색에서 못 찾았을 때 쓰는 보조 검색어.
+  /// 예) "된밭공원" -> ["된밭근린공원", "된밭어린이공원", "된밭"]
+  /// (공원 이름은 "된밭근린공원"처럼 가운데에 종류가 끼는 경우가 많다)
+  @visibleForTesting
+  static List<String> fuzzyVariants(String query) {
+    final sp = splitNameAndType(query);
+    if (sp == null) return [];
+    return [
+      if (sp.type == '공원') ...['${sp.stem}근린공원', '${sp.stem}어린이공원'],
+      sp.stem,
+    ];
+  }
+
+  /// 이름에 이름 부분과 종류가 모두 들어 있는지. "된밭공원"이 "된밭근린공원"과 맞는다.
+  static bool _matchesNameAndType(String name, ({String stem, String type})? sp) {
+    if (sp == null) return false;
+    final n = _norm(name);
+    return n.contains(sp.stem) && n.contains(sp.type);
+  }
+
   static bool _hasHangul(String s) => s.runes.any((r) => r >= 0xAC00 && r <= 0xD7A3);
 
   static String _norm(String s) => s.replaceAll(RegExp(r'\s+'), '').toLowerCase();
@@ -191,6 +231,7 @@ class PlaceSearchService {
   }) {
     final koreanQuery = _hasHangul(query);
     final names = {_norm(query), ...variants.map(_norm)}.where((n) => n.isNotEmpty).toList();
+    final nameAndType = splitNameAndType(query);
     const dist = Distance();
 
     // 한글로 검색했는데 이름에 한글이 하나도 없는 결과(영어 표기 등)는 버린다.
@@ -203,6 +244,7 @@ class PlaceSearchService {
         final t = n == q ? 0 : (n.startsWith(q) ? 1 : (n.contains(q) ? 2 : 3));
         if (t < best) best = t;
       }
+      if (best > 1 && _matchesNameAndType(r.name, nameAndType)) best = 1;
       return best;
     }
 
@@ -261,17 +303,36 @@ class PlaceSearchService {
     }
   }
 
-  static Future<List<PlaceResult>?> _searchOsm(String q, LatLng? near) async {
-    final variants = queryVariants(q);
-    final responses = await Future.wait(variants.map((v) => _photonQuery(v, near)));
-    if (responses.every((r) => r == null)) return null; // 전부 실패 = 네트워크 문제
-
+  /// 여러 검색어를 한꺼번에 찾아 합친다. 전부 실패하면 null.
+  static Future<List<PlaceResult>?> _photonMerge(List<String> queries, LatLng? near) async {
+    final responses = await Future.wait(queries.map((v) => _photonQuery(v, near)));
+    if (responses.every((r) => r == null)) return null;
     final merged = <PlaceResult>[];
     for (final list in responses) {
       for (final p in list ?? const <PlaceResult>[]) {
         if (!merged.any(p.isSamePlaceAs)) merged.add(p);
       }
     }
-    return rankResults(q, merged, near, variants: variants).take(8).toList();
+    return merged;
+  }
+
+  static Future<List<PlaceResult>?> _searchOsm(String q, LatLng? near) async {
+    // 1단계: 검색어 그대로 + 띄어쓰기/약칭 변형
+    final variants = queryVariants(q);
+    final merged = await _photonMerge(variants, near);
+    if (merged == null) return null; // 전부 실패 = 네트워크 문제
+
+    // 2단계: "된밭공원"처럼 이름과 종류가 붙어 있어 못 찾았다면, 이름 부분만으로 한 번 더 찾는다.
+    //        (이름 + 종류가 모두 들어간 결과가 이미 있으면 요청을 늘리지 않는다)
+    final sp = splitNameAndType(q);
+    final extra = <String>[];
+    if (sp != null && !merged.any((p) => _matchesNameAndType(p.name, sp))) {
+      extra.addAll(fuzzyVariants(q).where((v) => !variants.contains(v)));
+      final more = extra.isEmpty ? null : await _photonMerge(extra, near);
+      for (final p in more ?? const <PlaceResult>[]) {
+        if (!merged.any(p.isSamePlaceAs)) merged.add(p);
+      }
+    }
+    return rankResults(q, merged, near, variants: [...variants, ...extra]).take(8).toList();
   }
 }

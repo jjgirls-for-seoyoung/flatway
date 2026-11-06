@@ -11,10 +11,12 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/hazard_types.dart';
 import '../services/location_service.dart';
+import '../services/mobility_profile.dart';
 import '../services/nav_tracker.dart';
 import '../services/place_search_service.dart';
 import '../services/route_service.dart';
 import '../services/safe_route_planner.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthState;
 import '../services/supabase_service.dart';
 import '../services/voice_guidance.dart';
 import '../services/web_compass_stub.dart'
@@ -51,36 +53,61 @@ class _MapScreenState extends State<MapScreen> {
 
   // Search Expansion & Recommendation State
   bool _isRouteSearchExpanded = false;
-  // 최근 검색한 장소는 이 기기에 저장한다 (계정과는 무관). 좌표까지 저장해서 다시 눌러도 같은 장소로 설정된다.
-  static const _recentPlacesKey = 'recent_places_v2';
+  // 최근 검색한 장소는 로그인한 계정(게스트 포함)별로 이 기기에 저장한다.
+  // 좌표까지 저장해서 다시 눌러도 같은 장소로 설정된다.
+  static const _legacyRecentPlacesKey = 'recent_places_v2';
+  static const _recentPlacesKeyPrefix = 'recent_places_v3_';
   final List<PlaceResult> _recentSearches = [];
+  String? _recentOwnerId; // 지금 목록이 누구의 것인지
+  bool _recentLoaded = false;
+  StreamSubscription<AuthState>? _authSub;
+
+  String _recentKeyFor(String? userId) => '$_recentPlacesKeyPrefix${userId ?? 'local'}';
 
   Future<void> _loadRecentSearches() async {
+    final ownerId = SupabaseService.currentUserId;
     try {
       final prefs = await SharedPreferences.getInstance();
-      final saved = (prefs.getStringList(_recentPlacesKey) ?? const [])
-          .map(PlaceResult.fromJsonString)
-          .whereType<PlaceResult>()
-          .toList();
-      if (mounted && saved.isNotEmpty) {
-        setState(() {
-          _recentSearches
-            ..clear()
-            ..addAll(saved);
-        });
+      var raw = prefs.getStringList(_recentKeyFor(ownerId));
+      if (raw == null) {
+        // 계정별 저장으로 바꾸기 전 기록은 처음 불러온 계정으로 한 번만 옮긴다.
+        final legacy = prefs.getStringList(_legacyRecentPlacesKey);
+        if (legacy != null) {
+          raw = legacy;
+          await prefs.setStringList(_recentKeyFor(ownerId), legacy);
+          await prefs.remove(_legacyRecentPlacesKey);
+        }
       }
+      final saved = (raw ?? const <String>[]).map(PlaceResult.fromJsonString).whereType<PlaceResult>().toList();
+      if (!mounted) return;
+      setState(() {
+        _recentOwnerId = ownerId;
+        _recentLoaded = true;
+        _recentSearches
+          ..clear()
+          ..addAll(saved);
+      });
     } catch (e) {
       debugPrint('Failed to load recent searches: $e');
     }
   }
 
   Future<void> _saveRecentSearches() async {
+    if (!_recentLoaded) return; // 아직 누구의 기록인지 모르면 덮어쓰지 않는다
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_recentPlacesKey, _recentSearches.map((p) => p.toJsonString()).toList());
+      await prefs.setStringList(_recentKeyFor(_recentOwnerId), _recentSearches.map((p) => p.toJsonString()).toList());
     } catch (e) {
       debugPrint('Failed to save recent searches: $e');
     }
+  }
+
+  // 로그인·로그아웃으로 계정이 바뀌면 그 계정의 검색 기록으로 바꾼다.
+  void _watchAuthForRecents() {
+    _authSub = SupabaseService.client.auth.onAuthStateChange.listen((_) {
+      final uid = SupabaseService.currentUserId;
+      if (_recentLoaded && uid != _recentOwnerId) _loadRecentSearches();
+    });
   }
 
   // Map Tile Style: 'vworld' | 'satellite' | 'esri_sat' | 'dark' | 'carto'
@@ -108,7 +135,10 @@ class _MapScreenState extends State<MapScreen> {
   double _navDistanceMeters = 0.0;
   int _navEstMinutes = 0;
   int _bypassedHazardsCount = 0;
-  int _routeHazardCount = 0; // 현재 경로가 지나는 위험 요소 수
+  List<RouteHazard> _routeImpassable = []; // 현재 경로에 남은 통과 불가 위험(이 이동 수단이 지나기 어려운 것)
+  List<RouteHazard> _routeCaution = []; // 현재 경로의 주의 위험(지나갈 수는 있지만 조심해야 하는 것)
+  double _routeDetourMeters = 0; // 가장 짧은 경로보다 더 돌아가는 거리
+  int _routeAvoidedImpassable = 0; // 돌아가서 피한 통과 불가 위험 수
 
   bool _isHeadingUp = false;
   double _currentHeading = 0.0;
@@ -225,13 +255,19 @@ class _MapScreenState extends State<MapScreen> {
 
   // Known landmark coordinates for search & navigation
   // 현재 위치 근처의 이름을 붙이는 데에만 쓰는 목록이다. (검색에는 쓰지 않는다 - 검색은 장소 검색 서비스가 한다)
-  // 좌표는 실제 위치에 맞춘 값이다. 예전에는 작전역이 약 450m, 작전여고가 약 700m 어긋나 있었다.
+  // 좌표는 장소 검색 데이터로 확인한 실제 위치다.
   final Map<String, LatLng> _knownLandmarks = {
-    '작전역': const LatLng(37.5303, 126.7225),
+    '작전역': const LatLng(37.5304, 126.7215),
     '작전여자고등학교': const LatLng(37.5320, 126.7298),
+    '된밭근린공원': const LatLng(37.5325, 126.7287),
+    '계양구청': const LatLng(37.5375, 126.7378),
+    '계양구의회': const LatLng(37.5346, 126.7224),
+    '경인교대입구역': const LatLng(37.5384, 126.7226),
+    '작전초등학교': const LatLng(37.5341, 126.7278),
+    '작전중학교': const LatLng(37.5333, 126.7295),
+    '작전고등학교': const LatLng(37.5327, 126.7305),
     '부평역': const LatLng(37.4912, 126.7252),
     '인천시청': const LatLng(37.4560, 126.7052),
-    '계양구청': const LatLng(37.5375, 126.7378),
   };
 
   // 첫 실행 튜토리얼 대상 위젯 키
@@ -294,6 +330,7 @@ class _MapScreenState extends State<MapScreen> {
     Future.delayed(const Duration(seconds: 12), _finishLocating);
     _loadSupabaseData();
     _loadRecentSearches();
+    _watchAuthForRecents();
     final known = widget.initialLocation;
     if (known != null) {
       // 스플래시에서 위치를 이미 받았으므로 처음부터 내 위치로 열고 로딩 화면은 생략한다.
@@ -445,14 +482,14 @@ class _MapScreenState extends State<MapScreen> {
     _accelStreamSub?.cancel();
     _alwaysCompassSub?.cancel();
     _webCompassSub?.cancel();
+    _authSub?.cancel();
     _searchController.dispose();
     _startSearchController.dispose();
     _destSearchController.dispose();
     super.dispose();
   }
 
-  double get _modeSpeedKmh =>
-      (_selectedRouteMode == 'electric') ? 6.0 : (_selectedRouteMode == 'manual') ? 3.2 : 4.0;
+  double get _modeSpeedKmh => MobilityProfile.of(_selectedRouteMode).speedKmh;
 
   /// 내 위치가 바뀔 때마다 경로상 진행 상황(다음 안내, 남은 거리)을 갱신한다.
   void _updateNavProgress() {
@@ -591,7 +628,95 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _showSearchRecommendationModal({bool isSettingStart = false}) {
+  /// 지도에서 장소 찾아보기: 출발지/도착지는 바꾸지 않고 지도만 그 장소로 옮긴다.
+  void _browsePlace(PlaceResult place) {
+    _addRecentSearch(place);
+    _mapController.move(place.location, 17.5);
+    _showSearchSnackBar('${place.name} (으)로 지도가 이동되었습니다.');
+  }
+
+  /// 지도 상단 검색창을 눌렀을 때: 무엇을 검색할지(출발지/도착지/장소 찾아보기) 먼저 고른다.
+  void _showSearchTargetChooser() {
+    Widget choice({
+      required IconData icon,
+      required Color color,
+      required String title,
+      required String subtitle,
+      required VoidCallback onTap,
+    }) {
+      return ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111111))),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF777777))),
+        trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFB0B0B0)),
+        onTap: onTap,
+      );
+    }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+      backgroundColor: Colors.white,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(color: const Color(0xFFDFDFDF), borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text('무엇을 검색할까요?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF111111))),
+              const SizedBox(height: 6),
+              choice(
+                icon: Icons.my_location_rounded,
+                color: const Color(0xFF047857),
+                title: '출발지 검색',
+                subtitle: '어디에서 출발할지 정해요',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _showSearchRecommendationModal(isSettingStart: true);
+                },
+              ),
+              choice(
+                icon: Icons.location_on_rounded,
+                color: const Color(0xFFE8332E),
+                title: '도착지 검색',
+                subtitle: '어디로 갈지 정해요',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _showSearchRecommendationModal(isSettingStart: false);
+                },
+              ),
+              choice(
+                icon: Icons.search_rounded,
+                color: const Color(0xFF555555),
+                title: '장소 찾아보기',
+                subtitle: '지도를 그 장소로 옮겨 봐요 (길찾기는 하지 않아요)',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _showSearchRecommendationModal(browseOnly: true);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSearchRecommendationModal({bool isSettingStart = false, bool browseOnly = false}) {
     final TextEditingController searchInputController = TextEditingController();
     String currentQuery = '';
 
@@ -613,6 +738,27 @@ class _MapScreenState extends State<MapScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
           final cleanQuery = currentQuery.trim().toLowerCase();
+
+          final headerColor = browseOnly
+              ? const Color(0xFF047857)
+              : (isSettingStart ? const Color(0xFF047857) : const Color(0xFFE8332E));
+          final headerIcon = browseOnly
+              ? Icons.search_rounded
+              : (isSettingStart ? Icons.my_location_rounded : Icons.location_on_rounded);
+          final headerTitle = browseOnly ? '장소 찾아보기' : (isSettingStart ? '출발지 검색 및 선택' : '도착지 검색 및 선택');
+          final hintText = browseOnly
+              ? '장소·건물·주소 검색'
+              : (isSettingStart ? '출발지 검색 (장소·건물·주소)' : '도착지 검색 (장소·건물·주소)');
+
+          // 장소를 고르면: 시트를 닫고, 모드에 맞게 출발지/도착지로 정하거나 지도만 이동한다.
+          void pickPlace(PlaceResult place) {
+            Navigator.pop(context);
+            if (browseOnly) {
+              _browsePlace(place);
+            } else {
+              _selectSearchTerm(place, isSettingStart: isSettingStart);
+            }
+          }
 
           return SafeArea(
             child: Padding(
@@ -643,14 +789,10 @@ class _MapScreenState extends State<MapScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              isSettingStart ? Icons.my_location_rounded : Icons.location_on_rounded,
-                              color: isSettingStart ? const Color(0xFF047857) : const Color(0xFFE8332E),
-                              size: 20,
-                            ),
+                            Icon(headerIcon, color: headerColor, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              isSettingStart ? '출발지 검색 및 선택' : '도착지 검색 및 선택',
+                              headerTitle,
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
                             ),
                           ],
@@ -709,12 +851,11 @@ class _MapScreenState extends State<MapScreen> {
                           }
                           if (pick != null && !sheetClosed) {
                             if (!context.mounted) return;
-                            Navigator.pop(context);
-                            _selectSearchTerm(pick, isSettingStart: isSettingStart);
+                            pickPlace(pick);
                           }
                         },
                         decoration: InputDecoration(
-                          hintText: isSettingStart ? '출발지 검색 (장소·건물·주소)' : '도착지 검색 (장소·건물·주소)',
+                          hintText: hintText,
                           hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF949494)),
                           prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF047857), size: 20),
                           suffixIcon: currentQuery.isNotEmpty
@@ -739,7 +880,8 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Quick Current Location Option
+                    // Quick Current Location Option (장소 찾아보기에서는 숨김)
+                    if (!browseOnly)
                     ListTile(
                       dense: true,
                       contentPadding: EdgeInsets.zero,
@@ -808,10 +950,7 @@ class _MapScreenState extends State<MapScreen> {
                         return _buildPlaceTile(
                           place,
                           icon: Icons.location_on_outlined,
-                          onPick: (place) {
-                            Navigator.pop(context);
-                            _selectSearchTerm(place, isSettingStart: isSettingStart);
-                          },
+                          onPick: pickPlace,
                         );
                       }),
                       if (isSearching)
@@ -885,10 +1024,7 @@ class _MapScreenState extends State<MapScreen> {
                             backgroundColor: const Color(0xFFF5F5F5),
                             side: const BorderSide(color: Color(0xFFDFDFDF), width: 1),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _selectSearchTerm(place, isSettingStart: isSettingStart);
-                            },
+                            onPressed: () => pickPlace(place),
                           );
                         }).toList(),
                       ),
@@ -1134,7 +1270,10 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted) setState(() => _isRouteLoading = false);
     }
     _bypassedHazardsCount = result.avoidedCount;
-    _routeHazardCount = result.hazardsOnRoute.length;
+    _routeImpassable = result.impassableOnRoute;
+    _routeCaution = result.cautionOnRoute;
+    _routeDetourMeters = result.detourMeters;
+    _routeAvoidedImpassable = result.avoidedImpassableCount;
     final route = result.route;
 
     final minutes = (route.distanceMeters / (_modeSpeedKmh * 1000 / 60)).round();
@@ -1165,12 +1304,115 @@ class _MapScreenState extends State<MapScreen> {
               ? '경로 위에 제보된 위험 요소가 없어요.'
               : result.unavoidableHardCount > 0
                   ? '${_selectedRouteMode == 'manual' ? '수동휠체어' : '전동휠체어'}로 피할 수 있는 길이 없어 통과하기 어려운 위험 요소 ${result.unavoidableHardCount}건이 경로에 남아 있어요. 출발지나 도착지를 바꿔 보세요.'
-                  : '피할 수 없는 위험 요소 ${result.hazardsOnRoute.length}건이 경로에 있어요. 주의하세요.';
+                  : '지나갈 수는 있지만 주의가 필요한 위험 요소 ${result.cautionOnRoute.length}건이 경로에 있어요.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(summary), duration: const Duration(seconds: 4)),
       );
       _speakGuidance('${_destName ?? "목적지"}까지 안내를 시작합니다. $summary');
     }
+  }
+
+  /// 이 경로가 지나는 위험 요소 목록. 통과 불가(이 이동 수단이 지나기 어려운 것)와 주의로 나눠 보여 준다.
+  void _showRouteHazardsSheet() {
+    final modeLabel = _selectedRouteMode == 'manual'
+        ? '수동휠체어'
+        : _selectedRouteMode == 'electric'
+            ? '전동휠체어'
+            : '보행자';
+    final items = <(RouteHazard, bool)>[
+      ..._routeImpassable.map((h) => (h, true)),
+      ..._routeCaution.map((h) => (h, false)),
+    ];
+    String severityLabel(String v) => v == 'high' ? '심각' : (v == 'medium' ? '보통' : '경미');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      backgroundColor: Colors.white,
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.7),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(color: const Color(0xFFDFDFDF), borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text('이 경로의 위험 요소 ($modeLabel 기준)', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF111111))),
+                const SizedBox(height: 6),
+                Text(
+                  '통과 불가는 $modeLabel로 지나기 어려운 곳, 주의는 지나갈 수는 있지만 조심해야 하는 곳이에요. 경로 양옆 25m 안에 제보된 것만 세요.',
+                  style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF777777)),
+                ),
+                const SizedBox(height: 10),
+                // 왜 이 길로 가는지: 돌아간 거리와 피한 위험
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: const Color(0xFFF3F8F5), borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    _routeDetourMeters < 30
+                        ? (_routeImpassable.isEmpty
+                            ? '가장 짧은 길이에요. 이 이동 수단이 지나기 어려운 위험이 없어요.'
+                            : '가장 짧은 길이에요. 돌아갈 만한 길을 찾지 못해 통과 불가 위험 ${_routeImpassable.length}건이 남아 있어요.')
+                        : '가장 짧은 길보다 ${_formatDistance(_routeDetourMeters)} 더 돌아가는 길이에요. '
+                            '$modeLabel로 지나기 어려운 위험 $_routeAvoidedImpassable건을 피하기 위해서예요.'
+                            '${_routeImpassable.isEmpty ? '' : ' 그래도 통과 불가 ${_routeImpassable.length}건은 피하지 못했어요.'}',
+                    style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF1F4D3A), fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (items.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: Text('이 경로 위에 제보된 위험 요소가 없어요.', style: TextStyle(fontSize: 13, color: Color(0xFF777777)))),
+                  )
+                else
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: items.map((entry) {
+                        final h = entry.$1;
+                        final blocked = entry.$2;
+                        final type = HazardType.of(h.type);
+                        final height = h.type == 'step' && h.stepHeightCm > 0 ? ' · ${h.stepHeightCm.toStringAsFixed(h.stepHeightCm % 1 == 0 ? 0 : 1)}cm' : '';
+                        final chipColor = blocked ? const Color(0xFFE8332E) : const Color(0xFFD97706);
+                        return ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: (type?.color ?? Colors.orange).withValues(alpha: 0.12), shape: BoxShape.circle),
+                            child: Icon(type?.icon ?? Icons.warning_amber_rounded, color: type?.color ?? Colors.orange, size: 18),
+                          ),
+                          title: Text(
+                            '${type?.label ?? h.type} · ${severityLabel(h.severity)}$height',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF111111)),
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(color: chipColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+                            child: Text(blocked ? '통과 불가' : '주의', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: chipColor)),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _clearNavigation() {
@@ -1448,7 +1690,7 @@ class _MapScreenState extends State<MapScreen> {
       'reported_at': DateTime.now().toUtc().toIso8601String(),
     };
 
-    final success = await SupabaseService.insertHazard(autoHazard);
+    final success = await SupabaseService.insertHazard(autoHazard, remember: false);
     if (success) {
       _loadSupabaseData();
       if (mounted) {
@@ -2049,7 +2291,7 @@ class _MapScreenState extends State<MapScreen> {
                             child: TextField(
                               controller: _searchController,
                               readOnly: false,
-                              onTap: () => _showSearchRecommendationModal(isSettingStart: false),
+                              onTap: _showSearchTargetChooser,
                               onSubmitted: (val) {
                                 _performSearch(val);
                               },
@@ -2492,12 +2734,34 @@ class _MapScreenState extends State<MapScreen> {
                                 ],
                               ),
                               Container(width: 1, height: 28, color: const Color(0xFFEFEFEF)),
-                              Column(
-                                children: [
-                                  const Text('경로상 위험', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
-                                  const SizedBox(height: 3),
-                                  Text('$_routeHazardCount건', style: TextStyle(color: _routeHazardCount == 0 ? const Color(0xFF047857) : const Color(0xFFD97706), fontSize: 17, fontWeight: FontWeight.bold)),
-                                ],
+                              InkWell(
+                                onTap: _showRouteHazardsSheet,
+                                borderRadius: BorderRadius.circular(6),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                  child: Column(
+                                    children: [
+                                      const Text('경로상 위험 ›', style: TextStyle(color: Color(0xFF777777), fontSize: 11, fontWeight: FontWeight.w600)),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        _routeImpassable.isNotEmpty
+                                            ? '통과불가 ${_routeImpassable.length}'
+                                            : _routeCaution.isNotEmpty
+                                                ? '주의 ${_routeCaution.length}'
+                                                : '0건',
+                                        style: TextStyle(
+                                          color: _routeImpassable.isNotEmpty
+                                              ? const Color(0xFFE8332E)
+                                              : _routeCaution.isNotEmpty
+                                                  ? const Color(0xFFD97706)
+                                                  : const Color(0xFF047857),
+                                          fontSize: _routeImpassable.isNotEmpty || _routeCaution.isNotEmpty ? 15 : 17,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),

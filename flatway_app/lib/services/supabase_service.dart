@@ -7,6 +7,11 @@ class SupabaseService {
   static const String supabaseUrl = 'https://wevesokdfrrtfmjbcprq.supabase.co';
   static const String supabaseAnonKey = 'sb_publishable_LEd-uwmLGwAGRbNA9tu4OA_0xshEJU1';
   static const String _pendingHazardsKey = 'pending_offline_hazards';
+  static const String _myReportsPrefix = 'my_reports_v1_';
+
+  /// 게스트로 방금 제보한 내용. 메모리에만 있어서 앱을 닫으면 사라진다.
+  /// 제보 직후 이메일로 로그인하면 "내 계정으로 가져올까요?"를 물을 때 쓴다.
+  static Map<String, dynamic>? lastGuestReport;
 
   static Future<void> initialize() async {
     await Supabase.initialize(
@@ -24,6 +29,14 @@ class SupabaseService {
   static bool get isSignedInWithEmail {
     final user = client.auth.currentUser;
     return user != null && !user.isAnonymous;
+  }
+
+  static String? get currentUserId => client.auth.currentUser?.id;
+
+  /// 로그인하지 않았거나 익명(게스트) 상태인지
+  static bool get isGuest {
+    final user = client.auth.currentUser;
+    return user == null || user.isAnonymous;
   }
 
   /// 세션이 없으면 익명(게스트) 세션을 만든다. 실패해도 앱 사용에는 영향 없음.
@@ -80,15 +93,44 @@ class SupabaseService {
   }
 
   // Submit a new hazard report to Supabase with offline queue fallback
-  static Future<bool> insertHazard(Map<String, dynamic> hazardData) async {
+  // [remember]가 true면 사용자가 직접 한 제보로 보고 계정별 '내 제보'에 기록한다.
+  static Future<bool> insertHazard(Map<String, dynamic> hazardData, {bool remember = true}) async {
+    final reporterId = currentUserId;
+    final guest = isGuest;
     try {
       await _insertHazardRow(hazardData);
       syncPendingHazards();
-      return true;
     } catch (e) {
       debugPrint('Error inserting hazard to Supabase. Saving to offline queue: $e');
       await _savePendingOfflineHazard(hazardData);
-      return true; // Saved locally
+    }
+    if (remember) {
+      await _addMyReport(reporterId, hazardData);
+      if (guest) lastGuestReport = Map<String, dynamic>.from(hazardData);
+    }
+    return true; // Saved on the server or locally
+  }
+
+  static String _myReportsKey(String? userId) => '$_myReportsPrefix${userId ?? 'local'}';
+
+  static Future<void> _addMyReport(String? userId, Map<String, dynamic> hazard) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = _myReportsKey(userId);
+      final list = prefs.getStringList(key) ?? [];
+      list.insert(
+        0,
+        jsonEncode({
+          'type': hazard['type'],
+          'latitude': hazard['latitude'],
+          'longitude': hazard['longitude'],
+          'description': hazard['description'],
+          'reported_at': hazard['reported_at'],
+        }),
+      );
+      await prefs.setStringList(key, list.take(30).toList());
+    } catch (e) {
+      debugPrint('Error saving my report: $e');
     }
   }
 
@@ -123,6 +165,30 @@ class SupabaseService {
       return null;
     }
   }
+
+  /// 이 기기에서 해당 계정으로 한 제보 목록 (최신순)
+  static Future<List<Map<String, dynamic>>> myReports(String? userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return (prefs.getStringList(_myReportsKey(userId)) ?? const [])
+          .map((e) => Map<String, dynamic>.from(jsonDecode(e) as Map))
+          .toList();
+    } catch (e) {
+      debugPrint('Error loading my reports: $e');
+      return [];
+    }
+  }
+
+  /// 게스트로 방금 한 제보를 지금 로그인한 계정의 '내 제보'로 가져온다.
+  static Future<void> claimLastGuestReport() async {
+    final report = lastGuestReport;
+    final uid = currentUserId;
+    lastGuestReport = null;
+    if (report == null || uid == null) return;
+    await _addMyReport(uid, report);
+  }
+
+  static void dismissLastGuestReport() => lastGuestReport = null;
 
   // Save offline pending report to SharedPreferences
   static Future<void> _savePendingOfflineHazard(Map<String, dynamic> hazardData) async {

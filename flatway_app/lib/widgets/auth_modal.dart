@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/hazard_types.dart';
 import '../services/supabase_service.dart';
 
 /// 이메일 인증 코드(OTP) 로그인.
@@ -21,7 +22,7 @@ class AuthModal extends StatefulWidget {
 class _AuthModalState extends State<AuthModal> {
   /// 이메일 코드 로그인 사용 여부.
   /// Supabase 커스텀 SMTP(코드 메일 템플릿)를 연결한 뒤 true 로 바꾼다.
-  static const _emailLoginEnabled = false;
+  static const _emailLoginEnabled = true;
 
   static const _resendCooldownSeconds = 60;
 
@@ -39,6 +40,44 @@ class _AuthModalState extends State<AuthModal> {
   String? _successMessage;
 
   User? get _currentUser => SupabaseService.client.auth.currentUser;
+
+  Future<List<Map<String, dynamic>>> _myReports = Future.value(const []);
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshMyReports();
+  }
+
+  void _refreshMyReports() {
+    _myReports = SupabaseService.myReports(_currentUser?.id);
+  }
+
+  /// 게스트로 방금 제보한 뒤 바로 로그인했다면 그 제보를 내 계정으로 가져올지 묻는다.
+  Future<void> _offerGuestReportImport() async {
+    final report = SupabaseService.lastGuestReport;
+    if (report == null || !mounted) return;
+    final label = HazardType.of(report['type'])?.label ?? '위험 요소';
+    final desc = (report['description'] ?? '').toString().trim();
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('게스트 제보를 가져올까요?'),
+        content: Text(
+          '방금 게스트로 제보한 "$label"${desc.isEmpty ? '' : ' ($desc)'} 내용을 내 계정의 제보로 가져올까요?',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('가져오지 않기')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('가져오기')),
+        ],
+      ),
+    );
+    if (yes == true) {
+      await SupabaseService.claimLastGuestReport();
+    } else {
+      SupabaseService.dismissLastGuestReport();
+    }
+  }
 
   @override
   void dispose() {
@@ -124,6 +163,10 @@ class _AuthModalState extends State<AuthModal> {
         widget.onAuthChanged();
         if (!mounted) return;
         setState(() => _successMessage = '로그인되었습니다!');
+        await _offerGuestReportImport();
+        _refreshMyReports();
+        if (!mounted) return;
+        setState(() {});
         Future.delayed(const Duration(milliseconds: 800), () {
           if (mounted) Navigator.pop(context);
         });
@@ -149,6 +192,7 @@ class _AuthModalState extends State<AuthModal> {
     setState(() => _isLoading = true);
 
     try {
+      SupabaseService.dismissLastGuestReport();
       await SupabaseService.client.auth.signOut();
       // 로그아웃 후에도 게스트로 계속 사용할 수 있게 익명 세션 복구
       await SupabaseService.ensureGuestSession();
@@ -413,6 +457,8 @@ class _AuthModalState extends State<AuthModal> {
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        _buildMyReports(),
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
@@ -437,6 +483,53 @@ class _AuthModalState extends State<AuthModal> {
         ),
         const SizedBox(height: 16),
       ],
+    );
+  }
+
+  Widget _buildMyReports() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _myReports,
+      builder: (context, snapshot) {
+        final reports = snapshot.data ?? const <Map<String, dynamic>>[];
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FAFB),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFDFDFDF)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('내 제보', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF111111))),
+              const SizedBox(height: 2),
+              const Text('이 기기에서 이 계정으로 한 제보예요.', style: TextStyle(fontSize: 11, color: Color(0xFF777777))),
+              const SizedBox(height: 8),
+              if (reports.isEmpty)
+                const Text('아직 제보한 내용이 없어요.', style: TextStyle(fontSize: 12, color: Color(0xFF949494)))
+              else
+                ...reports.take(5).map((r) {
+                  final label = HazardType.of(r['type'])?.label ?? '위험 요소';
+                  final desc = (r['description'] ?? '').toString().trim();
+                  final at = DateTime.tryParse((r['reported_at'] ?? '').toString())?.toLocal();
+                  final date = at == null
+                      ? ''
+                      : '${at.month}/${at.day} ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: Text(
+                      '$label${desc.isEmpty ? '' : ' - $desc'}  $date',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF333333)),
+                    ),
+                  );
+                }),
+            ],
+          ),
+        );
+      },
     );
   }
 
