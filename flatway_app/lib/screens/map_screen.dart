@@ -224,10 +224,12 @@ class _MapScreenState extends State<MapScreen> {
   DateTime _lastBumpTime = DateTime.now();
 
   // Known landmark coordinates for search & navigation
+  // 현재 위치 근처의 이름을 붙이는 데에만 쓰는 목록이다. (검색에는 쓰지 않는다 - 검색은 장소 검색 서비스가 한다)
+  // 좌표는 실제 위치에 맞춘 값이다. 예전에는 작전역이 약 450m, 작전여고가 약 700m 어긋나 있었다.
   final Map<String, LatLng> _knownLandmarks = {
-    '작전역': const LatLng(37.5346, 126.7225),
-    '작전여고': const LatLng(37.5385, 126.7240),
-    '부평역': const LatLng(37.4895, 126.7248),
+    '작전역': const LatLng(37.5303, 126.7225),
+    '작전여자고등학교': const LatLng(37.5320, 126.7298),
+    '부평역': const LatLng(37.4912, 126.7252),
     '인천시청': const LatLng(37.4560, 126.7052),
     '계양구청': const LatLng(37.5375, 126.7378),
   };
@@ -525,15 +527,19 @@ class _MapScreenState extends State<MapScreen> {
     final cleanQuery = query.trim().toLowerCase();
     if (cleanQuery.isEmpty) return;
 
-    for (final entry in _knownLandmarks.entries) {
-      if (entry.key.toLowerCase().contains(cleanQuery)) {
-        _addRecentSearch(PlaceResult(name: entry.key, address: '주요 장소', location: entry.value));
-        _mapController.move(entry.value, 17.5);
-        _showSearchSnackBar('${entry.key} (으)로 지도가 이동되었습니다.');
-        return;
-      }
+    _showSearchSnackBar('장소를 검색하는 중이에요...');
+    final results = await PlaceSearchService.search(query, near: _currentLocation);
+    if (!mounted) return;
+
+    if (results != null && results.isNotEmpty) {
+      final place = results.first;
+      _addRecentSearch(place);
+      _mapController.move(place.location, 17.5);
+      _showSearchSnackBar('${place.name} (으)로 지도가 이동되었습니다.');
+      return;
     }
 
+    // 장소를 못 찾았으면 제보 설명에서 찾아 본다.
     for (final h in _hazards) {
       final desc = (h['description'] ?? '').toString().toLowerCase();
       if (desc.contains(cleanQuery) && h['latitude'] != null && h['longitude'] != null) {
@@ -544,20 +550,7 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-    // 등록된 장소/제보에 없으면 실제 장소 검색
-    _showSearchSnackBar('장소를 검색하는 중이에요...');
-    final results = await PlaceSearchService.search(query, near: _currentLocation);
-    if (!mounted) return;
-    if (results == null) {
-      _showSearchSnackBar('검색에 실패했어요. 네트워크를 확인해 주세요.');
-    } else if (results.isEmpty) {
-      _showSearchSnackBar('"$query" 검색 결과가 없어요.');
-    } else {
-      final place = results.first;
-      _addRecentSearch(place);
-      _mapController.move(place.location, 17.5);
-      _showSearchSnackBar('${place.name} (으)로 지도가 이동되었습니다.');
-    }
+    _showSearchSnackBar(results == null ? '검색에 실패했어요. 네트워크를 확인해 주세요.' : '"$query" 검색 결과가 없어요.');
   }
 
   void _selectSearchTerm(PlaceResult place, {required bool isSettingStart}) {
@@ -620,10 +613,6 @@ class _MapScreenState extends State<MapScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
           final cleanQuery = currentQuery.trim().toLowerCase();
-
-          final matchingLandmarks = _knownLandmarks.entries.where((e) {
-            return cleanQuery.isEmpty || e.key.toLowerCase().contains(cleanQuery);
-          }).toList();
 
           return SafeArea(
             child: Padding(
@@ -709,25 +698,23 @@ class _MapScreenState extends State<MapScreen> {
                             });
                           });
                         },
-                        onSubmitted: (val) {
-                          // 엔터: 등록된 주요 장소 → 검색된 장소 순으로 첫 결과를 선택
-                          final q = val.trim().toLowerCase();
+                        onSubmitted: (val) async {
+                          // 엔터: 검색 결과의 첫 번째 장소를 선택. 아직 결과가 오기 전이면 지금 바로 검색한다.
+                          final q = val.trim();
                           if (q.isEmpty) return;
-                          PlaceResult? pick;
-                          for (final e in _knownLandmarks.entries) {
-                            if (e.key.toLowerCase().contains(q)) {
-                              pick = PlaceResult(name: e.key, address: '주요 장소', location: e.value);
-                              break;
-                            }
+                          var pick = remoteResults.isNotEmpty ? remoteResults.first : null;
+                          if (pick == null) {
+                            final found = await PlaceSearchService.search(q, near: _currentLocation);
+                            if (found != null && found.isNotEmpty) pick = found.first;
                           }
-                          pick ??= remoteResults.isNotEmpty ? remoteResults.first : null;
-                          if (pick != null) {
+                          if (pick != null && !sheetClosed) {
+                            if (!context.mounted) return;
                             Navigator.pop(context);
                             _selectSearchTerm(pick, isSettingStart: isSettingStart);
                           }
                         },
                         decoration: InputDecoration(
-                          hintText: isSettingStart ? '출발지 검색 (예: 작전역, 계양구청)' : '도착지 검색 (예: 작전역, 작전여고)',
+                          hintText: isSettingStart ? '출발지 검색 (장소·건물·주소)' : '도착지 검색 (장소·건물·주소)',
                           hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF949494)),
                           prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF047857), size: 20),
                           suffixIcon: currentQuery.isNotEmpty
@@ -817,19 +804,7 @@ class _MapScreenState extends State<MapScreen> {
                     if (cleanQuery.isNotEmpty) ...[
                       const Text('검색 결과', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF777777))),
                       const SizedBox(height: 6),
-                      ...matchingLandmarks.map((entry) {
-                        return _buildPlaceTile(
-                          PlaceResult(name: entry.key, address: '주요 장소', location: entry.value),
-                          icon: Icons.place_rounded,
-                          onPick: (place) {
-                            Navigator.pop(context);
-                            _selectSearchTerm(place, isSettingStart: isSettingStart);
-                          },
-                        );
-                      }),
-                      ...remoteResults
-                          .where((r) => !matchingLandmarks.any((e) => e.key == r.name))
-                          .map((place) {
+                      ...remoteResults.map((place) {
                         return _buildPlaceTile(
                           place,
                           icon: Icons.location_on_outlined,
@@ -850,7 +825,7 @@ class _MapScreenState extends State<MapScreen> {
                             ],
                           ),
                         )
-                      else if (searchFailed && matchingLandmarks.isEmpty)
+                      else if (searchFailed)
                         const ListTile(
                           dense: true,
                           contentPadding: EdgeInsets.zero,
@@ -858,7 +833,7 @@ class _MapScreenState extends State<MapScreen> {
                           title: Text('검색에 실패했어요', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF111111))),
                           subtitle: Text('네트워크를 확인하고 다시 시도해 주세요.', style: TextStyle(fontSize: 11, color: Color(0xFF949494))),
                         )
-                      else if (cleanQuery.length >= 2 && matchingLandmarks.isEmpty && remoteResults.isEmpty)
+                      else if (cleanQuery.length >= 2 && remoteResults.isEmpty)
                         const ListTile(
                           dense: true,
                           contentPadding: EdgeInsets.zero,
